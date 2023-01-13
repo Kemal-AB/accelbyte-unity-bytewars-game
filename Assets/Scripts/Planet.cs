@@ -1,0 +1,20 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Planet : MonoBehaviour
+{
+    public float m_scale = 1.0f;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        transform.localScale = Vector3.one * m_scale;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+}
