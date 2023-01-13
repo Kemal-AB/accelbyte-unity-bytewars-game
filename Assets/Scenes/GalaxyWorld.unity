@@ -153,6 +153,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0096ace2367fb2645aed214f839ed20d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_activeObjects: []
 --- !u!114 &295881334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -176,11 +177,16 @@ MonoBehaviour:
   - {fileID: 5195770525078822453, guid: e56d8b1d45f44304ab3404d14689a9aa, type: 3}
   - {fileID: 5195770525078822453, guid: 3e902a5600fea2747aa9b96b46b797a4, type: 3}
   - {fileID: 5195770525078822453, guid: 3e902a5600fea2747aa9b96b46b797a4, type: 3}
+  m_playerPrefab: {fileID: 1925243328074388439, guid: 49e395a13bd77d643ad248aa76306124,
+    type: 3}
+  m_playerControllerPrefab: {fileID: 1536266229143473878, guid: 96e0a793d5c2beb4bbb6dd5c66ad17a7,
+    type: 3}
   m_bounds:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 15, y: 13, z: 0}
   m_numLevelObjectsToSpawn: 7
   m_numRetriesToPlaceLevelObject: 5
+  m_numRetriesToPlacePlayer: 100
 --- !u!4 &295881335
 Transform:
   m_ObjectHideFlags: 0

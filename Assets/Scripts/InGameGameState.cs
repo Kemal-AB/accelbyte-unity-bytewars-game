@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class InGameGameState : MonoBehaviour
 {
+    public List<GameplayObjectComponent> m_activeObjects = new List<GameplayObjectComponent>();
+
     void Start()
     {
         

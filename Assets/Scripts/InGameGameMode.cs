@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 
 public class InGameGameMode : MonoBehaviour
@@ -8,6 +9,7 @@ public class InGameGameMode : MonoBehaviour
     InGameGameState m_gameState;
     public GameObject[] m_objectsToSpawn;
     public GameObject m_playerPrefab;
+    public GameObject m_playerControllerPrefab;
     public Bounds m_bounds;
     public int m_numLevelObjectsToSpawn = 7;
     public int m_numRetriesToPlaceLevelObject = 5;
@@ -21,10 +23,17 @@ public class InGameGameMode : MonoBehaviour
         m_gameState = GameObject.FindObjectOfType<InGameGameState>();
         m_levelParent = new GameObject("LevelObjects");
 
-        //Random.InitState(0);
+        List<PlayerController> playerControllers = new List<PlayerController>();
+
+        PlayerInput spawnedPlayerController1 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Keyboard", pairWithDevice: Keyboard.current);
+        PlayerInput spawnedPlayerController2 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Gamepad", pairWithDevice: Gamepad.all[0]);
+
+        playerControllers.Add(spawnedPlayerController1.GetComponent<PlayerController>());
+        playerControllers.Add(spawnedPlayerController2.GetComponent<PlayerController>());
+
 
         SpawnLevelObjects();
-        SpawnPlayers(2);
+        SpawnPlayers(playerControllers);
     }
 
     void Update()
@@ -47,18 +56,20 @@ public class InGameGameMode : MonoBehaviour
 
                 if (!IsTooCloseToOtherObject(randomPosition, randomObject))
                 {
-                    GameObject.Instantiate(randomObject, randomPosition, Quaternion.identity, m_levelParent.transform);
+                    GameObject planet = GameObject.Instantiate(randomObject, randomPosition, Quaternion.identity, m_levelParent.transform);
+                    m_gameState.m_activeObjects.Add(planet.GetComponent<GameplayObjectComponent>());
+
                     break;
                 }
             }
         }
     }
 
-    void SpawnPlayers(int numPlayers)
+    void SpawnPlayers(List<PlayerController> playerControllers)
     {
         List<GameObject> ships = new List<GameObject>();
 
-        for (int p = 0; p < numPlayers; p++)
+        foreach(PlayerController playerController in playerControllers)
         {
             for (int i = 0; i < m_numRetriesToPlacePlayer; i++)
             {
@@ -75,6 +86,9 @@ public class InGameGameMode : MonoBehaviour
                         GameObject newShip = GameObject.Instantiate(m_playerPrefab, randomPosition, Quaternion.identity, m_levelParent.transform);
 
                         ships.Add(newShip);
+                        m_gameState.m_activeObjects.Add(newShip.GetComponent<GameplayObjectComponent>());
+
+                        playerController.SetControlledPlayer(newShip.GetComponent<Player>());
 
                         break;
                     }

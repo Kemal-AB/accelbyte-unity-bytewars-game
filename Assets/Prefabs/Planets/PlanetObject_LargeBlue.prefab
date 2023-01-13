@@ -77,5 +77,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlanetObject_LargeBlue
       objectReference: {fileID: 0}
+    - target: {fileID: 7021527950986973467, guid: bd1aac786bd025b43871d7b6829df40f,
+        type: 3}
+      propertyPath: m_mass
+      value: 100000
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bd1aac786bd025b43871d7b6829df40f, type: 3}
