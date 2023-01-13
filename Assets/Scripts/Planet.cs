@@ -17,4 +17,9 @@ public class Planet : MonoBehaviour
     {
         
     }
+
+    public float GetRadius()
+    {
+        return m_scale * 0.5f;
+    }
 }
