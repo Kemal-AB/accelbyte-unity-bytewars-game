@@ -26,7 +26,7 @@ public class InGameGameMode : MonoBehaviour
         List<PlayerController> playerControllers = new List<PlayerController>();
 
         PlayerInput spawnedPlayerController1 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Keyboard", pairWithDevice: Keyboard.current);
-        PlayerInput spawnedPlayerController2 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Gamepad", pairWithDevice: Gamepad.all[0]);
+        PlayerInput spawnedPlayerController2 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Gamepad", pairWithDevice: Gamepad.all.Count > 0 ? Gamepad.all[0] :  null);
 
         playerControllers.Add(spawnedPlayerController1.GetComponent<PlayerController>());
         playerControllers.Add(spawnedPlayerController2.GetComponent<PlayerController>());

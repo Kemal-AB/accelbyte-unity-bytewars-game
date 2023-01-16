@@ -4,10 +4,21 @@ using UnityEngine;
 
 public class MotionComponent : MonoBehaviour
 {
+    public GameObject m_spawnOnDestroy;
+
     Vector3 m_velocity = Vector3.zero;
     float m_mass = 1.0f;
     InGameGameState m_gameState;
     GameplayObjectComponent m_gameplayObjectComponent;
+
+    enum State
+    {
+        ClearShip,
+        Alive,
+        FlaggedForDestruction
+    }
+
+    State m_state = State.ClearShip;
 
     void Start()
     {
@@ -18,11 +29,35 @@ public class MotionComponent : MonoBehaviour
 
     void Update()
     {
+        if( m_state == State.FlaggedForDestruction )
+        {
+            if(m_spawnOnDestroy != null )
+            {
+                GameObject.Instantiate(m_spawnOnDestroy, transform.position, transform.rotation);
+            }
+            Destroy(this.gameObject);
+            return;
+        }
+
         Vector3 totalForceThisFrame = GetTotalForceOnObject();
         Vector3 acceleration = totalForceThisFrame / m_mass;
         m_velocity += acceleration * Time.deltaTime;
         transform.position += m_velocity * Time.deltaTime;
         transform.rotation = Quaternion.LookRotation(m_velocity, Vector3.forward) * Quaternion.AngleAxis(90.0f, Vector3.right);
+
+        GameplayObjectComponent intersectingObject = GetIntersectingObject();
+
+        if( m_state == State.ClearShip )
+        {
+            if (intersectingObject == null)
+            {
+                m_state = State.Alive;
+            }
+        }
+        else if( intersectingObject != null )
+        {
+            m_state = State.FlaggedForDestruction;
+        }
     }
 
     public void SetVelocity(Vector3 velocity)
@@ -49,28 +84,27 @@ public class MotionComponent : MonoBehaviour
             totalForce += direction * 0.01f * force;
         }
 
-        return totalForce;
+        return totalForce;        
+    }
 
-
-        GameplayObjectComponent GetIntersectingObject()
+    GameplayObjectComponent GetIntersectingObject()
+    {
+        foreach (GameplayObjectComponent activeObject in m_gameState.m_activeObjects)
         {
-            foreach (GameplayObjectComponent activeObject in m_gameState.m_activeObjects)
+            if (activeObject == m_gameplayObjectComponent)
             {
-                if (activeObject.transform.position == m_gameplayObjectComponent.transform.position)
-                {
-                    continue;
-                }
-
-                float distanceBetween = Vector3.Distance(transform.position, activeObject.transform.position);
-                float combinedRadius = activeObject.m_radius + m_gameplayObjectComponent.m_radius;
-
-                if (distanceBetween <= combinedRadius)
-                {
-                    return activeObject;
-                }
+                continue;
             }
 
-            return null;
+            float distanceBetween = Vector3.Distance(transform.position, activeObject.transform.position);
+            float combinedRadius = activeObject.m_radius + m_gameplayObjectComponent.m_radius;
+
+            if (distanceBetween <= combinedRadius)
+            {
+                return activeObject;
+            }
         }
+
+        return null;
     }
 }
