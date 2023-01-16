@@ -44,6 +44,15 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""OpenPauseMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""923f68e6-bc0e-4ee9-9987-d49bdbfc2819"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -145,6 +154,45 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                     ""action"": ""Fire"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5dbb83a6-80de-4626-af49-96a2ca1f19f1"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""OpenPauseMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""MenuControls"",
+            ""id"": ""35275dc4-dcac-4b79-9257-aa3edea2e3ed"",
+            ""actions"": [
+                {
+                    ""name"": ""OpenPauseMenu"",
+                    ""type"": ""Button"",
+                    ""id"": ""4b5b00d9-2721-410e-bf62-d5092376f4df"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""dc1f6324-8b1a-4024-a8b4-fe5feca2cfdf"",
+                    ""path"": ""<Keyboard>/q"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""OpenPauseMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -178,6 +226,10 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
         m_PlayerShipControls = asset.FindActionMap("PlayerShipControls", throwIfNotFound: true);
         m_PlayerShipControls_RotateShip = m_PlayerShipControls.FindAction("RotateShip", throwIfNotFound: true);
         m_PlayerShipControls_Fire = m_PlayerShipControls.FindAction("Fire", throwIfNotFound: true);
+        m_PlayerShipControls_OpenPauseMenu = m_PlayerShipControls.FindAction("OpenPauseMenu", throwIfNotFound: true);
+        // MenuControls
+        m_MenuControls = asset.FindActionMap("MenuControls", throwIfNotFound: true);
+        m_MenuControls_OpenPauseMenu = m_MenuControls.FindAction("OpenPauseMenu", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -239,12 +291,14 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
     private IPlayerShipControlsActions m_PlayerShipControlsActionsCallbackInterface;
     private readonly InputAction m_PlayerShipControls_RotateShip;
     private readonly InputAction m_PlayerShipControls_Fire;
+    private readonly InputAction m_PlayerShipControls_OpenPauseMenu;
     public struct PlayerShipControlsActions
     {
         private @ShipControls m_Wrapper;
         public PlayerShipControlsActions(@ShipControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @RotateShip => m_Wrapper.m_PlayerShipControls_RotateShip;
         public InputAction @Fire => m_Wrapper.m_PlayerShipControls_Fire;
+        public InputAction @OpenPauseMenu => m_Wrapper.m_PlayerShipControls_OpenPauseMenu;
         public InputActionMap Get() { return m_Wrapper.m_PlayerShipControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -260,6 +314,9 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                 @Fire.started -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnFire;
                 @Fire.performed -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnFire;
                 @Fire.canceled -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnFire;
+                @OpenPauseMenu.started -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnOpenPauseMenu;
+                @OpenPauseMenu.performed -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnOpenPauseMenu;
+                @OpenPauseMenu.canceled -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnOpenPauseMenu;
             }
             m_Wrapper.m_PlayerShipControlsActionsCallbackInterface = instance;
             if (instance != null)
@@ -270,10 +327,46 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                 @Fire.started += instance.OnFire;
                 @Fire.performed += instance.OnFire;
                 @Fire.canceled += instance.OnFire;
+                @OpenPauseMenu.started += instance.OnOpenPauseMenu;
+                @OpenPauseMenu.performed += instance.OnOpenPauseMenu;
+                @OpenPauseMenu.canceled += instance.OnOpenPauseMenu;
             }
         }
     }
     public PlayerShipControlsActions @PlayerShipControls => new PlayerShipControlsActions(this);
+
+    // MenuControls
+    private readonly InputActionMap m_MenuControls;
+    private IMenuControlsActions m_MenuControlsActionsCallbackInterface;
+    private readonly InputAction m_MenuControls_OpenPauseMenu;
+    public struct MenuControlsActions
+    {
+        private @ShipControls m_Wrapper;
+        public MenuControlsActions(@ShipControls wrapper) { m_Wrapper = wrapper; }
+        public InputAction @OpenPauseMenu => m_Wrapper.m_MenuControls_OpenPauseMenu;
+        public InputActionMap Get() { return m_Wrapper.m_MenuControls; }
+        public void Enable() { Get().Enable(); }
+        public void Disable() { Get().Disable(); }
+        public bool enabled => Get().enabled;
+        public static implicit operator InputActionMap(MenuControlsActions set) { return set.Get(); }
+        public void SetCallbacks(IMenuControlsActions instance)
+        {
+            if (m_Wrapper.m_MenuControlsActionsCallbackInterface != null)
+            {
+                @OpenPauseMenu.started -= m_Wrapper.m_MenuControlsActionsCallbackInterface.OnOpenPauseMenu;
+                @OpenPauseMenu.performed -= m_Wrapper.m_MenuControlsActionsCallbackInterface.OnOpenPauseMenu;
+                @OpenPauseMenu.canceled -= m_Wrapper.m_MenuControlsActionsCallbackInterface.OnOpenPauseMenu;
+            }
+            m_Wrapper.m_MenuControlsActionsCallbackInterface = instance;
+            if (instance != null)
+            {
+                @OpenPauseMenu.started += instance.OnOpenPauseMenu;
+                @OpenPauseMenu.performed += instance.OnOpenPauseMenu;
+                @OpenPauseMenu.canceled += instance.OnOpenPauseMenu;
+            }
+        }
+    }
+    public MenuControlsActions @MenuControls => new MenuControlsActions(this);
     private int m_GamepadSchemeIndex = -1;
     public InputControlScheme GamepadScheme
     {
@@ -296,5 +389,10 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
     {
         void OnRotateShip(InputAction.CallbackContext context);
         void OnFire(InputAction.CallbackContext context);
+        void OnOpenPauseMenu(InputAction.CallbackContext context);
+    }
+    public interface IMenuControlsActions
+    {
+        void OnOpenPauseMenu(InputAction.CallbackContext context);
     }
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 
 public class InGameGameMode : MonoBehaviour
@@ -168,5 +169,28 @@ public class InGameGameMode : MonoBehaviour
         }
 
         return false;
+    }
+
+    public void OnPausePressed()
+    {
+        if( m_gameState.GetGameState() == InGameGameState.GameState.Playing)
+        {
+            m_gameState.SetGameState(InGameGameState.GameState.Paused);
+        }
+    }
+
+    public void OnResumePressed()
+    {
+        m_gameState.SetGameState(InGameGameState.GameState.Playing);
+    }
+
+    public void OnRestartPressed()
+    {
+        SceneManager.LoadScene("GalaxyWorld",LoadSceneMode.Single);        
+    }
+
+    public void OnQuitPressed()
+    {
+        SceneManager.LoadScene("MainMenu",LoadSceneMode.Single);
     }
 }

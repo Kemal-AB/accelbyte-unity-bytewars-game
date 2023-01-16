@@ -35,4 +35,10 @@ public class PlayerController : MonoBehaviour
     {
         m_rotateInputValue = amount.Get<float>();
     }
+
+    void OnOpenPauseMenu(InputValue amount)
+    {
+        GameObject.FindObjectOfType<InGameGameMode>().OnPausePressed();
+    }
+
 }
