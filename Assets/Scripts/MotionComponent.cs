@@ -16,7 +16,6 @@ public class MotionComponent : MonoBehaviour
         m_mass = m_gameplayObjectComponent.m_mass;
     }
 
-    // Update is called once per frame
     void Update()
     {
         Vector3 totalForceThisFrame = GetTotalForceOnObject();
@@ -34,16 +33,16 @@ public class MotionComponent : MonoBehaviour
     {
         Vector3 totalForce = Vector3.zero;
 
-        foreach(GameplayObjectComponent activeObject in m_gameState.m_activeObjects)
+        foreach (GameplayObjectComponent activeObject in m_gameState.m_activeObjects)
         {
-            if( activeObject.transform.position == m_gameplayObjectComponent.transform.position)
+            if (activeObject.transform.position == m_gameplayObjectComponent.transform.position)
             {
                 continue;
             }
 
             float force = 50.0f * m_gameplayObjectComponent.m_mass * activeObject.m_mass;
-            float distanceBetween = Vector3.Distance(transform.position, activeObject.transform.position) * 100.0f;
-            force /= Mathf.Pow(distanceBetween, 1.5f);
+            float distanceBetween = Vector3.Distance(transform.position, activeObject.transform.position);
+            force /= Mathf.Pow(distanceBetween * 100.0f, 1.5f);
 
             Vector3 direction = (activeObject.transform.position - transform.position).normalized;
 
@@ -51,5 +50,27 @@ public class MotionComponent : MonoBehaviour
         }
 
         return totalForce;
+
+
+        GameplayObjectComponent GetIntersectingObject()
+        {
+            foreach (GameplayObjectComponent activeObject in m_gameState.m_activeObjects)
+            {
+                if (activeObject.transform.position == m_gameplayObjectComponent.transform.position)
+                {
+                    continue;
+                }
+
+                float distanceBetween = Vector3.Distance(transform.position, activeObject.transform.position);
+                float combinedRadius = activeObject.m_radius + m_gameplayObjectComponent.m_radius;
+
+                if (distanceBetween <= combinedRadius)
+                {
+                    return activeObject;
+                }
+            }
+
+            return null;
+        }
     }
 }

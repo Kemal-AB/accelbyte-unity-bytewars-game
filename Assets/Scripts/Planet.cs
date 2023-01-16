@@ -9,6 +9,7 @@ public class Planet : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        m_scale = GetComponent<GameplayObjectComponent>().m_radius * 2.0f;
         transform.localScale = Vector3.one * m_scale;
     }
 
