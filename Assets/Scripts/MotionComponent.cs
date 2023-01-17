@@ -8,7 +8,7 @@ public class MotionComponent : MonoBehaviour
 
     Vector3 m_velocity = Vector3.zero;
     float m_mass = 1.0f;
-    InGameGameState m_gameState;
+    InGameGameMode m_gameMode;
     GameplayObjectComponent m_gameplayObjectComponent;
 
     enum State
@@ -23,7 +23,7 @@ public class MotionComponent : MonoBehaviour
     void Start()
     {
         m_gameplayObjectComponent = GetComponent<GameplayObjectComponent>();
-        m_gameState = GameObject.FindObjectOfType<InGameGameState>();
+        m_gameMode = GameObject.FindObjectOfType<InGameGameMode>();
         m_mass = m_gameplayObjectComponent.m_mass;
     }
 
@@ -56,6 +56,7 @@ public class MotionComponent : MonoBehaviour
         }
         else if( intersectingObject != null )
         {
+            m_gameMode.OnObjectHit(intersectingObject, m_gameplayObjectComponent);
             m_state = State.FlaggedForDestruction;
         }
     }
@@ -68,7 +69,7 @@ public class MotionComponent : MonoBehaviour
     {
         Vector3 totalForce = Vector3.zero;
 
-        foreach (GameplayObjectComponent activeObject in m_gameState.m_activeObjects)
+        foreach (GameplayObjectComponent activeObject in m_gameMode.GetGameState().m_activeObjects)
         {
             if (activeObject.transform.position == m_gameplayObjectComponent.transform.position)
             {
@@ -89,7 +90,7 @@ public class MotionComponent : MonoBehaviour
 
     GameplayObjectComponent GetIntersectingObject()
     {
-        foreach (GameplayObjectComponent activeObject in m_gameState.m_activeObjects)
+        foreach (GameplayObjectComponent activeObject in m_gameMode.GetGameState().m_activeObjects)
         {
             if (activeObject == m_gameplayObjectComponent)
             {

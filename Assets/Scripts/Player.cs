@@ -7,17 +7,19 @@ public class Player : MonoBehaviour
     public GameObject m_missilePrefab;
     public float m_minMissileSpeed = 1.5f;
     public float m_maxMissileSpeed = 9.0f;
-    // Start is called before the first frame update
+
+    float m_normalisedRotateSpeed = 0.0f;
+
     void Start()
     {
         
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        transform.Rotate(Vector3.forward, Time.deltaTime * m_normalisedRotateSpeed * -100.0f);
     }
+
     public void FireMissile()
     {
         GameObject missile = GameObject.Instantiate(m_missilePrefab, transform.position, transform.rotation);
@@ -26,4 +28,15 @@ public class Player : MonoBehaviour
 
         motionComponent.SetVelocity(transform.up * m_maxMissileSpeed / 2.0f);
     }
+
+    public void OnHitByObject(GameplayObjectComponent otherObject)
+    {
+        Destroy(this.gameObject);
+    }
+
+    public void SetNormalisedRotateSpeed(float normalisedRotateSpeed)
+    {
+        m_normalisedRotateSpeed = normalisedRotateSpeed;
+    }
+
 }

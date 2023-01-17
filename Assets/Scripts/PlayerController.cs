@@ -7,18 +7,9 @@ public class PlayerController : MonoBehaviour
 {
     Player m_controlledPlayer;
 
-    float m_rotateInputValue = 0.0f;
-
-    // Start is called before the first frame update
     void Start()
     {
         
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        m_controlledPlayer.transform.Rotate(Vector3.forward, Time.deltaTime * m_rotateInputValue * -100.0f);
     }
 
     public void SetControlledPlayer(Player player)
@@ -33,7 +24,7 @@ public class PlayerController : MonoBehaviour
 
     void OnRotateShip(InputValue amount)
     {
-        m_rotateInputValue = amount.Get<float>();
+        m_controlledPlayer.SetNormalisedRotateSpeed(amount.Get<float>());
     }
 
     void OnOpenPauseMenu(InputValue amount)

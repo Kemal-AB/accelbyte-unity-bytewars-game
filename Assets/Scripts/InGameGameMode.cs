@@ -32,6 +32,8 @@ public class InGameGameMode : MonoBehaviour
 
         SpawnLevelObjects();
         SpawnPlayers(playerControllers);
+
+        m_gameState.SetGameState(InGameGameState.GameState.Playing);
     }
 
     void Update()
@@ -166,6 +168,24 @@ public class InGameGameMode : MonoBehaviour
         }
 
         return false;
+    }
+
+    public InGameGameState GetGameState()
+    {
+        return m_gameState;
+    }
+
+    public void OnObjectHit(GameplayObjectComponent hitObject, GameplayObjectComponent sourceObject)
+    {
+        if( hitObject.tag == "Player" )
+        {
+            Player player = hitObject.GetComponent<Player>();
+
+            if( player != null )
+            {
+                player.OnHitByObject(sourceObject);
+            }
+        }
     }
 
     public void OnPausePressed()
