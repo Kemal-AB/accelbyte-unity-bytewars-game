@@ -24,14 +24,11 @@ public class InGameGameMode : MonoBehaviour
         m_gameState = GameObject.FindObjectOfType<InGameGameState>();
         m_levelParent = new GameObject("LevelObjects");
 
-        List<PlayerController> playerControllers = new List<PlayerController>();
-
+        // Afif: Remove these lines when they're instantiated in the main menu instead
         PlayerInput spawnedPlayerController1 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Keyboard", pairWithDevice: Keyboard.current);
         PlayerInput spawnedPlayerController2 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Gamepad", pairWithDevice: Gamepad.all.Count > 0 ? Gamepad.all[0] :  null);
 
-        playerControllers.Add(spawnedPlayerController1.GetComponent<PlayerController>());
-        playerControllers.Add(spawnedPlayerController2.GetComponent<PlayerController>());
-
+        PlayerController[] playerControllers = GameObject.FindObjectsOfType<PlayerController>();
 
         SpawnLevelObjects();
         SpawnPlayers(playerControllers);
@@ -66,7 +63,7 @@ public class InGameGameMode : MonoBehaviour
         }
     }
 
-    void SpawnPlayers(List<PlayerController> playerControllers)
+    void SpawnPlayers(PlayerController[] playerControllers)
     {
         List<GameObject> ships = new List<GameObject>();
 
