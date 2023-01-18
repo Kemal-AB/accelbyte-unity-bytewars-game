@@ -10,14 +10,16 @@ public class Player : MonoBehaviour
 
     float m_normalisedRotateSpeed = 0.0f;
 
-    void Start()
-    {
-        
-    }
+    PlayerState m_playerState;
 
     void Update()
     {
         transform.Rotate(Vector3.forward, Time.deltaTime * m_normalisedRotateSpeed * -100.0f);
+    }
+
+    public void SetPlayerState(PlayerState playerState)
+    {
+        m_playerState = playerState;
     }
 
     public void FireMissile()

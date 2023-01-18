@@ -53,6 +53,15 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""ChangePower"",
+                    ""type"": ""Value"",
+                    ""id"": ""14064e67-daae-404c-94f5-1c1ea4cde135"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -165,6 +174,72 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                     ""action"": ""OpenPauseMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""3c862997-3163-4501-a7fc-4bd3377849d6"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ChangePower"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""fb211fa0-c508-472d-8a2d-f4c3bb40acfc"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""ChangePower"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""0351fb75-3566-414a-b5c1-8f21e67144c9"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Keyboard"",
+                    ""action"": ""ChangePower"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""4f10ea3d-f3c5-4900-909d-2b025bec9526"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""ChangePower"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""753d5d41-1127-4a22-8243-78bd5c300afc"",
+                    ""path"": ""<Gamepad>/rightStick/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""ChangePower"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""77f9dc0c-ddd4-49fa-a31c-af7338066520"",
+                    ""path"": ""<Gamepad>/rightStick/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""ChangePower"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -227,6 +302,7 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
         m_PlayerShipControls_RotateShip = m_PlayerShipControls.FindAction("RotateShip", throwIfNotFound: true);
         m_PlayerShipControls_Fire = m_PlayerShipControls.FindAction("Fire", throwIfNotFound: true);
         m_PlayerShipControls_OpenPauseMenu = m_PlayerShipControls.FindAction("OpenPauseMenu", throwIfNotFound: true);
+        m_PlayerShipControls_ChangePower = m_PlayerShipControls.FindAction("ChangePower", throwIfNotFound: true);
         // MenuControls
         m_MenuControls = asset.FindActionMap("MenuControls", throwIfNotFound: true);
         m_MenuControls_OpenPauseMenu = m_MenuControls.FindAction("OpenPauseMenu", throwIfNotFound: true);
@@ -292,6 +368,7 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_PlayerShipControls_RotateShip;
     private readonly InputAction m_PlayerShipControls_Fire;
     private readonly InputAction m_PlayerShipControls_OpenPauseMenu;
+    private readonly InputAction m_PlayerShipControls_ChangePower;
     public struct PlayerShipControlsActions
     {
         private @ShipControls m_Wrapper;
@@ -299,6 +376,7 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
         public InputAction @RotateShip => m_Wrapper.m_PlayerShipControls_RotateShip;
         public InputAction @Fire => m_Wrapper.m_PlayerShipControls_Fire;
         public InputAction @OpenPauseMenu => m_Wrapper.m_PlayerShipControls_OpenPauseMenu;
+        public InputAction @ChangePower => m_Wrapper.m_PlayerShipControls_ChangePower;
         public InputActionMap Get() { return m_Wrapper.m_PlayerShipControls; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -317,6 +395,9 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                 @OpenPauseMenu.started -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnOpenPauseMenu;
                 @OpenPauseMenu.performed -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnOpenPauseMenu;
                 @OpenPauseMenu.canceled -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnOpenPauseMenu;
+                @ChangePower.started -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnChangePower;
+                @ChangePower.performed -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnChangePower;
+                @ChangePower.canceled -= m_Wrapper.m_PlayerShipControlsActionsCallbackInterface.OnChangePower;
             }
             m_Wrapper.m_PlayerShipControlsActionsCallbackInterface = instance;
             if (instance != null)
@@ -330,6 +411,9 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                 @OpenPauseMenu.started += instance.OnOpenPauseMenu;
                 @OpenPauseMenu.performed += instance.OnOpenPauseMenu;
                 @OpenPauseMenu.canceled += instance.OnOpenPauseMenu;
+                @ChangePower.started += instance.OnChangePower;
+                @ChangePower.performed += instance.OnChangePower;
+                @ChangePower.canceled += instance.OnChangePower;
             }
         }
     }
@@ -390,6 +474,7 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
         void OnRotateShip(InputAction.CallbackContext context);
         void OnFire(InputAction.CallbackContext context);
         void OnOpenPauseMenu(InputAction.CallbackContext context);
+        void OnChangePower(InputAction.CallbackContext context);
     }
     public interface IMenuControlsActions
     {

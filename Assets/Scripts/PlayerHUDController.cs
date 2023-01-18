@@ -6,17 +6,10 @@ using TMPro;
 public class PlayerHUDController : MonoBehaviour
 {
     [System.Serializable]
-    public class HUDElement
-    {
-        public GameObject m_object;
-        public TextMeshProUGUI m_text;
-    }
-
-    [System.Serializable]
     public class Column
     {
-        public HUDElement m_title;
-        public HUDElement m_value;
+        public TextMeshProUGUI m_title;
+        public TextMeshProUGUI m_value;
     }
 
     public Column[] m_columns;
@@ -28,15 +21,6 @@ public class PlayerHUDController : MonoBehaviour
         Kills
     }
 
-    void Start()
-    {
-        foreach(Column column in m_columns)
-        {
-            column.m_title.m_text = column.m_title.m_object.GetComponent<TextMeshProUGUI>();
-            column.m_value.m_text = column.m_value.m_object.GetComponent<TextMeshProUGUI>();
-        }
-    }
-
     public void SetEnabled(bool enabled)
     {
         GetComponent<Canvas>().enabled = enabled;
@@ -46,23 +30,23 @@ public class PlayerHUDController : MonoBehaviour
     {
         foreach(Column column in m_columns)
         {
-            column.m_title.m_text.color = colour;
-            column.m_value.m_text.color = colour;
+            column.m_title.color = colour;
+            column.m_value.color = colour;
         }
     }
 
     public void SetLivesValue(int livesValue)
     {
-        m_columns[(int)ColumnEnum.Lives].m_value.m_text.text = livesValue.ToString();
+        m_columns[(int)ColumnEnum.Lives].m_value.text = livesValue.ToString();
     }
 
     public void SetScoreValue(int scoreValue)
     {
-        m_columns[(int)ColumnEnum.Score].m_value.m_text.text = scoreValue.ToString();
+        m_columns[(int)ColumnEnum.Score].m_value.text = scoreValue.ToString();
     }
 
     public void SetKillsValue(int killsValue)
     {
-        m_columns[(int)ColumnEnum.Kills].m_value.m_text.text = killsValue.ToString();
+        m_columns[(int)ColumnEnum.Kills].m_value.text = killsValue.ToString();
     }
 }

@@ -70,6 +70,31 @@ public class InGameGameMode : MonoBehaviour
         }
     }
 
+    GameObject SpawnPlayer(PlayerController playerController, int playerIndex, Vector3 position)
+    {
+        GameObject newShip = GameObject.Instantiate(m_playerPrefab, position, Quaternion.identity, m_levelParent.transform);
+
+        m_gameState.m_activeObjects.Add(newShip.GetComponent<GameplayObjectComponent>());
+
+        Player playerComponent = newShip.GetComponent<Player>();
+        
+        if( playerController.gameObject.GetComponent<PlayerState>() != null )
+        {
+            Destroy(playerController.gameObject.GetComponent<PlayerState>());
+        }
+
+        PlayerState playerState = playerController.gameObject.AddComponent<PlayerState>();
+
+        playerController.SetControlledPlayer(playerComponent);
+        playerComponent.SetPlayerState(playerState);
+
+        newShip.GetComponent<Renderer>().material.color = m_teamColours[playerIndex];
+
+        m_hud.m_playerControllers[ playerIndex ].SetColour(m_teamColours[playerIndex]);
+
+        return newShip;
+    }
+
     void SpawnPlayers(PlayerController[] playerControllers)
     {
         List<GameObject> ships = new List<GameObject>();
@@ -90,17 +115,9 @@ public class InGameGameMode : MonoBehaviour
                 {
                     if( !GetHasLineOfSightToOtherShip(randomPosition, ships) )
                     {
-                        GameObject newShip = GameObject.Instantiate(m_playerPrefab, randomPosition, Quaternion.identity, m_levelParent.transform);
-
+                        GameObject newShip = SpawnPlayer(playerController, playerIndex, randomPosition);
+                        
                         ships.Add(newShip);
-
-                        m_gameState.m_activeObjects.Add(newShip.GetComponent<GameplayObjectComponent>());
-
-                        playerController.SetControlledPlayer(newShip.GetComponent<Player>());
-
-                        newShip.GetComponent<Renderer>().material.color = m_teamColours[playerIndex];
-
-                        m_hud.m_playerControllers[ playerIndex ].SetColour(m_teamColours[playerIndex]);
 
                         playerIndex++;
 
