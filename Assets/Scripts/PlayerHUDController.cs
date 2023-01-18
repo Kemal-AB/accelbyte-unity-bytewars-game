@@ -37,12 +37,12 @@ public class PlayerHUDController : MonoBehaviour
         }
     }
 
-    void SetEnabled(bool enabled)
+    public void SetEnabled(bool enabled)
     {
         GetComponent<Canvas>().enabled = enabled;
     }
 
-    void SetColour(Color colour)
+    public void SetColour(Color colour)
     {
         foreach(Column column in m_columns)
         {
@@ -51,17 +51,17 @@ public class PlayerHUDController : MonoBehaviour
         }
     }
 
-    void SetLivesValue(int livesValue)
+    public void SetLivesValue(int livesValue)
     {
         m_columns[(int)ColumnEnum.Lives].m_value.m_text.text = livesValue.ToString();
     }
 
-    void SetScoreValue(int scoreValue)
+    public void SetScoreValue(int scoreValue)
     {
         m_columns[(int)ColumnEnum.Score].m_value.m_text.text = scoreValue.ToString();
     }
 
-    void SetKillsValue(int killsValue)
+    public void SetKillsValue(int killsValue)
     {
         m_columns[(int)ColumnEnum.Kills].m_value.m_text.text = killsValue.ToString();
     }

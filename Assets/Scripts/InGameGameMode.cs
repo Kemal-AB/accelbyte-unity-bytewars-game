@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class InGameGameMode : MonoBehaviour
 {
-    InGameGameState m_gameState;
+    public InGameHUDController m_hud;
     public GameObject[] m_objectsToSpawn;
     public GameObject m_playerPrefab;
     public GameObject m_playerControllerPrefab;
@@ -15,7 +15,12 @@ public class InGameGameMode : MonoBehaviour
     public int m_numLevelObjectsToSpawn = 7;
     public int m_numRetriesToPlaceLevelObject = 5;
     public int m_numRetriesToPlacePlayer = 100;
+    public float m_gameDuration = 600.0f;
+    public int m_startNumLives = 1;    
 
+    public Color[] m_teamColours;
+
+    InGameGameState m_gameState;
     GameObject m_levelParent;
 
     // Start is called before the first frame update
@@ -69,6 +74,8 @@ public class InGameGameMode : MonoBehaviour
     {
         List<GameObject> ships = new List<GameObject>();
 
+        int playerIndex = 0;
+
         foreach(PlayerController playerController in playerControllers)
         {
             for (int i = 0; i < m_numRetriesToPlacePlayer; i++)
@@ -86,9 +93,16 @@ public class InGameGameMode : MonoBehaviour
                         GameObject newShip = GameObject.Instantiate(m_playerPrefab, randomPosition, Quaternion.identity, m_levelParent.transform);
 
                         ships.Add(newShip);
+
                         m_gameState.m_activeObjects.Add(newShip.GetComponent<GameplayObjectComponent>());
 
                         playerController.SetControlledPlayer(newShip.GetComponent<Player>());
+
+                        newShip.GetComponent<Renderer>().material.color = m_teamColours[playerIndex];
+
+                        m_hud.m_playerControllers[ playerIndex ].SetColour(m_teamColours[playerIndex]);
+
+                        playerIndex++;
 
                         break;
                     }

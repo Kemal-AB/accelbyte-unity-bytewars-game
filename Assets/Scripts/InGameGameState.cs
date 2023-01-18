@@ -14,6 +14,7 @@ public class InGameGameState : MonoBehaviour
     GameState m_gameState = GameState.Playing;
     public GameObject m_pauseMenuGameObject;
 
+    public float m_timeLeft = 600.0f;
 
     public List<GameplayObjectComponent> m_activeObjects = new List<GameplayObjectComponent>();
 

@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5968113551360504185}
   - component: {fileID: 5968113551360504184}
   - component: {fileID: 5968113551360504191}
+  - component: {fileID: -5327431504514995047}
   m_Layer: 5
   m_Name: InGameHUD
   m_TagString: Untagged
@@ -101,6 +102,23 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &-5327431504514995047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968113551360504190}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51f87b58d45a6884695091d4a4b9ae20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_playerControllers:
+  - {fileID: 3988468055009573665}
+  - {fileID: 6989334145294276716}
+  - {fileID: 8280321089174903010}
+  - {fileID: 381314388261956638}
 --- !u!1 &8930627616969168965
 GameObject:
   m_ObjectHideFlags: 0
@@ -502,7 +520,7 @@ PrefabInstance:
     - target: {fileID: 8802667535040448193, guid: 22f9e65a823e9664780ac314e1ebbe53,
         type: 3}
       propertyPath: m_Name
-      value: PlayerHUDUI (3)
+      value: PlayerHUDUI_1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 22f9e65a823e9664780ac314e1ebbe53, type: 3}
@@ -512,6 +530,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 115231805874295482}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6989334145294276716 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7018430008292068054, guid: 22f9e65a823e9664780ac314e1ebbe53,
+    type: 3}
+  m_PrefabInstance: {fileID: 115231805874295482}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2244f04ad592a34ca8713f79c9b3319, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1409596724347064884
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -817,7 +847,7 @@ PrefabInstance:
     - target: {fileID: 8802667535040448193, guid: 22f9e65a823e9664780ac314e1ebbe53,
         type: 3}
       propertyPath: m_Name
-      value: PlayerHUDUI
+      value: PlayerHUDUI_2
       objectReference: {fileID: 0}
     - target: {fileID: 8802667535040448193, guid: 22f9e65a823e9664780ac314e1ebbe53,
         type: 3}
@@ -832,6 +862,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1409596724347064884}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8280321089174903010 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7018430008292068054, guid: 22f9e65a823e9664780ac314e1ebbe53,
+    type: 3}
+  m_PrefabInstance: {fileID: 1409596724347064884}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2244f04ad592a34ca8713f79c9b3319, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1674917908353892862
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1457,7 +1499,7 @@ PrefabInstance:
     - target: {fileID: 8802667535040448193, guid: 22f9e65a823e9664780ac314e1ebbe53,
         type: 3}
       propertyPath: m_Name
-      value: PlayerHUDUI (1)
+      value: PlayerHUDUI_0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 22f9e65a823e9664780ac314e1ebbe53, type: 3}
@@ -1467,6 +1509,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 6214855851885621751}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3988468055009573665 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7018430008292068054, guid: 22f9e65a823e9664780ac314e1ebbe53,
+    type: 3}
+  m_PrefabInstance: {fileID: 6214855851885621751}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2244f04ad592a34ca8713f79c9b3319, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7218368062799062728
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1767,10 +1821,22 @@ PrefabInstance:
     - target: {fileID: 8802667535040448193, guid: 22f9e65a823e9664780ac314e1ebbe53,
         type: 3}
       propertyPath: m_Name
-      value: PlayerHUDUI (4)
+      value: PlayerHUDUI_3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 22f9e65a823e9664780ac314e1ebbe53, type: 3}
+--- !u!114 &381314388261956638 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7018430008292068054, guid: 22f9e65a823e9664780ac314e1ebbe53,
+    type: 3}
+  m_PrefabInstance: {fileID: 7218368062799062728}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2244f04ad592a34ca8713f79c9b3319, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &2590509955781461879 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 5179030265973842367, guid: 22f9e65a823e9664780ac314e1ebbe53,
