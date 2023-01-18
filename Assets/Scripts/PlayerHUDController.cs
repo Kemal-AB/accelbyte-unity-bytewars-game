@@ -35,8 +35,11 @@ public class PlayerHUDController : MonoBehaviour
             column.m_title.m_text = column.m_title.m_object.GetComponent<TextMeshProUGUI>();
             column.m_value.m_text = column.m_value.m_object.GetComponent<TextMeshProUGUI>();
         }
+    }
 
-        SetColour(Color.cyan);
+    void SetEnabled(bool enabled)
+    {
+        GetComponent<Canvas>().enabled = enabled;
     }
 
     void SetColour(Color colour)
