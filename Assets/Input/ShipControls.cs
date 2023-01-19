@@ -56,7 +56,7 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""ChangePower"",
-                    ""type"": ""Value"",
+                    ""type"": ""PassThrough"",
                     ""id"": ""14064e67-daae-404c-94f5-1c1ea4cde135"",
                     ""expectedControlType"": ""Axis"",
                     ""processors"": """",

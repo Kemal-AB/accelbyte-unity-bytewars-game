@@ -137,7 +137,7 @@ public class InGameGameMode : MonoBehaviour
         playerController.SetControlledPlayer(playerComponent);
         playerComponent.SetPlayerState(playerState);
 
-        newShip.GetComponent<Renderer>().material.color = m_teamColours[playerIndex];
+        playerComponent.Init(m_teamColours[playerIndex]);
 
         m_hud.m_playerControllers[ playerIndex ].SetColour(m_teamColours[playerIndex]);
 

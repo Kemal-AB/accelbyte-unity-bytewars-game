@@ -111,6 +111,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2a6f156c8324d84199bda4053a1aec4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_powerBarUIPrefab: {fileID: 8713534360301857759, guid: f4d72a9553925e54c884977eaf858f35,
+    type: 3}
   m_missilePrefab: {fileID: 8676546774954766483, guid: 9e108b9599012c24f860fac3a19d39e4,
     type: 3}
   m_minMissileSpeed: 1.5

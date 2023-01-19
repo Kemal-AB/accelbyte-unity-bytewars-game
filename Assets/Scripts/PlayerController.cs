@@ -32,4 +32,8 @@ public class PlayerController : MonoBehaviour
         GameObject.FindObjectOfType<InGameGameMode>().OnPausePressed();
     }
 
+    void OnChangePower(InputValue amount)
+    {
+        m_controlledPlayer.SetNormalisedPowerChangeSpeed(amount.Get<float>());
+    }
 }
