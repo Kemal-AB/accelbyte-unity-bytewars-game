@@ -8,6 +8,10 @@ using UnityEngine.SceneManagement;
 public class InGameGameMode : MonoBehaviour
 {
     public InGameHUDController m_hud;
+    public GameObject m_gameOverUI;
+    public GameObject m_pauseMenuGameObject;
+
+
     public GameObject[] m_objectsToSpawn;
     public GameObject m_playerPrefab;
     public GameObject m_playerControllerPrefab;
@@ -37,12 +41,57 @@ public class InGameGameMode : MonoBehaviour
 
         SpawnLevelObjects();
         SpawnPlayers(playerControllers);
+        SetupGame();
 
-        m_gameState.SetGameState(InGameGameState.GameState.Playing);
+
+        SetGameState(InGameGameState.GameState.Playing);
     }
 
     void Update()
     {
+        if( m_gameState.GetGameState() == InGameGameState.GameState.Playing )
+        {
+            m_gameState.m_timeLeft = Mathf.Max(0.0f, m_gameState.m_timeLeft - Time.deltaTime );
+
+            m_hud.m_timeController.SetScoreValue( Mathf.CeilToInt(m_gameState.m_timeLeft) );
+
+            if( m_gameState.m_timeLeft <= 0.0f )
+            {
+                SetGameState( InGameGameState.GameState.GameOver );
+            }
+        }
+    }
+
+    void SetGameState(InGameGameState.GameState newGameState)
+    {
+        switch( newGameState )
+        {
+            case InGameGameState.GameState.GameOver:
+            {
+                m_hud.gameObject.SetActive(false);
+                Time.timeScale = 0;
+                m_gameOverUI.gameObject.SetActive(true);
+            }
+            break;
+        };
+
+        if( newGameState == InGameGameState.GameState.Paused )
+        {
+            Time.timeScale = 0;
+            m_pauseMenuGameObject.SetActive(true);
+        }
+        else
+        {
+            Time.timeScale = 1;
+            m_pauseMenuGameObject.SetActive(false);
+        }
+
+        m_gameState.SetGameState(newGameState);
+    }
+
+    void SetupGame()
+    {
+        m_gameState.m_timeLeft = m_gameDuration;
     }
 
     void SpawnLevelObjects()
@@ -223,13 +272,13 @@ public class InGameGameMode : MonoBehaviour
     {
         if( m_gameState.GetGameState() == InGameGameState.GameState.Playing)
         {
-            m_gameState.SetGameState(InGameGameState.GameState.Paused);
+            SetGameState(InGameGameState.GameState.Paused);
         }
     }
 
     public void OnResumePressed()
     {
-        m_gameState.SetGameState(InGameGameState.GameState.Playing);
+        SetGameState(InGameGameState.GameState.Playing);
     }
 
     public void OnRestartPressed()

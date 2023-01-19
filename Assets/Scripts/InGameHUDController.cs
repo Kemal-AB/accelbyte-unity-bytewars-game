@@ -5,4 +5,5 @@ using UnityEngine;
 public class InGameHUDController : MonoBehaviour
 {
     public PlayerHUDController[] m_playerControllers;
+    public PlayerHUDController m_timeController;
 }

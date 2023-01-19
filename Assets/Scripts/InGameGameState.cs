@@ -12,7 +12,6 @@ public class InGameGameState : MonoBehaviour
     }
 
     GameState m_gameState = GameState.Playing;
-    public GameObject m_pauseMenuGameObject;
 
     public float m_timeLeft = 600.0f;
 
@@ -21,17 +20,6 @@ public class InGameGameState : MonoBehaviour
     public void SetGameState(GameState newGameState)
     {
         m_gameState = newGameState;
-
-        if( m_gameState == GameState.Paused )
-        {
-            Time.timeScale = 0;
-            m_pauseMenuGameObject.SetActive(true);
-        }
-        else
-        {
-            Time.timeScale = 1;
-            m_pauseMenuGameObject.SetActive(false);
-        }
     }
 
     public GameState GetGameState()
