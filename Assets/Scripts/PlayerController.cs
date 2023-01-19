@@ -12,6 +12,11 @@ public class PlayerController : MonoBehaviour
         
     }
 
+    public PlayerState GetPlayerState()
+    {
+        return GetComponent<PlayerState>();
+    }
+
     public void SetControlledPlayer(Player player)
     {
         m_controlledPlayer = player;

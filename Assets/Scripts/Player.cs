@@ -56,7 +56,7 @@ public class Player : MonoBehaviour
 
     public void OnHitByObject(GameplayObjectComponent otherObject)
     {
-        Destroy(this.gameObject);
+        this.m_playerState.m_numLivesLeft--;
     }
 
     public void SetNormalisedRotateSpeed(float normalisedRotateSpeed)

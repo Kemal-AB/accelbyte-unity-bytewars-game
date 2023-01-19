@@ -37,10 +37,10 @@ public class InGameGameMode : MonoBehaviour
         PlayerInput spawnedPlayerController1 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Keyboard", pairWithDevice: Keyboard.current);
         PlayerInput spawnedPlayerController2 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Gamepad", pairWithDevice: Gamepad.all.Count > 0 ? Gamepad.all[0] :  null);
 
-        PlayerController[] playerControllers = GameObject.FindObjectsOfType<PlayerController>();
+        m_gameState.m_playerControllers = GameObject.FindObjectsOfType<PlayerController>();
 
         SpawnLevelObjects();
-        SpawnPlayers(playerControllers);
+        SpawnPlayers(m_gameState.m_playerControllers);
         SetupGame();
 
 
@@ -136,6 +136,7 @@ public class InGameGameMode : MonoBehaviour
 
         playerController.SetControlledPlayer(playerComponent);
         playerComponent.SetPlayerState(playerState);
+        playerState.m_numLivesLeft = m_startNumLives;
 
         playerComponent.Init(m_teamColours[playerIndex]);
 
@@ -264,8 +265,35 @@ public class InGameGameMode : MonoBehaviour
             if( player != null )
             {
                 player.OnHitByObject(sourceObject);
+                m_gameState.OnObjectRemovedFromWorld(hitObject);
+                Destroy(player.gameObject);
             }
         }
+
+        CheckForGameOverCondition();
+    }
+
+    public void CheckForGameOverCondition()
+    {
+        int numPlayersAlive = 0;
+
+        foreach( PlayerController playerController in m_gameState.m_playerControllers )
+        {
+            if( playerController.GetPlayerState().m_numLivesLeft > 0 )
+            {
+                numPlayersAlive++;
+            }
+        }
+
+        if( numPlayersAlive <= 1 )
+        {
+            EndGame();
+        }
+    }
+
+    void EndGame()
+    {
+        SetGameState(InGameGameState.GameState.GameOver);
     }
 
     public void OnPausePressed()

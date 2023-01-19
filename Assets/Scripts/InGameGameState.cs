@@ -16,6 +16,7 @@ public class InGameGameState : MonoBehaviour
     public float m_timeLeft = 600.0f;
 
     public List<GameplayObjectComponent> m_activeObjects = new List<GameplayObjectComponent>();
+    public PlayerController[] m_playerControllers;
 
     public void SetGameState(GameState newGameState)
     {
@@ -25,6 +26,11 @@ public class InGameGameState : MonoBehaviour
     public GameState GetGameState()
     {
         return m_gameState;
+    }
+
+    public void OnObjectRemovedFromWorld(GameplayObjectComponent objectToRemove)
+    {
+        m_activeObjects.Remove(objectToRemove);
     }
 
     void Update()
