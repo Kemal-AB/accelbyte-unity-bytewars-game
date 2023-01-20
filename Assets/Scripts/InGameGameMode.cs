@@ -20,6 +20,7 @@ public class InGameGameMode : MonoBehaviour
     public int m_numRetriesToPlaceLevelObject = 5;
     public int m_numRetriesToPlacePlayer = 100;
     public float m_gameDuration = 600.0f;
+    public float m_baseKillScore = 500.0f;
     public int m_startNumLives = 1;    
 
     public Color[] m_teamColours;
@@ -139,10 +140,11 @@ public class InGameGameMode : MonoBehaviour
         playerController.SetControlledPlayer(playerComponent);
         playerComponent.SetPlayerState(playerState);
         playerState.m_numLivesLeft = m_startNumLives;
+        playerState.m_teamColour = m_teamColours[playerIndex];
 
-        playerComponent.Init(m_teamColours[playerIndex]);
+        playerComponent.Init(playerState.m_teamColour);
 
-        m_hud.m_playerControllers[ playerIndex ].SetColour(m_teamColours[playerIndex]);
+        m_hud.m_playerControllers[ playerIndex ].SetColour(playerState.m_teamColour);
 
         return newShip;
     }
@@ -266,6 +268,21 @@ public class InGameGameMode : MonoBehaviour
 
             if( player != null )
             {
+                Missile missile = sourceObject.GetComponent<Missile>();
+                if( missile != null )
+                {
+                    PlayerState owningPlayerState = missile.GetOwningPlayerState();
+
+                    if( owningPlayerState != player.GetPlayerState() )
+                    {
+                        owningPlayerState.m_playerScore += m_baseKillScore + missile.GetScore();
+                        owningPlayerState.m_killCount ++;
+
+                        m_hud.m_playerControllers[ owningPlayerState.m_playerIndex ].SetScoreValue( (int)owningPlayerState.m_playerScore );
+                        m_hud.m_playerControllers[ owningPlayerState.m_playerIndex ].SetKillsValue( owningPlayerState.m_killCount );
+                    }
+                }
+                
                 player.OnHitByObject(sourceObject);
                 m_gameState.OnObjectRemovedFromWorld(hitObject);
                 Destroy(player.gameObject);
@@ -275,7 +292,7 @@ public class InGameGameMode : MonoBehaviour
         CheckForGameOverCondition();
     }
 
-    public void OnMissileScoreUpdated(Missile missile,PlayerController owningPlayerController, float score, float scoreIncrement)
+    public void OnMissileScoreUpdated(Missile missile,PlayerState owningPlayerState, float score, float scoreIncrement)
     {
 
     }

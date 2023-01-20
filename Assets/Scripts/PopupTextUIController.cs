@@ -10,10 +10,19 @@ public class PopupTextUIController : MonoBehaviour
     public float m_speed = 2.5f;
     public float m_lifeTime = 2.0f;
 
-    float m_yOffset = 0.0f;
     float m_timeAlive = 0.0f;
 
     Vector3 m_worldPosition;
+
+    public void Init(Vector3 worldPosition, Color colour, string text)
+    {
+        m_worldPosition = worldPosition;
+        Vector2 screenPoint = WorldToCanvas(worldPosition + new Vector3(1.5f, 0.5f, 0.0f),Camera.main);
+        m_parentPanel.anchoredPosition = screenPoint;
+
+        m_textUI.text = text;
+        m_textUI.color = colour;
+    }
 
     void Update()
     {
@@ -54,7 +63,7 @@ public class PopupTextUIController : MonoBehaviour
         }
     }
 
-     public Vector2 WorldToCanvas( Vector3 world_position, Camera camera = null)
+     Vector2 WorldToCanvas( Vector3 world_position, Camera camera = null)
      {
          if (camera == null)
          {

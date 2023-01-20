@@ -37,6 +37,11 @@ public class Player : MonoBehaviour
         m_playerState = playerState;
     }
 
+    public PlayerState GetPlayerState()
+    {
+        return m_playerState;
+    }
+
     public void Init(Color colour)
     {
         m_powerBarUI = GameObject.Instantiate(m_powerBarUIPrefab, transform.position, Quaternion.identity,transform);
@@ -52,6 +57,8 @@ public class Player : MonoBehaviour
         Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
         GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, transform.rotation);
         GameObject.Instantiate(m_fireMissileEffectPrefab, missileSpawnPosition, transform.rotation);        
+
+        missile.GetComponent<Missile>().Init(GetPlayerState());
 
         MotionComponent motionComponent = missile.GetComponent<MotionComponent>();
 

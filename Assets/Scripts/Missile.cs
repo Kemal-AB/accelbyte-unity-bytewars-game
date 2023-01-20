@@ -21,14 +21,16 @@ public class Missile : MonoBehaviour
 
     InGameGameMode m_gameMode;
 
-    PlayerController m_owningPlayerController;
+    PlayerState m_owningPlayerState;
 
     GameplayObjectComponent m_gameplayObjectComponent;
 
-    void Start()
+    public void Init(PlayerState owningPlayerState)
     {
+        m_owningPlayerState = owningPlayerState;
         m_gameMode = GameObject.FindObjectOfType<InGameGameMode>();
         m_gameplayObjectComponent = GetComponent<GameplayObjectComponent>();
+        GetComponent<Renderer>().material.color = m_owningPlayerState.m_teamColour;
     }
 
     void Update()
@@ -55,9 +57,9 @@ public class Missile : MonoBehaviour
 
                 PopupTextUIController popupController = popupText.GetComponent<PopupTextUIController>();
 
-                popupController.SetPosition(transform.position);
+                popupController.Init(transform.position,Color.red,m_scoreIncrement.ToString());
                 
-                m_gameMode.OnMissileScoreUpdated(this,m_owningPlayerController, m_score, m_scoreIncrement);
+                m_gameMode.OnMissileScoreUpdated(this,m_owningPlayerState, m_score, m_scoreIncrement);
                 m_timeSkimmingPlanetReward = 0.0f;
                 m_scoreIncrement *= m_additionalSkimScoreMultiplier;
             }
@@ -81,5 +83,15 @@ public class Missile : MonoBehaviour
         }
 
         return false;
+    }
+
+    public float GetScore()
+    {
+        return m_score;
+    }
+
+    public PlayerState GetOwningPlayerState()
+    {
+        return m_owningPlayerState;
     }
 }
