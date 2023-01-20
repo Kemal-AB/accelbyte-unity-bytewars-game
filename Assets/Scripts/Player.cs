@@ -7,6 +7,8 @@ public class Player : MonoBehaviour
     public PowerBarUIController m_powerBarUIPrefab;
     PowerBarUIController m_powerBarUI;
     public GameObject m_missilePrefab;
+    public GameObject m_fireMissileEffectPrefab;
+    public GameObject m_shipDestroyedEffectPrefab;
     public float m_minMissileSpeed = 1.5f;
     public float m_maxMissileSpeed = 9.0f;
 
@@ -47,7 +49,9 @@ public class Player : MonoBehaviour
 
     public void FireMissile()
     {
-        GameObject missile = GameObject.Instantiate(m_missilePrefab, transform.position, transform.rotation);
+        Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
+        GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, transform.rotation);
+        GameObject.Instantiate(m_fireMissileEffectPrefab, missileSpawnPosition, transform.rotation);        
 
         MotionComponent motionComponent = missile.GetComponent<MotionComponent>();
 
@@ -57,6 +61,8 @@ public class Player : MonoBehaviour
     public void OnHitByObject(GameplayObjectComponent otherObject)
     {
         this.m_playerState.m_numLivesLeft--;
+
+        GameObject.Instantiate(m_shipDestroyedEffectPrefab, transform.position, transform.rotation);                
     }
 
     public void SetNormalisedRotateSpeed(float normalisedRotateSpeed)

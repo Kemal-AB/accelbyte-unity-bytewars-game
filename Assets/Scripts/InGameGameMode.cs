@@ -39,6 +39,8 @@ public class InGameGameMode : MonoBehaviour
 
         m_gameState.m_playerControllers = GameObject.FindObjectsOfType<PlayerController>();
 
+        //Random.seed = 42;
+
         SpawnLevelObjects();
         SpawnPlayers(m_gameState.m_playerControllers);
         SetupGame();

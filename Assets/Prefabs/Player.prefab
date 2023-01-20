@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 7735947603257506657}
   - component: {fileID: 1807528200517654412}
   - component: {fileID: 7993289826749942192}
-  - component: {fileID: 8216728558268133805}
   - component: {fileID: 5639788665158582070}
   - component: {fileID: -8140432058899033108}
   m_Layer: 0
@@ -86,19 +85,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8216728558268133805
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1925243328074388439}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &5639788665158582070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -114,6 +100,10 @@ MonoBehaviour:
   m_powerBarUIPrefab: {fileID: 8713534360301857759, guid: f4d72a9553925e54c884977eaf858f35,
     type: 3}
   m_missilePrefab: {fileID: 8676546774954766483, guid: 9e108b9599012c24f860fac3a19d39e4,
+    type: 3}
+  m_fireMissileEffectPrefab: {fileID: 8986753919324633490, guid: b93aba7fa5a831d4581c7ccec754971a,
+    type: 3}
+  m_shipDestroyedEffectPrefab: {fileID: 8986753919324633490, guid: 7a14b7b0c79b0a742a2d25227765dbb5,
     type: 3}
   m_minMissileSpeed: 1.5
   m_maxMissileSpeed: 9
