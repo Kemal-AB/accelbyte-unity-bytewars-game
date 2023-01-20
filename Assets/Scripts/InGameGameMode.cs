@@ -275,6 +275,11 @@ public class InGameGameMode : MonoBehaviour
         CheckForGameOverCondition();
     }
 
+    public void OnMissileScoreUpdated(Missile missile,PlayerController owningPlayerController, float score, float scoreIncrement)
+    {
+
+    }
+
     public void CheckForGameOverCondition()
     {
         int numPlayersAlive = 0;
