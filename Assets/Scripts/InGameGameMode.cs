@@ -24,6 +24,7 @@ public class InGameGameMode : MonoBehaviour
     public int m_startNumLives = 1;    
 
     public Color[] m_teamColours;
+    public string[] m_playerNames;
 
     InGameGameState m_gameState;
     GameObject m_levelParent;
@@ -67,6 +68,11 @@ public class InGameGameMode : MonoBehaviour
 
     void SetGameState(InGameGameState.GameState newGameState)
     {
+        if( newGameState == m_gameState.GetGameState() )
+        {
+            return;
+        }
+
         switch( newGameState )
         {
             case InGameGameState.GameState.GameOver:
@@ -74,6 +80,7 @@ public class InGameGameMode : MonoBehaviour
                 m_hud.gameObject.SetActive(false);
                 Time.timeScale = 0;
                 m_gameOverUI.gameObject.SetActive(true);
+                m_gameOverUI.gameObject.GetComponent<GameOverScreenController>().SetPlayers(GetGameState().m_playerControllers);
             }
             break;
         };
@@ -141,6 +148,8 @@ public class InGameGameMode : MonoBehaviour
         playerComponent.SetPlayerState(playerState);
         playerState.m_numLivesLeft = m_startNumLives;
         playerState.m_teamColour = m_teamColours[playerIndex];
+        playerState.m_playerName = m_playerNames[playerIndex];
+
 
         playerComponent.Init(playerState.m_teamColour);
 
@@ -290,6 +299,11 @@ public class InGameGameMode : MonoBehaviour
         }
 
         CheckForGameOverCondition();
+    }
+
+    public void OnMissileDestroyed(Missile missile)
+    {
+
     }
 
     public void OnMissileScoreUpdated(Missile missile,PlayerState owningPlayerState, float score, float scoreIncrement)

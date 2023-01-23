@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Missile : MonoBehaviour
 {
+    public GameObject m_spawnOnDestroy;
     public GameObject m_popupScoreTextPrefab;
     public float m_expiryTime = 0.0f;
     public float m_skimDeltaForIncrementSeconds = 0.25f;
@@ -25,12 +26,14 @@ public class Missile : MonoBehaviour
 
     GameplayObjectComponent m_gameplayObjectComponent;
     Color m_colour;
+    MotionComponent m_motionComponent;
 
     public void Init(PlayerState owningPlayerState)
     {
         m_owningPlayerState = owningPlayerState;
         m_gameMode = GameObject.FindObjectOfType<InGameGameMode>();
         m_gameplayObjectComponent = GetComponent<GameplayObjectComponent>();
+        m_motionComponent = GetComponent<MotionComponent>();
         m_colour = m_owningPlayerState.m_teamColour;
         GetComponent<Renderer>().material.color = m_colour;
     }
@@ -39,7 +42,11 @@ public class Missile : MonoBehaviour
     {
         m_timeAlive += Time.deltaTime;
 
-        if( m_timeAlive > 1.0f )
+        if( m_motionComponent.GetMotionState() == MotionComponent.State.FlaggedForDestruction )
+        {
+            OnDestroyMissile();            
+        }
+        else if( m_timeAlive > 1.0f )
         {
             if( GetIsSkimmingObject() )
             {
@@ -65,7 +72,22 @@ public class Missile : MonoBehaviour
                 m_timeSkimmingPlanetReward = 0.0f;
                 m_scoreIncrement *= m_additionalSkimScoreMultiplier;
             }
+
+            if( m_timeAlive > m_maxTimeAlive )
+            {
+                OnDestroyMissile();
+            }
         }
+    }
+
+    void OnDestroyMissile()
+    {
+        if(m_spawnOnDestroy != null )
+        {
+            GameObject.Instantiate(m_spawnOnDestroy, transform.position, transform.rotation);
+        }
+        m_gameMode.OnMissileDestroyed(this);
+        Destroy(this.gameObject);
     }
 
     bool GetIsSkimmingObject()

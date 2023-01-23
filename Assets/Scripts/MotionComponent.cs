@@ -11,7 +11,7 @@ public class MotionComponent : MonoBehaviour
     InGameGameMode m_gameMode;
     GameplayObjectComponent m_gameplayObjectComponent;
 
-    enum State
+    public enum State
     {
         ClearShip,
         Alive,
@@ -29,16 +29,6 @@ public class MotionComponent : MonoBehaviour
 
     void Update()
     {
-        if( m_state == State.FlaggedForDestruction )
-        {
-            if(m_spawnOnDestroy != null )
-            {
-                GameObject.Instantiate(m_spawnOnDestroy, transform.position, transform.rotation);
-            }
-            Destroy(this.gameObject);
-            return;
-        }
-
         Vector3 totalForceThisFrame = GetTotalForceOnObject();
         Vector3 acceleration = totalForceThisFrame / m_mass;
         m_velocity += acceleration * Time.deltaTime;
@@ -59,6 +49,11 @@ public class MotionComponent : MonoBehaviour
             m_gameMode.OnObjectHit(intersectingObject, m_gameplayObjectComponent);
             m_state = State.FlaggedForDestruction;
         }
+    }
+
+    public State GetMotionState()
+    {
+        return m_state;
     }
 
     public void SetVelocity(Vector3 velocity)

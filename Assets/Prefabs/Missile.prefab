@@ -141,6 +141,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6bd8f6912de62774982fb799c03eaa77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_spawnOnDestroy: {fileID: 8986753919324633490, guid: a325900f3f30b944a9a173d5a057407c,
+    type: 3}
   m_popupScoreTextPrefab: {fileID: 8713534360301857744, guid: e24e7f080e6475548a30183ebb23ea2a,
     type: 3}
   m_expiryTime: 0
