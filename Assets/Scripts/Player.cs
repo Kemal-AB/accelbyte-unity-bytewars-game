@@ -11,11 +11,14 @@ public class Player : MonoBehaviour
     public GameObject m_shipDestroyedEffectPrefab;
     public float m_minMissileSpeed = 1.5f;
     public float m_maxMissileSpeed = 9.0f;
+    public int m_maxMissilesInFlight = 1;
 
     float m_normalisedRotateSpeed = 0.0f;
     float m_normalisedPowerChangeSpeed = 0.0f;
 
     float m_firePowerLevel = 0.5f;
+
+    List<GameObject> m_firedMissiles = new List<GameObject>();
 
     PlayerState m_playerState;
 
@@ -54,6 +57,13 @@ public class Player : MonoBehaviour
 
     public void FireMissile()
     {
+        m_firedMissiles.RemoveAll(x=>x==null);
+
+        if( m_firedMissiles.Count >= m_maxMissilesInFlight )
+        {
+            return;
+        }
+
         Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
         GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, transform.rotation);
         GameObject.Instantiate(m_fireMissileEffectPrefab, missileSpawnPosition, transform.rotation);        
@@ -63,6 +73,8 @@ public class Player : MonoBehaviour
         MotionComponent motionComponent = missile.GetComponent<MotionComponent>();
 
         motionComponent.SetVelocity(transform.up * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, m_firePowerLevel));
+
+        m_firedMissiles.Add(missile);
     }
 
     public void OnHitByObject(GameplayObjectComponent otherObject)
