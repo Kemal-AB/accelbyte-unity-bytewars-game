@@ -53,9 +53,9 @@ Material:
     - _Glow: 39.9
     - _QueueControl: 1
     - _QueueOffset: 0
-    - _Thinness: 0.97
+    - _Thinness: 0.975
     - _VignetteFalloff: 0.5
-    - _VignetteIntensity: 8.09
+    - _VignetteIntensity: 8
     m_Colors:
     - _LineColour: {r: 0.03156518, g: 0.035755854, b: 0.26415092, a: 1}
   m_BuildTextureStacks: []

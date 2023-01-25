@@ -98,7 +98,7 @@ Material:
     - _LayerContrast: 0.7
     - _Metallic: 0
     - _Mode: 0
-    - _NoiseScale: 10
+    - _NoiseScale: 40
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _PostCombineContrast: 4
@@ -110,7 +110,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Surface: 0
-    - _TimeScale: 0.01
+    - _TimeScale: 0.02
     - _UVSec: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
