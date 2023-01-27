@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 public class Missile : MonoBehaviour
@@ -25,8 +26,37 @@ public class Missile : MonoBehaviour
     PlayerState m_owningPlayerState;
 
     GameplayObjectComponent m_gameplayObjectComponent;
-    Color m_colour;
+    UnityEngine.Color m_colour;
     MotionComponent m_motionComponent;
+
+    void Start()
+    {
+        List<Vector3> outerVerts = new List<Vector3>();
+        outerVerts.Add(new Vector3(0, 20, 0));
+        outerVerts.Add(new Vector3(10, 0, 0));
+        outerVerts.Add(new Vector3(10, -20, 0));
+        outerVerts.Add(new Vector3(0, -20, 0));
+
+
+        List<Vector3> innerVerts = new List<Vector3>();
+        innerVerts.Add(new Vector3(0, 10, 0));
+        innerVerts.Add(new Vector3(5, 0, 0));
+        innerVerts.Add(new Vector3(5, -15, 0));
+        innerVerts.Add(new Vector3(0, -15, 0));
+
+        NeonObject playerGeometry = new NeonObject(outerVerts, innerVerts);
+
+        Mesh mesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = mesh;
+
+        mesh.Clear();
+        mesh.vertices = playerGeometry.vertexList.ToArray();
+        mesh.uv = playerGeometry.uvList.ToArray();
+        mesh.triangles = playerGeometry.indexList.ToArray();
+
+        mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
+    }
 
     public void Init(PlayerState owningPlayerState)
     {
@@ -35,7 +65,8 @@ public class Missile : MonoBehaviour
         m_gameplayObjectComponent = GetComponent<GameplayObjectComponent>();
         m_motionComponent = GetComponent<MotionComponent>();
         m_colour = m_owningPlayerState.m_teamColour;
-        GetComponent<Renderer>().material.color = m_colour;
+        //GetComponent<Renderer>().material.color = m_colour;
+        GetComponent<Renderer>().material.SetVector("_PlayerColour", m_colour);
     }
 
     void Update()

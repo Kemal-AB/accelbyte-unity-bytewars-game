@@ -23,7 +23,32 @@ public class Player : MonoBehaviour
     PlayerState m_playerState;
 
     void Start()
-    {
+    {       
+        List<Vector3> outerVerts = new List<Vector3>();
+        outerVerts.Add(new Vector3(0, 40, 0));
+        outerVerts.Add(new Vector3(40, -45, 0));
+        outerVerts.Add(new Vector3(25, -55, 0));
+        outerVerts.Add(new Vector3(0, -45, 0));
+
+
+        List<Vector3> innerVerts = new List<Vector3>();
+        innerVerts.Add(new Vector3(0, 30, 0));
+        innerVerts.Add(new Vector3(31.5f, -42, 0));
+        innerVerts.Add(new Vector3(24, -47, 0));
+        innerVerts.Add(new Vector3(0, -37, 0));
+
+        NeonObject playerGeometry = new NeonObject(outerVerts, innerVerts);
+
+        Mesh mesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = mesh;
+
+        mesh.Clear();
+        mesh.vertices = playerGeometry.vertexList.ToArray();
+        mesh.uv = playerGeometry.uvList.ToArray();
+        mesh.triangles = playerGeometry.indexList.ToArray();
+
+        mesh.RecalculateBounds();
+        mesh.RecalculateNormals();
     }
 
     void Update()
@@ -50,7 +75,7 @@ public class Player : MonoBehaviour
         m_powerBarUI = GameObject.Instantiate(m_powerBarUIPrefab, transform.position, Quaternion.identity,transform);
         m_powerBarUI.Init();
         m_powerBarUI.SetPosition(transform.position);
-        gameObject.GetComponent<Renderer>().material.color = colour;        
+        gameObject.GetComponent<Renderer>().material.SetVector("_PlayerColour", colour);
         m_powerBarUI.SetColour(colour);
         m_powerBarUI.SetPercentageFraction(m_firePowerLevel,false);
     }
