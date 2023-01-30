@@ -51,7 +51,7 @@ Material:
     - _CellSize: 0.3
     - _Contrast: 12
     - _Glow: 39.9
-    - _QueueControl: 1
+    - _QueueControl: 0
     - _QueueOffset: 0
     - _Thinness: 0.975
     - _VignetteFalloff: 0.5
