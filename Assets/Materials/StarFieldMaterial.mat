@@ -95,21 +95,22 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
-    - _Glow: 51.57
-    - _GridScale: 14.26
-    - _Grid_Rotation: 1.6
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _OffsetAmount: 11
     - _Parallax: 0.005
     - _QueueControl: 0
     - _QueueOffset: -1
-    - _Radius: 175.3
     - _ReceiveShadows: 1
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _StarGridScale: 180
+    - _StarNoiseScale: 2500
+    - _StarOutputGlow: 80
+    - _StarRotation: 7
+    - _StarScale: 180
     - _Surface: 0
     - _Thinness: 0.9
     - _VignetteFalloff: 1.9
@@ -123,7 +124,10 @@ Material:
     - _EndGradientColour: {r: 0.22352937, g: 0, b: 0.5686274, a: 0}
     - _LineColour: {r: 1, g: 0, b: 0, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _StartGradientColour: {r: 0.1981132, g: 0.0021302495, b: 0, a: 1}
+    - _StarNoiseRange: {r: 0.53, g: 0.75, b: 0, a: 0}
+    - _StarNoiseRemap: {r: 0.55, g: 0.75, b: 0, a: 0}
+    - _StarOutputRange: {r: -1.7, g: 1, b: 0, a: 0}
+    - _StartGradientColour: {r: 0.14150941, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
 --- !u!114 &4109382657469731389
 MonoBehaviour:
