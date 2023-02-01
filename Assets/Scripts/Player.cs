@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public class Player : NetworkBehaviour
 {
     public PowerBarUIController m_powerBarUIPrefab;
     PowerBarUIController m_powerBarUI;
@@ -49,7 +50,11 @@ public class Player : MonoBehaviour
 
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
+
+    
     }
+
+
 
     void Update()
     {
