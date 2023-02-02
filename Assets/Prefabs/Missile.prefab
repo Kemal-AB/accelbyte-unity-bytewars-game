@@ -147,8 +147,6 @@ MonoBehaviour:
     type: 3}
   m_popupScoreTextPrefab: {fileID: 8713534360301857744, guid: e24e7f080e6475548a30183ebb23ea2a,
     type: 3}
-  m_thrustSparksPrefab: {fileID: 7204681810195558945, guid: bebfcc56eb984024cb9aed65cfac4721,
-    type: 3}
   m_expiryTime: 0
   m_skimDeltaForIncrementSeconds: 0.25
   m_additionalSkimScoreMultiplier: 2
