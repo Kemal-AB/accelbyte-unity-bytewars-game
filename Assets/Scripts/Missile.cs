@@ -115,7 +115,8 @@ public class Missile : MonoBehaviour
     {
         if(m_spawnOnDestroy != null )
         {
-            GameObject.Instantiate(m_spawnOnDestroy, transform.position, transform.rotation);
+            GameObject explosion = GameObject.Instantiate(m_spawnOnDestroy, transform.position, transform.rotation);
+            explosion.GetComponent<Renderer>().material.SetVector("_Colour", m_colour);
         }
         m_gameMode.OnMissileDestroyed(this);
         Destroy(this.gameObject);

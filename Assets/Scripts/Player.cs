@@ -22,6 +22,7 @@ public class Player : NetworkBehaviour
     List<GameObject> m_firedMissiles = new List<GameObject>();
 
     PlayerState m_playerState;
+    UnityEngine.Color m_colour;
 
     void Start()
     {       
@@ -77,10 +78,11 @@ public class Player : NetworkBehaviour
 
     public void Init(Color colour)
     {
+        m_colour = colour;
         m_powerBarUI = GameObject.Instantiate(m_powerBarUIPrefab, transform.position, Quaternion.identity,transform);
         m_powerBarUI.Init();
         m_powerBarUI.SetPosition(transform.position);
-        gameObject.GetComponent<Renderer>().material.SetVector("_PlayerColour", colour);
+        gameObject.GetComponent<Renderer>().material.SetVector("_PlayerColour", m_colour);
         m_powerBarUI.SetColour(colour);
         m_powerBarUI.SetPercentageFraction(m_firePowerLevel,false);
     }
@@ -96,7 +98,6 @@ public class Player : NetworkBehaviour
 
         Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
         GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, transform.rotation);
-        GameObject.Instantiate(m_fireMissileEffectPrefab, missileSpawnPosition, transform.rotation);        
 
         missile.GetComponent<Missile>().Init(GetPlayerState());
 
@@ -111,7 +112,8 @@ public class Player : NetworkBehaviour
     {
         this.m_playerState.m_numLivesLeft--;
 
-        GameObject.Instantiate(m_shipDestroyedEffectPrefab, transform.position, transform.rotation);                
+        GameObject explosion = GameObject.Instantiate(m_shipDestroyedEffectPrefab, transform.position, transform.rotation);
+        explosion.GetComponent<Renderer>().material.SetVector("_Colour", m_colour);
     }
 
     public void SetNormalisedRotateSpeed(float normalisedRotateSpeed)
