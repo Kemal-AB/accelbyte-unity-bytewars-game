@@ -19,7 +19,7 @@ public class MainMenu : MonoBehaviour
 
     public void OnSinglePlayerButtonPressed()
     {
-        SceneManager.LoadScene("GalaxyWorld",LoadSceneMode.Single);
+        
     }
 
 }

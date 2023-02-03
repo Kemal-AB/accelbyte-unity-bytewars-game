@@ -5,12 +5,12 @@ using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using TMPro;
 
-public class NetworkingTest : NetworkBehaviour
+public class GameDirector : NetworkBehaviour
 {
 
-    public static NetworkingTest Instance { get; private set; }
+    public static GameDirector Instance { get; private set; }
 
-    public NetworkManager netManager;
+    public NetworkManager NetManager;
 
     public TMP_Text ConsoleText;
 
@@ -19,7 +19,9 @@ public class NetworkingTest : NetworkBehaviour
 
     public int MaxAllowedPlayers = 2;
 
-    public NetworkVariable<int> randomMasterSeed;
+    public NetworkVariable<int> RandomMasterSeed;
+
+    public E_GameMode GameMode = E_GameMode.MAIN_MENU;
 
     private int _totalPlayersConnected = 0;
     // Start is called before the first frame update
@@ -27,7 +29,8 @@ public class NetworkingTest : NetworkBehaviour
     private string _sceneName = "GalaxyWorld";
     private Scene m_LoadedScene;
 
-    
+    public enum E_GameMode {MAIN_MENU, SINGLE_PLAYER, MULTI_PLAYER};
+
     private void Awake()
     {
         // If there is an instance, and it's not me, delete myself.
@@ -67,28 +70,27 @@ public class NetworkingTest : NetworkBehaviour
         base.OnNetworkSpawn();
     }
 
+    public void StartSinglePlayer()
+    {
+        GameMode = E_GameMode.SINGLE_PLAYER;
+        WriteToConsole("Starting SinglePlayer Mode");
+        SceneManager.LoadScene("GalaxyWorld", LoadSceneMode.Single);
+    }
     public void StartServer()
     {
+        GameMode = E_GameMode.MULTI_PLAYER;
         WriteToConsole("Starting as a Server...");
-        netManager.StartServer();
-        randomMasterSeed.Value = Random.Range(0, 100);
-        WriteToConsole("Server Random MasterSeed number: " + randomMasterSeed.Value);
-
+        NetManager.StartServer();
+        RandomMasterSeed.Value = Random.Range(0, 1000);
+        WriteToConsole("Server Random MasterSeed number: " + RandomMasterSeed.Value);
 
     }
+
     public void StartClient()
     {
+        GameMode = E_GameMode.MULTI_PLAYER;
         WriteToConsole("Starting as a Client...");
-        netManager.StartClient();
-    }
-
-    public void SendClientTest()
-    {
-        TestClientRpc(10);
-    }
-    public void SendServerTest()
-    {
-        TestServerRpc(10); 
+        NetManager.StartClient();
     }
 
     [ClientRpc]
@@ -130,7 +132,6 @@ public class NetworkingTest : NetworkBehaviour
     {
         WriteToConsole("Starting Game!");
     }
-
 
     private void OnClientDisconnectCallback(ulong clientId)
     {

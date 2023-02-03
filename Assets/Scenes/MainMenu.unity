@@ -292,7 +292,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!114 &15751259
 MonoBehaviour:
@@ -327,7 +327,7 @@ GameObject:
   - component: {fileID: 25820992}
   - component: {fileID: 25820995}
   m_Layer: 0
-  m_Name: NetworkingTest
+  m_Name: GameDirector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -361,15 +361,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25d0731c833fcc54198a99d748c74508, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  netManager: {fileID: 190508255}
+  NetManager: {fileID: 190508255}
   ConsoleText: {fileID: 29703005}
   Player1Position:
     m_InternalValue: {x: 0, y: 0, z: 0}
   Player2Position:
     m_InternalValue: {x: 0, y: 0, z: 0}
   MaxAllowedPlayers: 2
-  randomMasterSeed:
+  RandomMasterSeed:
     m_InternalValue: 0
+  GameMode: 0
   _sceneName: GalaxyWorld
 --- !u!4 &25820994
 Transform:
@@ -465,8 +466,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190335
-  m_fontColor: {r: 1, g: 0, b: 0, a: 1}
+    rgba: 4278845184
+  m_fontColor: {r: 0, g: 1, b: 0.033423185, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -974,14 +975,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 190508253}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 866.19305, y: 18.5092, z: 2129.4377}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 866.1931, y: 18.509201, z: 2129.4377}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 321982183}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &272574628
 GameObject:
@@ -1918,7 +1919,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &854200507
 MonoBehaviour:
@@ -2733,7 +2734,7 @@ RectTransform:
   - {fileID: 272574629}
   - {fileID: 2111571282}
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -2978,7 +2979,7 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
-      objectReference: {fileID: 1943131585}
+      objectReference: {fileID: 25820993}
     - target: {fileID: 940215664547834098, guid: 0f3d27981f003474aba828ef0603b723,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
@@ -2987,12 +2988,12 @@ PrefabInstance:
     - target: {fileID: 940215664547834098, guid: 0f3d27981f003474aba828ef0603b723,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnSinglePlayerButtonPressed
+      value: StartSinglePlayer
       objectReference: {fileID: 0}
     - target: {fileID: 940215664547834098, guid: 0f3d27981f003474aba828ef0603b723,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
-      value: MainMenu, Assembly-CSharp
+      value: GameDirector, Assembly-CSharp
       objectReference: {fileID: 0}
     - target: {fileID: 940215664547834098, guid: 0f3d27981f003474aba828ef0603b723,
         type: 3}

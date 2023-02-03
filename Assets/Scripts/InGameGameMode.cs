@@ -33,9 +33,16 @@ public class InGameGameMode : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if(GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
+        {
+            Random.InitState(Random.Range(0, 1000));
+        }
+        else if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER)
+        {
+            Random.InitState(GameDirector.Instance.RandomMasterSeed.Value);
+        }
 
-        Random.InitState(NetworkingTest.Instance.randomMasterSeed.Value);
-        NetworkingTest.Instance.WriteToConsole("Init the Random MasterSeed to:" + NetworkingTest.Instance.randomMasterSeed.Value);
+        GameDirector.Instance.WriteToConsole("Init the Random MasterSeed to:" + GameDirector.Instance.RandomMasterSeed.Value);
 
         m_gameState = GameObject.FindObjectOfType<InGameGameState>();
         m_levelParent = new GameObject("LevelObjects");
