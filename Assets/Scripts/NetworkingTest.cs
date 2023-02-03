@@ -8,6 +8,8 @@ using TMPro;
 public class NetworkingTest : NetworkBehaviour
 {
 
+    public static NetworkingTest Instance { get; private set; }
+
     public NetworkManager netManager;
 
     public TMP_Text ConsoleText;
@@ -17,12 +19,28 @@ public class NetworkingTest : NetworkBehaviour
 
     public int MaxAllowedPlayers = 2;
 
+    public NetworkVariable<int> randomMasterSeed;
+
     private int _totalPlayersConnected = 0;
     // Start is called before the first frame update
     [SerializeField]
     private string _sceneName = "GalaxyWorld";
     private Scene m_LoadedScene;
 
+    
+    private void Awake()
+    {
+        // If there is an instance, and it's not me, delete myself.
+
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
     private void Start()
     {
         
@@ -53,7 +71,10 @@ public class NetworkingTest : NetworkBehaviour
     {
         WriteToConsole("Starting as a Server...");
         netManager.StartServer();
-        
+        randomMasterSeed.Value = Random.Range(0, 100);
+        WriteToConsole("Server Random MasterSeed number: " + randomMasterSeed.Value);
+
+
     }
     public void StartClient()
     {
@@ -134,6 +155,7 @@ public class NetworkingTest : NetworkBehaviour
                         // Keep track of the loaded scene, you need this to unload it
                         m_LoadedScene = sceneEvent.Scene;
                         
+
                     }
                     WriteToConsole(clientOrServer +" with ID: "+ sceneEvent.ClientId + " LoadSceneCompleted :" + m_LoadedScene.name);
                     break;
@@ -147,8 +169,8 @@ public class NetworkingTest : NetworkBehaviour
             case SceneEventType.UnloadEventCompleted:
                 {
                     var loadUnload = sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted ? "Load" : "Unload";
-                    WriteToConsole($"{loadUnload} event completed for the following client " +
-                        $"identifiers:({sceneEvent.ClientsThatCompleted})");
+                    WriteToConsole($"{loadUnload} event completed");
+
                     if (sceneEvent.ClientsThatTimedOut.Count > 0)
                     {
                         WriteToConsole($"{loadUnload} event timed out for the following client " +

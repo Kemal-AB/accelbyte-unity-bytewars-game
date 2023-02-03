@@ -367,6 +367,10 @@ MonoBehaviour:
     m_InternalValue: {x: 0, y: 0, z: 0}
   Player2Position:
     m_InternalValue: {x: 0, y: 0, z: 0}
+  MaxAllowedPlayers: 2
+  randomMasterSeed:
+    m_InternalValue: 0
+  _sceneName: GalaxyWorld
 --- !u!4 &25820994
 Transform:
   m_ObjectHideFlags: 0
@@ -947,13 +951,7 @@ MonoBehaviour:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 190508254}
     PlayerPrefab: {fileID: 0}
-    NetworkPrefabs:
-    - Override: 0
-      Prefab: {fileID: 1925243328074388439, guid: 49e395a13bd77d643ad248aa76306124,
-        type: 3}
-      SourcePrefabToOverride: {fileID: 0}
-      SourceHashToOverride: 0
-      OverridingTargetPrefab: {fileID: 0}
+    NetworkPrefabs: []
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
