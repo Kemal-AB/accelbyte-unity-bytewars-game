@@ -67,6 +67,15 @@ public class Missile : MonoBehaviour
         m_colour = m_owningPlayerState.m_teamColour;
         //GetComponent<Renderer>().material.color = m_colour;
         GetComponent<Renderer>().material.SetVector("_PlayerColour", m_colour);
+
+        // Tie the particle system lifetime to missile Max Time Alive so the particle emission falloff curve lines up to when the missile dies.
+        // Note: the curve is tuned so the effect dies out across the range [0.85, 1], which works well for a max lifetime of ~20 seconds but may need readjusted if that value changes.
+        ParticleSystem particleSystem = GameObject.FindObjectOfType<ParticleSystem>();
+        if (particleSystem)
+        {
+            var main = particleSystem.main;
+            main.duration = m_maxTimeAlive;
+        }
     }
 
     void Update()
