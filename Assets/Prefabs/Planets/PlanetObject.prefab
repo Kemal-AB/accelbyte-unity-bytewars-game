@@ -98,6 +98,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_scale: 1
+  m_glowPulseRate: 2
+  m_glowPulseScale: 3
 --- !u!114 &7021527950986973467
 MonoBehaviour:
   m_ObjectHideFlags: 0
