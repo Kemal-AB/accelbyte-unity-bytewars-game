@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-
+using Unity.Netcode;
 
 public class InGameGameMode : MonoBehaviour
 {
@@ -29,15 +29,27 @@ public class InGameGameMode : MonoBehaviour
     InGameGameState m_gameState;
     GameObject m_levelParent;
 
+    bool m_gameInitialized = false;
     // Start is called before the first frame update
     void Start()
     {
+        if(GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
+        {
+            Random.InitState(Random.Range(0, 1000));
+        }
+        else if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER)
+        {
+            Random.InitState(GameDirector.Instance.RandomMasterSeed.Value);
+        }
+
+        GameDirector.Instance.WriteToConsole("Init the Random MasterSeed to:" + GameDirector.Instance.RandomMasterSeed.Value);
+
         m_gameState = GameObject.FindObjectOfType<InGameGameState>();
         m_levelParent = new GameObject("LevelObjects");
 
         // Afif: Remove these lines when they're instantiated in the main menu instead
         PlayerInput spawnedPlayerController1 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Keyboard", pairWithDevice: Keyboard.current);
-        PlayerInput spawnedPlayerController2 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Gamepad", pairWithDevice: Gamepad.all.Count > 0 ? Gamepad.all[0] :  null);
+        PlayerInput spawnedPlayerController2 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Gamepad", pairWithDevice: Gamepad.all.Count > 0 ? Gamepad.all[0] : null);
 
         m_gameState.m_playerControllers = GameObject.FindObjectsOfType<PlayerController>();
 
@@ -47,13 +59,14 @@ public class InGameGameMode : MonoBehaviour
         SpawnPlayers(m_gameState.m_playerControllers);
         SetupGame();
 
-
         SetGameState(InGameGameState.GameState.Playing);
+
+        m_gameInitialized = true;
     }
 
     void Update()
     {
-        if( m_gameState.GetGameState() == InGameGameState.GameState.Playing )
+        if(m_gameInitialized && m_gameState.GetGameState() == InGameGameState.GameState.Playing )
         {
             m_gameState.m_timeLeft = Mathf.Max(0.0f, m_gameState.m_timeLeft - Time.deltaTime );
 
