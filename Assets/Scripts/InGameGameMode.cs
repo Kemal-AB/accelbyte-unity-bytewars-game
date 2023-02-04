@@ -310,14 +310,13 @@ public class InGameGameMode : MonoBehaviour
                 Destroy(player.gameObject);
             }
         }
-        else
+        else if (hitObject.tag == "Planet")
         {
-            // TODO: check by tag rather than assume
             Planet planet = hitObject.GetComponent<Planet>();
-            if(planet)
+            if (planet)
             {
                 planet.OnHitByMissile();
-            }            
+            }
         }
 
         CheckForGameOverCondition();
