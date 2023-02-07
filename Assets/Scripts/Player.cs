@@ -10,6 +10,7 @@ public class Player : NetworkBehaviour
     public GameObject m_missilePrefab;
     public GameObject m_fireMissileEffectPrefab;
     public GameObject m_shipDestroyedEffectPrefab;
+    public GameObject m_missileTrailPrefab;
     public float m_minMissileSpeed = 1.5f;
     public float m_maxMissileSpeed = 9.0f;
     public int m_maxMissilesInFlight = 1;
@@ -20,6 +21,7 @@ public class Player : NetworkBehaviour
     float m_firePowerLevel = 0.5f;
 
     List<GameObject> m_firedMissiles = new List<GameObject>();
+    List<MissileTrail> m_missileTrails = new List<MissileTrail>();
 
     PlayerState m_playerState;
     UnityEngine.Color m_colour;
@@ -50,12 +52,8 @@ public class Player : NetworkBehaviour
         mesh.triangles = playerGeometry.indexList.ToArray();
 
         mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
-
-    
+        mesh.RecalculateNormals();    
     }
-
-
 
     void Update()
     {
@@ -91,11 +89,11 @@ public class Player : NetworkBehaviour
     {
         m_firedMissiles.RemoveAll(x=>x==null);
 
-        if( m_firedMissiles.Count >= m_maxMissilesInFlight )
+        if (m_firedMissiles.Count >= m_maxMissilesInFlight)
         {
             return;
         }
-
+        
         Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
         GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, transform.rotation);
 
@@ -106,6 +104,16 @@ public class Player : NetworkBehaviour
         motionComponent.SetVelocity(transform.up * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, m_firePowerLevel));
 
         m_firedMissiles.Add(missile);
+
+        GameObject missileTrail = GameObject.Instantiate(m_missileTrailPrefab, missileSpawnPosition, transform.rotation);
+
+        // remove dead trails and trigger fade out on any existing trails before triggering new ones
+        m_missileTrails.RemoveAll(x => x == null);
+        m_missileTrails.ForEach(x => x.TriggerFadeOut());
+
+        MissileTrail newTrail = missileTrail.GetComponent<MissileTrail>();
+        newTrail.Init(missile);
+        m_missileTrails.Add(newTrail);
     }
 
     public void OnHitByObject(GameplayObjectComponent otherObject)
