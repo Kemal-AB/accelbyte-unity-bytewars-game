@@ -107,6 +107,8 @@ MonoBehaviour:
     type: 3}
   m_shipDestroyedEffectPrefab: {fileID: 8986753919324633490, guid: 7a14b7b0c79b0a742a2d25227765dbb5,
     type: 3}
+  m_missileTrailPrefab: {fileID: 7146446808593904168, guid: ccfeca22855884c40afbca2b2458e8e3,
+    type: 3}
   m_minMissileSpeed: 1.5
   m_maxMissileSpeed: 9
   m_maxMissilesInFlight: 1
