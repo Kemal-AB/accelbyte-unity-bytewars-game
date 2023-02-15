@@ -72,7 +72,8 @@ public class InGameGameMode : MonoBehaviour
 
         m_gameInitialized = true;
 
-        InitPlayerControllerClientRPC();
+        if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER)
+            InitPlayerControllerClientRPC();
     }
 
     public void ServerStartGame()
@@ -405,18 +406,22 @@ public class InGameGameMode : MonoBehaviour
     {
         int numPlayersAlive = 0;
 
-       /* foreach( PlayerController playerController in m_gameState.m_playerControllers )
+        if(GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
         {
-            if( playerController.GetPlayerState().m_numLivesLeft > 0 )
+            foreach (PlayerController playerController in m_gameState.m_playerControllers)
             {
-                numPlayersAlive++;
+                if (playerController.GetPlayerState().m_numLivesLeft > 0)
+                {
+                    numPlayersAlive++;
+                }
+            }
+
+            if (numPlayersAlive <= 1)
+            {
+                EndGame();
             }
         }
-
-        if( numPlayersAlive <= 1 )
-        {
-            EndGame();
-        }*/
+        
     }
 
     void EndGame()

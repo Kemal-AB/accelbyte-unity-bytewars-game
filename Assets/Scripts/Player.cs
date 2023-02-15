@@ -85,29 +85,100 @@ public class Player : NetworkBehaviour
         m_powerBarUI.SetPercentageFraction(m_firePowerLevel,false);
     }
 
-    public void FireMissile()
+    public void LocalFireMissile()
     {
-        m_firedMissiles.RemoveAll(x=>x==null);
-
-        if (m_firedMissiles.Count >= m_maxMissilesInFlight)
+        if( GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
         {
-            return;
+            m_firedMissiles.RemoveAll(x => x == null);
+
+            if (m_firedMissiles.Count >= m_maxMissilesInFlight)
+            {
+                return;
+            }
+
+            Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
+            GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, transform.rotation);
+
+            missile.GetComponent<Missile>().Init(GetPlayerState());
+
+            MotionComponent motionComponent = missile.GetComponent<MotionComponent>();
+
+            motionComponent.SetVelocity(transform.up * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, m_firePowerLevel));
+
+            m_firedMissiles.Add(missile);
+
+            GameObject missileTrail = GameObject.Instantiate(m_missileTrailPrefab, missileSpawnPosition, transform.rotation);
+
+            m_missileTrails.RemoveAll(x => x == null);
+            m_missileTrails.ForEach(x => x.TriggerFadeOut());
+
+            MissileTrail newTrail = missileTrail.GetComponent<MissileTrail>();
+            newTrail.Init(missile);
+            m_missileTrails.Add(newTrail);
+        }
+        else
+        {
+            Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
+
+            PlayerFireMissileServerRPC(missileSpawnPosition, transform.up, transform.rotation, m_firePowerLevel, GetPlayerState());
         }
         
-        Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
-        GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, transform.rotation);
+    }
 
-        missile.GetComponent<Missile>().Init(GetPlayerState());
+    [ServerRpc]
+    public void PlayerFireMissileServerRPC(Vector3 MissilePosition, Vector3 transformUP, Quaternion rotation, float firePowerLevel, PlayerState PState)
+    {
+        GameDirector.Instance.WriteToConsole("Server RPC Missile from Client: " + OwnerClientId);
+        if (NetworkManager.ConnectedClients.ContainsKey(OwnerClientId))
+        {
+            m_firedMissiles.RemoveAll(x => x == null);
+
+            if (m_firedMissiles.Count >= m_maxMissilesInFlight)
+            {
+                return;
+            }
+
+            Vector3 missileSpawnPosition = MissilePosition;
+            GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, rotation);
+
+            missile.GetComponent<Missile>().Init(PState);
+
+            MotionComponent motionComponent = missile.GetComponent<MotionComponent>();
+
+            motionComponent.SetVelocity(transformUP * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, firePowerLevel));
+
+            m_firedMissiles.Add(missile);
+
+            GameObject missileTrail = GameObject.Instantiate(m_missileTrailPrefab, missileSpawnPosition, transform.rotation);
+
+            m_missileTrails.RemoveAll(x => x == null);
+            m_missileTrails.ForEach(x => x.TriggerFadeOut());
+
+            MissileTrail newTrail = missileTrail.GetComponent<MissileTrail>();
+            newTrail.Init(missile);
+            m_missileTrails.Add(newTrail);
+
+            RemoteFireMissileClientRPC(MissilePosition, transformUP, rotation, firePowerLevel, PState);
+        }
+    }
+    [ClientRpc]
+    public void RemoteFireMissileClientRPC(Vector3 MissilePosition, Vector3 transformUP, Quaternion rotation, float firePowerLevel, PlayerState PState)
+    {
+        //GameDirector.Instance.WriteToConsole("RemoteFireMissileClientRPC febore Owner Check OwnerClientId: " + OwnerClientId);
+        //if (IsOwner) return;
+
+        GameDirector.Instance.WriteToConsole("RemoteFireMissileClientRPC OwnerClientId: " + OwnerClientId);
+        Vector3 missileSpawnPosition = MissilePosition;
+        GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, rotation);
+
+        missile.GetComponent<Missile>().Init(PState);
 
         MotionComponent motionComponent = missile.GetComponent<MotionComponent>();
 
-        motionComponent.SetVelocity(transform.up * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, m_firePowerLevel));
+        motionComponent.SetVelocity(transformUP * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, firePowerLevel));
 
-        m_firedMissiles.Add(missile);
+        GameObject missileTrail = GameObject.Instantiate(m_missileTrailPrefab, missileSpawnPosition, rotation);
 
-        GameObject missileTrail = GameObject.Instantiate(m_missileTrailPrefab, missileSpawnPosition, transform.rotation);
-
-        // remove dead trails and trigger fade out on any existing trails before triggering new ones
         m_missileTrails.RemoveAll(x => x == null);
         m_missileTrails.ForEach(x => x.TriggerFadeOut());
 
@@ -116,12 +187,16 @@ public class Player : NetworkBehaviour
         m_missileTrails.Add(newTrail);
     }
 
+
     public void OnHitByObject(GameplayObjectComponent otherObject)
     {
-        this.m_playerState.m_numLivesLeft--;
+        if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
+        {
+            this.m_playerState.m_numLivesLeft--;
 
-        GameObject explosion = GameObject.Instantiate(m_shipDestroyedEffectPrefab, transform.position, transform.rotation);
-        explosion.GetComponent<Renderer>().material.SetVector("_Colour", m_colour);
+            GameObject explosion = GameObject.Instantiate(m_shipDestroyedEffectPrefab, transform.position, transform.rotation);
+            explosion.GetComponent<Renderer>().material.SetVector("_Colour", m_colour);
+        }
     }
 
     public void SetNormalisedRotateSpeed(float normalisedRotateSpeed)
