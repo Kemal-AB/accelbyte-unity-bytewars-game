@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     {
         if( m_controlledPlayer != null )
         {
-            m_controlledPlayer.FireMissile();
+            m_controlledPlayer.LocalFireMissile();
         }
     }
 

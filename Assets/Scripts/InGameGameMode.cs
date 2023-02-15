@@ -33,35 +33,51 @@ public class InGameGameMode : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        if(GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
-        {
-            Random.InitState(Random.Range(0, 1000));
-        }
-        else if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER)
-        {
-            Random.InitState(GameDirector.Instance.RandomMasterSeed.Value);
-        }
-
-        GameDirector.Instance.WriteToConsole("Init the Random MasterSeed to:" + GameDirector.Instance.RandomMasterSeed.Value);
 
         m_gameState = GameObject.FindObjectOfType<InGameGameState>();
         m_levelParent = new GameObject("LevelObjects");
 
-        // Afif: Remove these lines when they're instantiated in the main menu instead
-        PlayerInput spawnedPlayerController1 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Keyboard", pairWithDevice: Keyboard.current);
-        PlayerInput spawnedPlayerController2 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Gamepad", pairWithDevice: Gamepad.all.Count > 0 ? Gamepad.all[0] : null);
+        if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
+        {
+            Random.InitState(Random.Range(0, 1000));
 
-        m_gameState.m_playerControllers = GameObject.FindObjectsOfType<PlayerController>();
+            PlayerInput spawnedPlayerController1 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Keyboard", pairWithDevice: Keyboard.current);
+            PlayerInput spawnedPlayerController2 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Gamepad", pairWithDevice: Gamepad.all.Count > 0 ? Gamepad.all[0] : null);
 
-        //Random.seed = 42;
+            m_gameState.m_playerControllers = GameObject.FindObjectsOfType<PlayerController>();
+
+        }
+        else if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER)
+        {
+            Random.InitState(GameDirector.Instance.RandomMasterSeed.Value);
+
+            if (NetworkManager.Singleton.IsServer)
+            {
+                PlayerInput spawnedPlayerController1 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Keyboard", pairWithDevice: Keyboard.current);
+                PlayerInput spawnedPlayerController2 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Gamepad", pairWithDevice: Gamepad.all.Count > 0 ? Gamepad.all[0] : null);
+
+                m_gameState.m_playerControllers = GameObject.FindObjectsOfType<PlayerController>();
+            }
+        }
+
+        GameDirector.Instance.WriteToConsole("Init the Random MasterSeed to:" + GameDirector.Instance.RandomMasterSeed.Value);
 
         SpawnLevelObjects();
+
         SpawnPlayers(m_gameState.m_playerControllers);
+
         SetupGame();
 
         SetGameState(InGameGameState.GameState.Playing);
 
         m_gameInitialized = true;
+
+        InitPlayerControllerClientRPC();
+    }
+
+    public void ServerStartGame()
+    {
+        GameDirector.Instance.WriteToConsole("Server Launching Game");
     }
 
     void Update()
@@ -142,42 +158,13 @@ public class InGameGameMode : MonoBehaviour
         }
     }
 
-    GameObject SpawnPlayer(PlayerController playerController, int playerIndex, Vector3 position)
-    {
-        GameObject newShip = GameObject.Instantiate(m_playerPrefab, position, Quaternion.identity, m_levelParent.transform);
-
-        m_gameState.m_activeObjects.Add(newShip.GetComponent<GameplayObjectComponent>());
-
-        Player playerComponent = newShip.GetComponent<Player>();
-        
-        if( playerController.gameObject.GetComponent<PlayerState>() != null )
-        {
-            Destroy(playerController.gameObject.GetComponent<PlayerState>());
-        }
-
-        PlayerState playerState = playerController.gameObject.AddComponent<PlayerState>();
-
-        playerController.SetControlledPlayer(playerComponent);
-        playerComponent.SetPlayerState(playerState);
-        playerState.m_numLivesLeft = m_startNumLives;
-        playerState.m_teamColour = m_teamColours[playerIndex];
-        playerState.m_playerName = m_playerNames[playerIndex];
-
-
-        playerComponent.Init(playerState.m_teamColour);
-
-        m_hud.m_playerControllers[ playerIndex ].SetColour(playerState.m_teamColour);
-
-        return newShip;
-    }
-
     void SpawnPlayers(PlayerController[] playerControllers)
     {
         List<GameObject> ships = new List<GameObject>();
 
         int playerIndex = 0;
 
-        foreach(PlayerController playerController in playerControllers)
+        foreach (PlayerController playerController in playerControllers)
         {
             for (int i = 0; i < m_numRetriesToPlacePlayer; i++)
             {
@@ -189,11 +176,12 @@ public class InGameGameMode : MonoBehaviour
 
                 if (!IsTooCloseToOtherObject(randomPosition, m_playerPrefab))
                 {
-                    if( !GetHasLineOfSightToOtherShip(randomPosition, ships) )
+                    if (!GetHasLineOfSightToOtherShip(randomPosition, ships))
                     {
                         GameObject newShip = SpawnPlayer(playerController, playerIndex, randomPosition);
-                        
-                        ships.Add(newShip);
+
+                        if (newShip != null)
+                            ships.Add(newShip);
 
                         playerIndex++;
 
@@ -202,6 +190,87 @@ public class InGameGameMode : MonoBehaviour
                 }
             }
         }
+    }
+
+    GameObject SpawnPlayer(PlayerController playerController, int playerIndex, Vector3 position)
+    {
+        GameObject newShip = null;
+
+        if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER)
+        {
+            if (NetworkManager.Singleton.IsServer)
+            {
+                GameDirector.Instance.WriteToConsole("Server SpawningPlayer: " + ++playerIndex);
+
+                newShip = GameObject.Instantiate(m_playerPrefab, position, Quaternion.identity, m_levelParent.transform);
+
+                newShip.GetComponent<NetworkObject>().SpawnAsPlayerObject((ulong)(playerIndex), true);
+
+                m_gameState.m_activeObjects.Add(newShip.GetComponent<GameplayObjectComponent>());
+
+            }
+        }
+        else
+        {
+            newShip = GameObject.Instantiate(m_playerPrefab, position, Quaternion.identity, m_levelParent.transform);
+
+            m_gameState.m_activeObjects.Add(newShip.GetComponent<GameplayObjectComponent>());
+
+            Player playerComponent = newShip.GetComponent<Player>();
+
+            if (playerController.gameObject.GetComponent<PlayerState>() != null)
+            {
+                Destroy(playerController.gameObject.GetComponent<PlayerState>());
+            }
+
+            PlayerState playerState = playerController.gameObject.AddComponent<PlayerState>();
+
+            playerController.SetControlledPlayer(playerComponent);
+            playerComponent.SetPlayerState(playerState);
+            playerState.m_numLivesLeft = m_startNumLives;
+            playerState.m_teamColour = m_teamColours[playerIndex];
+            playerState.m_playerName = m_playerNames[playerIndex];
+
+
+            playerComponent.Init(playerState.m_teamColour);
+
+            m_hud.m_playerControllers[playerIndex].SetColour(playerState.m_teamColour);
+        }
+
+        return newShip;
+    }
+
+    [ClientRpc]
+    void InitPlayerControllerClientRPC()
+    {
+        if (NetworkManager.Singleton.IsServer) return;
+
+        GameDirector.Instance.WriteToConsole("InitPlayer - ClientID: " + NetworkManager.Singleton.LocalClientId);
+
+        Player playerComponent = GameDirector.Instance.NetManager.LocalClient.PlayerObject.GetComponent<Player>();
+
+        m_gameState.m_activeObjects.Add(playerComponent.gameObject.GetComponent<GameplayObjectComponent>());
+
+        PlayerInput spawnedPlayerController1 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Keyboard", pairWithDevice: Keyboard.current);
+        m_gameState.m_playerControllers = GameObject.FindObjectsOfType<PlayerController>();
+
+        if (m_gameState.m_playerControllers[0].gameObject.GetComponent<PlayerState>() != null)
+        {
+            Destroy(m_gameState.m_playerControllers[0].gameObject.GetComponent<PlayerState>());
+        }
+
+        PlayerState playerState = m_gameState.m_playerControllers[0].gameObject.AddComponent<PlayerState>();
+
+        m_gameState.m_playerControllers[0].SetControlledPlayer(playerComponent);
+        playerComponent.SetPlayerState(playerState);
+        playerState.m_numLivesLeft = m_startNumLives;
+        playerState.m_teamColour = m_teamColours[0];
+        playerState.m_playerName = m_playerNames[0];
+
+
+        playerComponent.Init(playerState.m_teamColour);
+
+        m_hud.m_playerControllers[0].SetColour(playerState.m_teamColour);
     }
 
     bool IsTooCloseToOtherObject(Vector3 testPosition, GameObject testObject)
@@ -336,7 +405,7 @@ public class InGameGameMode : MonoBehaviour
     {
         int numPlayersAlive = 0;
 
-        foreach( PlayerController playerController in m_gameState.m_playerControllers )
+       /* foreach( PlayerController playerController in m_gameState.m_playerControllers )
         {
             if( playerController.GetPlayerState().m_numLivesLeft > 0 )
             {
@@ -347,7 +416,7 @@ public class InGameGameMode : MonoBehaviour
         if( numPlayersAlive <= 1 )
         {
             EndGame();
-        }
+        }*/
     }
 
     void EndGame()

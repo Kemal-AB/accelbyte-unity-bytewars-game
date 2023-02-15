@@ -25,7 +25,8 @@ public class Player : NetworkBehaviour
     UnityEngine.Color m_colour;
 
     void Start()
-    {       
+    {
+        GameDirector.Instance.WriteToConsole("PlayerSpawned! ");
         List<Vector3> outerVerts = new List<Vector3>();
         outerVerts.Add(new Vector3(0, 40, 0));
         outerVerts.Add(new Vector3(40, -45, 0));
@@ -52,13 +53,11 @@ public class Player : NetworkBehaviour
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
 
-    
     }
-
-
 
     void Update()
     {
+        
         transform.Rotate(Vector3.forward, Time.deltaTime * m_normalisedRotateSpeed * -100.0f);
         if( m_normalisedPowerChangeSpeed != 0.0f )
         {
@@ -87,17 +86,17 @@ public class Player : NetworkBehaviour
         m_powerBarUI.SetPercentageFraction(m_firePowerLevel,false);
     }
 
-    public void FireMissile()
+    public void LocalFireMissile()
     {
-        m_firedMissiles.RemoveAll(x=>x==null);
+        /*m_firedMissiles.RemoveAll(x=>x==null);
 
         if( m_firedMissiles.Count >= m_maxMissilesInFlight )
         {
             return;
-        }
+        }*/
 
         Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
-        GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, transform.rotation);
+       /* GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, transform.rotation);
 
         missile.GetComponent<Missile>().Init(GetPlayerState());
 
@@ -105,9 +104,58 @@ public class Player : NetworkBehaviour
 
         motionComponent.SetVelocity(transform.up * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, m_firePowerLevel));
 
-        m_firedMissiles.Add(missile);
+        m_firedMissiles.Add(missile);*/
+
+        PlayerFireMissileServerRPC(missileSpawnPosition, transform.up, transform.rotation, m_firePowerLevel, GetPlayerState());
     }
 
+    [ServerRpc]
+    public void PlayerFireMissileServerRPC(Vector3 MissilePosition, Vector3 transformUP, Quaternion rotation, float firePowerLevel, PlayerState PState )
+    {
+        GameDirector.Instance.WriteToConsole("Server RPC Missile from Client: " + OwnerClientId);
+        if (NetworkManager.ConnectedClients.ContainsKey(OwnerClientId))
+        {
+            //var client = NetworkManager.ConnectedClients[OwnerClientId];
+
+            m_firedMissiles.RemoveAll(x => x == null);
+
+            if (m_firedMissiles.Count >= m_maxMissilesInFlight)
+            {
+                return;
+            }
+
+            Vector3 missileSpawnPosition = MissilePosition;
+            GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, rotation);
+
+            missile.GetComponent<Missile>().Init(PState);
+
+            MotionComponent motionComponent = missile.GetComponent<MotionComponent>();
+
+            motionComponent.SetVelocity(transformUP * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, firePowerLevel));
+
+            m_firedMissiles.Add(missile);
+
+            RemoteFireMissileClientRPC(MissilePosition, transformUP, rotation, firePowerLevel, PState);
+        }
+    }
+
+    [ClientRpc]
+    public void RemoteFireMissileClientRPC(Vector3 MissilePosition, Vector3 transformUP, Quaternion rotation, float firePowerLevel, PlayerState PState)
+    {
+        //GameDirector.Instance.WriteToConsole("RemoteFireMissileClientRPC febore Owner Check OwnerClientId: " + OwnerClientId);
+        //if (IsOwner) return;
+
+        GameDirector.Instance.WriteToConsole("RemoteFireMissileClientRPC OwnerClientId: " + OwnerClientId);
+        Vector3 missileSpawnPosition = MissilePosition;
+        GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, rotation);
+
+        missile.GetComponent<Missile>().Init(PState);
+
+        MotionComponent motionComponent = missile.GetComponent<MotionComponent>();
+
+        motionComponent.SetVelocity(transformUP * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, firePowerLevel));
+
+    }
     public void OnHitByObject(GameplayObjectComponent otherObject)
     {
         this.m_playerState.m_numLivesLeft--;

@@ -37,7 +37,8 @@ public class MotionComponent : MonoBehaviour
 
         GameplayObjectComponent intersectingObject = GetIntersectingObject();
 
-        if( m_state == State.ClearShip )
+        
+        if ( m_state == State.ClearShip )
         {
             if (intersectingObject == null)
             {
@@ -46,6 +47,7 @@ public class MotionComponent : MonoBehaviour
         }
         else if( intersectingObject != null )
         {
+            Debug.LogWarning("FlaggedForDestruction " + m_state.ToString());
             m_gameMode.OnObjectHit(intersectingObject, m_gameplayObjectComponent);
             m_state = State.FlaggedForDestruction;
         }

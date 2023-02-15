@@ -86,8 +86,10 @@ public class Missile : MonoBehaviour
     {
         m_timeAlive += Time.deltaTime;
 
-        if( m_motionComponent.GetMotionState() == MotionComponent.State.FlaggedForDestruction )
+        if(m_motionComponent == null) GameDirector.Instance.WriteToConsole("Missie m_motionComponent is NULL");
+        if ( m_motionComponent.GetMotionState() == MotionComponent.State.FlaggedForDestruction )
         {
+            GameDirector.Instance.WriteToConsole("Destroying missile:");
             OnDestroyMissile();            
         }
         else if( m_timeAlive > 1.0f )

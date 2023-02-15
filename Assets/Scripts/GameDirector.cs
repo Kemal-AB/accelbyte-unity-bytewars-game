@@ -27,6 +27,9 @@ public class GameDirector : NetworkBehaviour
     // Start is called before the first frame update
     [SerializeField]
     private string _sceneName = "GalaxyWorld";
+
+    public GameObject PlayerPref;
+
     private Scene m_LoadedScene;
 
     public enum E_GameMode {MAIN_MENU, SINGLE_PLAYER, MULTI_PLAYER};
@@ -156,7 +159,6 @@ public class GameDirector : NetworkBehaviour
                         // Keep track of the loaded scene, you need this to unload it
                         m_LoadedScene = sceneEvent.Scene;
                         
-
                     }
                     WriteToConsole(clientOrServer +" with ID: "+ sceneEvent.ClientId + " LoadSceneCompleted :" + m_LoadedScene.name);
                     break;
@@ -170,7 +172,12 @@ public class GameDirector : NetworkBehaviour
             case SceneEventType.UnloadEventCompleted:
                 {
                     var loadUnload = sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted ? "Load" : "Unload";
-                    WriteToConsole($"{loadUnload} event completed");
+                    WriteToConsole($"{loadUnload} event completed... Starting Game");
+
+                   // if (NetworkManager.Singleton.IsServer)
+                   // {
+                   //     GameObject.Find("GameMode").GetComponent<InGameGameMode>().ServerStartGame();
+                  //  }
 
                     if (sceneEvent.ClientsThatTimedOut.Count > 0)
                     {
@@ -189,6 +196,11 @@ public class GameDirector : NetworkBehaviour
 
     public override void OnDestroy()
     {
+        if (NetworkManager == null)
+        {
+            base.OnDestroy();  return;
+        }
+
         NetworkManager.OnClientConnectedCallback -= OnClientConnectedCallback;
         NetworkManager.OnClientDisconnectCallback -= OnClientDisconnectCallback;
     }
