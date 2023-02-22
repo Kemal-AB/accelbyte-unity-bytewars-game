@@ -10,24 +10,24 @@ public class GameOverScreenController : MonoBehaviour
 
     public TextMeshProUGUI m_winningPlayerTextUI;
 
-    public void SetPlayers(PlayerController[] playerControllers)
+    public void SetPlayers(List<Player> players)
     {
         List<PlayerState> playerStates = new List<PlayerState>();
 
-        foreach( var playerController in playerControllers )
+        foreach (var player in players)
         {
-            playerStates.Add(playerController.GetPlayerState());
+            playerStates.Add(player.GetPlayerState());
         }
 
-        playerStates.Sort((a,b)=>{
+        playerStates.Sort((a, b) => {
             return b.m_playerScore.CompareTo(a.m_playerScore);
         });
 
-        SetWinningPlayer(playerStates[0].m_playerName,playerStates[0].m_teamColour);
+        SetWinningPlayer(playerStates[0].m_playerName, playerStates[0].m_teamColour);
 
-        foreach( var playerState in playerStates )
+        foreach (var playerState in playerStates)
         {
-            GameObject leaderboardEntryObject = GameObject.Instantiate(m_leaderboardEntryPrefab,Vector3.zero,Quaternion.identity,m_leaderboardParentObject.transform);
+            GameObject leaderboardEntryObject = GameObject.Instantiate(m_leaderboardEntryPrefab, Vector3.zero, Quaternion.identity, m_leaderboardParentObject.transform);
             LeaderboardEntryController leaderboardEntryController = leaderboardEntryObject.GetComponent<LeaderboardEntryController>();
 
             leaderboardEntryController.SetDetails(playerState.m_playerName, playerState.m_teamColour, playerState.m_killCount, (int)playerState.m_playerScore);
