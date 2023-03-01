@@ -572,6 +572,8 @@ public class InGameGameMode : NetworkBehaviour
 
     public void OnQuitPressed()
     {
-        SceneManager.LoadScene("MainMenu",LoadSceneMode.Single);
+        string sceneName = "MainMenu";
+        // SceneManager.LoadScene("MainMenu",LoadSceneMode.Single);
+        MenuManager.Instance.ChangeToMainMenu(sceneName);
     }
 }
