@@ -1,16 +1,17 @@
 //auto generated from AssetNameEnumGenerator
 public enum AssetEnum 
 {
-      MainMenuCanvas,
+      LoadingMenuCanvas,
       MenuConfig,
+      MainMenuCanvas,
       MenuManager,
       NotificationCanvas,
-      BrowseMatchMenuCanvas,
+      BrowseMatchesMenuCanvas,
       CreateCustomMatchMenuCanvas,
       CreateMatchMenuCanvas,
       MatchLobbyMenuCanvas,
       MatchLobbyTeamMenuCanvas,
-      MultiPlayerMenuCanvas,
+      MultiplayerMenuCanvas,
       PlayMenuCanvas,
       PlayOnlineMenuCanvas,
       QuickPlayMenuCanvas,

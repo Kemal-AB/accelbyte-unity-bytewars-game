@@ -1,22 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ButtonAnimation : MonoBehaviour
 {
-    private TMP_Text text;
+    public TMP_Text text;
+    public Button button;
 
     // Start is called before the first frame update
     void Start()
     {
-        GetComponent<Button>().onClick.AddListener(OnClickAnimation);
+      button.onClick.AddListener(OnClickAnimation);
     }
 
     void OnClickAnimation()
     {
-        text = GetComponentInChildren<TMP_Text>();
         var color = text.color;
         var fadeoutcolor = color;
         fadeoutcolor.a = 0;

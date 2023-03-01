@@ -5,6 +5,7 @@
     "CreateMatchMenuCanvas": {
       "CreateCustomMatchButton": "CreateCustomMatchMenuCanvas"
     },
+    "LoadingMenuCanvas": {},
     "MainMenuCanvas": {
       "PlayButton": "PlayMenuCanvas",
       "PlayOnlineButton": "PlayOnlineMenuCanvas"

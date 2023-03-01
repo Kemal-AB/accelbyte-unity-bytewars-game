@@ -24,6 +24,8 @@ public class MenuManager : MonoBehaviour
     private Dictionary<string, Dictionary<string,Dictionary<string, string>>> buttonDictionary = new Dictionary<string, Dictionary<string,Dictionary<string, string>>>();
 
     private Action _onHideAnimateComplete = null;
+    [SerializeField]
+    private StarterMenuCanvas _starterMenuCanvasPrefab;
     //dummy Enum
     public enum MenuEnum
     {
@@ -151,6 +153,14 @@ public class MenuManager : MonoBehaviour
     {
         LeanTween.alpha(currentMenu, 0, 0.4f).setOnComplete(() =>
         {
+            OnChangeMenuComplete(menuName.ToString());
+        });
+    }
+
+    public void ChangeToMenu(string menuName)
+    {
+        LeanTween.alpha(currentMenu, 0, 0.4f).setOnComplete(() =>
+        {
             OnChangeMenuComplete(menuName);
         });
     }
@@ -159,7 +169,30 @@ public class MenuManager : MonoBehaviour
     /// Change Menu Callback
     /// </summary>
     /// <param name="menuName"></param>
-    private void OnChangeMenuComplete(AssetEnum menuName)
+    private void OnChangeMenuComplete(String menuName)
+    {
+        if (currentMenu != null)
+        {
+            currentMenu.SetActive(false);
+        }
+
+        var targetMenu = menusDictionary[menuName];
+            
+        targetMenu.gameObject.SetActive(true);
+        currentMenu = targetMenu;
+        menusStack.Push(currentMenu);
+    }
+    
+    
+    public void ChangeToMenu<T>(AssetEnum menuName, Action<T> onMenuChanged)
+    {
+        LeanTween.alpha(currentMenu, 0, 0.4f).setOnComplete(() =>
+        {
+            OnMenuChanged(menuName, onMenuChanged);
+        });
+    }
+    
+    private void OnMenuChanged<T>(AssetEnum menuName, Action<T> onComplete)
     {
         if (currentMenu != null)
         {
@@ -167,8 +200,12 @@ public class MenuManager : MonoBehaviour
         }
 
         var targetMenu = menusDictionary[menuName.ToString()];
-            
         targetMenu.gameObject.SetActive(true);
+        if (onComplete != null)
+        {
+            var uiController = targetMenu.GetComponent<T>();
+            onComplete(uiController);
+        }
         currentMenu = targetMenu;
         menusStack.Push(currentMenu);
     }
@@ -290,7 +327,7 @@ public class MenuManager : MonoBehaviour
             TutorialModuleManager.Instance.PrepareUIAssets(menuGameObject);
         }
         
-        currentMenu = menusDictionary[AssetEnum.MainMenuCanvas.ToString()];
+        currentMenu = menusDictionary[AssetEnum.LoadingMenuCanvas.ToString()];
         if (currentMenu.activeSelf == false)
         {
             currentMenu.SetActive(true);
@@ -388,5 +425,28 @@ public class MenuManager : MonoBehaviour
         File.WriteAllText(filePath, jsonString);
     }
 
+    #endregion
+    
+    #region create menu runtime
+
+    public void AddMenu(MenuCanvasData menuCanvasData)
+    {
+        GameObject newMenuGO;
+        if (!menusDictionary.TryGetValue(menuCanvasData.name, out newMenuGO))
+        {
+            var newMenu = Instantiate(_starterMenuCanvasPrefab, transform);
+            newMenu.name = menuCanvasData.name;
+            newMenu.InstantiateButtons(menuCanvasData.buttons);
+            GameObject o;
+            (o = newMenu.gameObject).SetActive(false);
+            menusDictionary[menuCanvasData.name] = o;   
+        }
+        else
+        {
+            StarterMenuCanvas starterMenuCanvas = newMenuGO.GetComponent<StarterMenuCanvas>();
+            starterMenuCanvas.SetButtonsCallback(menuCanvasData.buttons);
+        }
+        
+    }
     #endregion
 }
