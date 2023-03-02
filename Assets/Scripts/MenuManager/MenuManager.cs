@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
+using TMPro;
 using Unity.Tutorials.Core.Editor;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -377,11 +378,24 @@ public class MenuManager : MonoBehaviour
                     }
                     else
                     {
-                        button.enabled = false;
+                        DisableButton(button);
                     }
                 }
             }
         }
+    }
+    
+    /// <summary>
+    /// Helper Function to disable Button UI
+    /// </summary>
+    /// <param name="button"></param>
+    private void DisableButton(Button button)
+    {
+        button.enabled = false;
+        button.transition = Selectable.Transition.None;
+        button.GetComponent<Image>().color = Color.clear;
+        button.GetComponentInChildren<TMP_Text>().color = Color.gray;
+        button.enabled = false;
     }
 
     #endregion
