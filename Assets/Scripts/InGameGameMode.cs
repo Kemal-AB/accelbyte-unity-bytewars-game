@@ -232,10 +232,10 @@ public class InGameGameMode : MonoBehaviour
             playerState.m_teamColour = m_teamColours[playerIndex];
             playerState.m_playerName = m_playerNames[playerIndex];
 
-
             playerComponent.Init(playerState.m_teamColour);
 
             m_hud.m_playerControllers[playerIndex].SetColour(playerState.m_teamColour);
+            m_hud.m_playerControllers[playerIndex].SetLivesValue( m_startNumLives );
         }
 
         return newShip;
