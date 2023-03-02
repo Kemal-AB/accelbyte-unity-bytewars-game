@@ -12,8 +12,7 @@ public class PlayMenu : MonoBehaviour
     public Button backButton;
     public Button singlePlayerButton;
     public Button multiplayerButton;
-
-    private UnityAction _mMyFirstAction;
+    
     void Start()
     {
         singlePlayerButton.onClick.AddListener(OnSinglePlayerButtonPressed);

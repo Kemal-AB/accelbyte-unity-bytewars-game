@@ -122,7 +122,7 @@ public class MenuManager : MonoBehaviour
                     case "TeamDeathmatchButton":
                         buttonsDict.Add(childObject.name, "MatchLobbyTeamMenuCanvas");
                         break;
-                    case "SinglePlayerButton":
+                    case "SingleplayerButton":
                         buttonsDict.Add(childObject.name, "GameDirection");
                         break;
                 }
