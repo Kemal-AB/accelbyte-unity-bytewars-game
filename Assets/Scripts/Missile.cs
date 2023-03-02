@@ -86,10 +86,8 @@ public class Missile : MonoBehaviour
     {
         m_timeAlive += Time.deltaTime;
 
-        if(m_motionComponent == null) GameDirector.Instance.WriteToConsole("Missie m_motionComponent is NULL");
         if ( m_motionComponent.GetMotionState() == MotionComponent.State.FlaggedForDestruction )
         {
-            GameDirector.Instance.WriteToConsole("Destroying missile:");
             OnDestroyMissile();            
         }
         else if( m_timeAlive > 1.0f )
@@ -141,14 +139,17 @@ public class Missile : MonoBehaviour
     {
         foreach( var gameplayObject in m_gameMode.GetGameState().m_activeObjects)
         {
-            if( gameplayObject.gameObject != gameObject )
+            if(gameplayObject!= null)
             {
-                float distance = Vector3.Distance( gameplayObject.transform.position, gameObject.transform.position );
-                float combinedRadius = m_gameplayObjectComponent.m_radius + gameplayObject.m_radius;
-
-                if( distance - combinedRadius < m_skimDistanceThreshold )
+                if (gameplayObject.gameObject != gameObject)
                 {
-                    return true;
+                    float distance = Vector3.Distance(gameplayObject.transform.position, gameObject.transform.position);
+                    float combinedRadius = m_gameplayObjectComponent.m_radius + gameplayObject.m_radius;
+
+                    if (distance - combinedRadius < m_skimDistanceThreshold)
+                    {
+                        return true;
+                    }
                 }
             }
         }

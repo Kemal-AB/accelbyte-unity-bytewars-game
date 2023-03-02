@@ -47,7 +47,7 @@ public class MotionComponent : MonoBehaviour
         }
         else if( intersectingObject != null )
         {
-            Debug.LogWarning("FlaggedForDestruction " + m_state.ToString());
+           // Debug.LogWarning("FlaggedForDestruction " + m_state.ToString());
             m_gameMode.OnObjectHit(intersectingObject, m_gameplayObjectComponent);
             m_state = State.FlaggedForDestruction;
         }
@@ -68,18 +68,21 @@ public class MotionComponent : MonoBehaviour
 
         foreach (GameplayObjectComponent activeObject in m_gameMode.GetGameState().m_activeObjects)
         {
-            if (activeObject.transform.position == m_gameplayObjectComponent.transform.position)
+            if(activeObject != null )
             {
-                continue;
+                if (activeObject.transform.position == m_gameplayObjectComponent.transform.position)
+                {
+                    continue;
+                }
+
+                float force = 50.0f * m_gameplayObjectComponent.m_mass * activeObject.m_mass;
+                float distanceBetween = Vector3.Distance(transform.position, activeObject.transform.position);
+                force /= Mathf.Pow(distanceBetween * 100.0f, 1.5f);
+
+                Vector3 direction = (activeObject.transform.position - transform.position).normalized;
+
+                totalForce += direction * 0.01f * force;
             }
-
-            float force = 50.0f * m_gameplayObjectComponent.m_mass * activeObject.m_mass;
-            float distanceBetween = Vector3.Distance(transform.position, activeObject.transform.position);
-            force /= Mathf.Pow(distanceBetween * 100.0f, 1.5f);
-
-            Vector3 direction = (activeObject.transform.position - transform.position).normalized;
-
-            totalForce += direction * 0.01f * force;
         }
 
         return totalForce;        
@@ -89,17 +92,20 @@ public class MotionComponent : MonoBehaviour
     {
         foreach (GameplayObjectComponent activeObject in m_gameMode.GetGameState().m_activeObjects)
         {
-            if (activeObject == m_gameplayObjectComponent)
+            if (activeObject != null)
             {
-                continue;
-            }
+                if (activeObject == m_gameplayObjectComponent)
+                {
+                    continue;
+                }
 
-            float distanceBetween = Vector3.Distance(transform.position, activeObject.transform.position);
-            float combinedRadius = activeObject.m_radius + m_gameplayObjectComponent.m_radius;
+                float distanceBetween = Vector3.Distance(transform.position, activeObject.transform.position);
+                float combinedRadius = activeObject.m_radius + m_gameplayObjectComponent.m_radius;
 
-            if (distanceBetween <= combinedRadius)
-            {
-                return activeObject;
+                if (distanceBetween <= combinedRadius)
+                {
+                    return activeObject;
+                }
             }
         }
 

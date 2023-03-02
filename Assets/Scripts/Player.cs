@@ -13,7 +13,7 @@ public class Player : NetworkBehaviour
     public GameObject m_missileTrailPrefab;
     public float m_minMissileSpeed = 1.5f;
     public float m_maxMissileSpeed = 9.0f;
-    public int m_maxMissilesInFlight = 1;
+    public int m_maxMissilesInFlight = 2;
 
     float m_normalisedRotateSpeed = 0.0f;
     float m_normalisedPowerChangeSpeed = 0.0f;
@@ -74,6 +74,11 @@ public class Player : NetworkBehaviour
         return m_playerState;
     }
 
+    public void InitServerPlayer(Color colour)
+    {
+        m_colour = colour;
+        gameObject.GetComponent<Renderer>().material.SetVector("_PlayerColour", m_colour);
+    }
     public void Init(Color colour)
     {
         m_colour = colour;
@@ -91,10 +96,10 @@ public class Player : NetworkBehaviour
         {
             m_firedMissiles.RemoveAll(x => x == null);
 
-            if (m_firedMissiles.Count >= m_maxMissilesInFlight)
-            {
-                return;
-            }
+            //if (m_firedMissiles.Count >= m_maxMissilesInFlight)
+            //{
+           //     return;
+            //}
 
             Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
             GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, transform.rotation);
@@ -128,15 +133,15 @@ public class Player : NetworkBehaviour
     [ServerRpc]
     public void PlayerFireMissileServerRPC(Vector3 MissilePosition, Vector3 transformUP, Quaternion rotation, float firePowerLevel, PlayerState PState)
     {
-        GameDirector.Instance.WriteToConsole("Server RPC Missile from Client: " + OwnerClientId);
+        //GameDirector.Instance.WriteToConsole("Server RPC Missile from Client: " + OwnerClientId);
         if (NetworkManager.ConnectedClients.ContainsKey(OwnerClientId))
         {
             m_firedMissiles.RemoveAll(x => x == null);
 
-            if (m_firedMissiles.Count >= m_maxMissilesInFlight)
-            {
-                return;
-            }
+           // if (m_firedMissiles.Count >= m_maxMissilesInFlight)
+           // {
+           //     return;
+           // }
 
             Vector3 missileSpawnPosition = MissilePosition;
             GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, rotation);
@@ -167,7 +172,7 @@ public class Player : NetworkBehaviour
         //GameDirector.Instance.WriteToConsole("RemoteFireMissileClientRPC febore Owner Check OwnerClientId: " + OwnerClientId);
         //if (IsOwner) return;
 
-        GameDirector.Instance.WriteToConsole("RemoteFireMissileClientRPC OwnerClientId: " + OwnerClientId);
+        //GameDirector.Instance.WriteToConsole("RemoteFireMissileClientRPC OwnerClientId: " + OwnerClientId);
         Vector3 missileSpawnPosition = MissilePosition;
         GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, rotation);
 
@@ -190,10 +195,9 @@ public class Player : NetworkBehaviour
 
     public void OnHitByObject(GameplayObjectComponent otherObject)
     {
-        if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
+        this.m_playerState.m_numLivesLeft--;
+        if (this.m_playerState.m_numLivesLeft <= 0)
         {
-            this.m_playerState.m_numLivesLeft--;
-
             GameObject explosion = GameObject.Instantiate(m_shipDestroyedEffectPrefab, transform.position, transform.rotation);
             explosion.GetComponent<Renderer>().material.SetVector("_Colour", m_colour);
         }

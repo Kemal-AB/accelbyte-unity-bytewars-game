@@ -1,0 +1,31 @@
+{
+  "MenuCanvas": {
+    "BrowseMatchesMenuCanvas": {},
+    "CreateCustomMatchMenuCanvas": {},
+    "CreateMatchMenuCanvas": {
+      "CreateCustomMatchButton": "CreateCustomMatchMenuCanvas"
+    },
+    "LoadingMenuCanvas": {},
+    "MainMenuCanvas": {
+      "PlayButton": "PlayMenuCanvas",
+      "PlayOnlineButton": "PlayOnlineMenuCanvas"
+    },
+    "MatchLobbyMenuCanvas": {},
+    "MatchLobbyTeamMenuCanvas": {},
+    "MultiplayerMenuCanvas": {
+      "EliminationButton": "MatchLobbyMenuCanvas",
+      "TeamDeathmatchButton": "MatchLobbyTeamMenuCanvas"
+    },
+    "PlayMenuCanvas": {
+      "SinglePlayerButton": "GameDirection"
+    },
+    "PlayOnlineMenuCanvas": {
+      "QuickPlayButton": "QuickPlayMenuCanvas",
+      "CreateMatchButton": "CreateMatchMenuCanvas"
+    },
+    "QuickPlayMenuCanvas": {
+      "EliminationButton": "MatchLobbyMenuCanvas",
+      "TeamDeathmatchButton": "MatchLobbyTeamMenuCanvas"
+    }
+  }
+}

@@ -159,6 +159,7 @@ public class GameDirector : NetworkBehaviour
                         // Keep track of the loaded scene, you need this to unload it
                         m_LoadedScene = sceneEvent.Scene;
                         
+
                     }
                     WriteToConsole(clientOrServer +" with ID: "+ sceneEvent.ClientId + " LoadSceneCompleted :" + m_LoadedScene.name);
                     break;

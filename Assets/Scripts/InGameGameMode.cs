@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using Unity.Netcode;
 
-public class InGameGameMode : MonoBehaviour
+public class InGameGameMode : NetworkBehaviour
 {
     public InGameHUDController m_hud;
     public GameObject m_gameOverUI;
@@ -21,7 +21,7 @@ public class InGameGameMode : MonoBehaviour
     public int m_numRetriesToPlacePlayer = 100;
     public float m_gameDuration = 600.0f;
     public float m_baseKillScore = 500.0f;
-    public int m_startNumLives = 1;    
+    public int m_startNumLives = 2;    
 
     public Color[] m_teamColours;
     public string[] m_playerNames;
@@ -64,7 +64,7 @@ public class InGameGameMode : MonoBehaviour
 
         SpawnLevelObjects();
 
-        SpawnPlayers(m_gameState.m_playerControllers);
+        SpawnLocalPlayers(m_gameState.m_playerControllers);
 
         SetupGame();
 
@@ -72,7 +72,7 @@ public class InGameGameMode : MonoBehaviour
 
         m_gameInitialized = true;
 
-        if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER)
+        if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER && NetworkManager.Singleton.IsServer)
             InitPlayerControllerClientRPC();
     }
 
@@ -110,7 +110,8 @@ public class InGameGameMode : MonoBehaviour
                 m_hud.gameObject.SetActive(false);
                 Time.timeScale = 0;
                 m_gameOverUI.gameObject.SetActive(true);
-                m_gameOverUI.gameObject.GetComponent<GameOverScreenController>().SetPlayers(GetGameState().m_playerControllers);
+                //PlayerList_Here
+                m_gameOverUI.gameObject.GetComponent<GameOverScreenController>().SetPlayers(GetGameState().m_players);
             }
             break;
         };
@@ -159,7 +160,7 @@ public class InGameGameMode : MonoBehaviour
         }
     }
 
-    void SpawnPlayers(PlayerController[] playerControllers)
+    void SpawnLocalPlayers(PlayerController[] playerControllers)
     {
         List<GameObject> ships = new List<GameObject>();
 
@@ -197,21 +198,7 @@ public class InGameGameMode : MonoBehaviour
     {
         GameObject newShip = null;
 
-        if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER)
-        {
-            if (NetworkManager.Singleton.IsServer)
-            {
-                GameDirector.Instance.WriteToConsole("Server SpawningPlayer: " + ++playerIndex);
-
-                newShip = GameObject.Instantiate(m_playerPrefab, position, Quaternion.identity, m_levelParent.transform);
-
-                newShip.GetComponent<NetworkObject>().SpawnAsPlayerObject((ulong)(playerIndex), true);
-
-                m_gameState.m_activeObjects.Add(newShip.GetComponent<GameplayObjectComponent>());
-
-            }
-        }
-        else
+        if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
         {
             newShip = GameObject.Instantiate(m_playerPrefab, position, Quaternion.identity, m_levelParent.transform);
 
@@ -234,8 +221,46 @@ public class InGameGameMode : MonoBehaviour
 
             playerComponent.Init(playerState.m_teamColour);
 
+            m_gameState.m_players.Add(playerComponent);
+
             m_hud.m_playerControllers[playerIndex].SetColour(playerState.m_teamColour);
             m_hud.m_playerControllers[playerIndex].SetLivesValue( m_startNumLives );
+        }
+        else
+        {
+
+            if (NetworkManager.Singleton.IsServer)
+            {
+                ++playerIndex;
+
+                GameDirector.Instance.WriteToConsole("Server SpawningPlayer: " + playerIndex);
+
+                newShip = GameObject.Instantiate(m_playerPrefab, position, Quaternion.identity, m_levelParent.transform);
+
+                newShip.GetComponent<NetworkObject>().SpawnAsPlayerObject((ulong)(playerIndex), true);
+
+                m_gameState.m_activeObjects.Add(newShip.GetComponent<GameplayObjectComponent>());
+
+                Player playerComponent = newShip.GetComponent<Player>();
+
+                if (playerController.gameObject.GetComponent<PlayerState>() != null)
+                {
+                    Destroy(playerController.gameObject.GetComponent<PlayerState>());
+                }
+
+                PlayerState playerState = playerController.gameObject.AddComponent<PlayerState>();
+
+                playerController.SetControlledPlayer(playerComponent);
+                playerComponent.SetPlayerState(playerState);
+                playerState.m_numLivesLeft = m_startNumLives;
+                playerState.m_teamColour = m_teamColours[playerIndex];
+                playerState.m_playerName = m_playerNames[playerIndex];
+
+                playerComponent.InitServerPlayer(playerState.m_teamColour);
+
+                m_gameState.m_players.Add(playerComponent);
+            }
+
         }
 
         return newShip;
@@ -246,14 +271,18 @@ public class InGameGameMode : MonoBehaviour
     {
         if (NetworkManager.Singleton.IsServer) return;
 
+        m_gameState = GameObject.FindObjectOfType<InGameGameState>();
+        m_levelParent = new GameObject("LevelObjects");
+
         GameDirector.Instance.WriteToConsole("InitPlayer - ClientID: " + NetworkManager.Singleton.LocalClientId);
-
-        Player playerComponent = GameDirector.Instance.NetManager.LocalClient.PlayerObject.GetComponent<Player>();
-
-        m_gameState.m_activeObjects.Add(playerComponent.gameObject.GetComponent<GameplayObjectComponent>());
-
+        
+        Player myPlayerComponent = NetworkManager.LocalClient.PlayerObject.GetComponent<Player>();
+        GameplayObjectComponent myGoComponent  = NetworkManager.LocalClient.PlayerObject.GetComponent<GameplayObjectComponent>();
+       
+        m_gameState.m_activeObjects.Add(myGoComponent);
         PlayerInput spawnedPlayerController1 = PlayerInput.Instantiate(m_playerControllerPrefab, controlScheme: "Keyboard", pairWithDevice: Keyboard.current);
         m_gameState.m_playerControllers = GameObject.FindObjectsOfType<PlayerController>();
+        m_gameState.m_players.Add(myPlayerComponent);
 
         if (m_gameState.m_playerControllers[0].gameObject.GetComponent<PlayerState>() != null)
         {
@@ -262,16 +291,36 @@ public class InGameGameMode : MonoBehaviour
 
         PlayerState playerState = m_gameState.m_playerControllers[0].gameObject.AddComponent<PlayerState>();
 
-        m_gameState.m_playerControllers[0].SetControlledPlayer(playerComponent);
-        playerComponent.SetPlayerState(playerState);
+        m_gameState.m_playerControllers[0].SetControlledPlayer(myPlayerComponent);
+        myPlayerComponent.SetPlayerState(playerState);
         playerState.m_numLivesLeft = m_startNumLives;
         playerState.m_teamColour = m_teamColours[0];
         playerState.m_playerName = m_playerNames[0];
 
 
-        playerComponent.Init(playerState.m_teamColour);
+        myPlayerComponent.Init(playerState.m_teamColour);
 
         m_hud.m_playerControllers[0].SetColour(playerState.m_teamColour);
+
+
+        foreach (Player OtherPlayerComponent in GameObject.FindObjectsOfType<Player>())
+        {
+            //Add the remote player to GameObjects list too
+            if (OtherPlayerComponent != myPlayerComponent)
+            {
+                m_gameState.m_activeObjects.Add(OtherPlayerComponent.gameObject.GetComponent<GameplayObjectComponent>());
+
+                PlayerState OtherplayerState = m_gameState.m_playerControllers[0].gameObject.AddComponent<PlayerState>();
+
+                OtherPlayerComponent.SetPlayerState(OtherplayerState);
+                OtherplayerState.m_numLivesLeft = m_startNumLives;
+                OtherplayerState.m_teamColour = m_teamColours[1];
+                OtherplayerState.m_playerName = m_playerNames[1];
+
+                OtherPlayerComponent.Init(OtherplayerState.m_teamColour);
+                m_hud.m_playerControllers[1].SetColour(OtherplayerState.m_teamColour);
+            }
+        }
     }
 
     bool IsTooCloseToOtherObject(Vector3 testPosition, GameObject testObject)
@@ -346,7 +395,19 @@ public class InGameGameMode : MonoBehaviour
 
         return false;
     }
+    bool GetHasLineOfSightToOtherShip(Vector3 shipPosition, List<Player> otherShips)
+    {
+        foreach (Player player in otherShips)
+        {
+            GameObject ship = player.gameObject;
+            if (GetHasLineOfSightToOtherObject(shipPosition, ship.transform.position, 0.5f))
+            {
+                return true;
+            }
+        }
 
+        return false;
+    }
     public InGameGameState GetGameState()
     {
         return m_gameState;
@@ -376,8 +437,44 @@ public class InGameGameMode : MonoBehaviour
                 }
                 
                 player.OnHitByObject(sourceObject);
-                m_gameState.OnObjectRemovedFromWorld(hitObject);
-                Destroy(player.gameObject);
+
+                if(player.GetPlayerState().m_numLivesLeft <= 0)
+                {
+                    //Plaer Dead, destroyed
+                    m_gameState.OnObjectRemovedFromWorld(hitObject);
+
+                    if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
+                        Destroy(player.gameObject);
+                    else
+                        if (NetworkManager.Singleton.IsServer)
+                            NetworkManager.Destroy(player.gameObject);
+                }else
+                {//Reposition Player
+                 // if ((GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER) || (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER && NetworkManager.Singleton.IsServer))
+                 // {
+                    bool playerPlaced = false;
+                    for (int i = 0; i < m_numRetriesToPlacePlayer; i++)
+                    {
+                        Vector3 randomPosition = new Vector3(
+                            Random.Range(m_bounds.min.x, m_bounds.max.x),
+                            Random.Range(m_bounds.min.y, m_bounds.max.y),
+                            0.0f
+                        );
+
+                        if (!IsTooCloseToOtherObject(randomPosition, m_playerPrefab))
+                        {
+                            if (!GetHasLineOfSightToOtherShip(randomPosition, m_gameState.m_players))
+                            {
+                                //player.transform.position = randomPosition;
+                                player.gameObject.transform.position = randomPosition;
+                                playerPlaced = true;
+                            }
+                        }
+
+                        if(playerPlaced) break; 
+                    }
+                   // }
+                }
             }
         }
         else if (hitObject.tag == "Planet")
@@ -404,13 +501,13 @@ public class InGameGameMode : MonoBehaviour
 
     public void CheckForGameOverCondition()
     {
-        int numPlayersAlive = 0;
 
-        if(GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
+        int numPlayersAlive = 0;
+        if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
         {
-            foreach (PlayerController playerController in m_gameState.m_playerControllers)
+            foreach (Player player in m_gameState.m_players)
             {
-                if (playerController.GetPlayerState().m_numLivesLeft > 0)
+                if (player.GetPlayerState().m_numLivesLeft > 0)
                 {
                     numPlayersAlive++;
                 }
@@ -420,12 +517,39 @@ public class InGameGameMode : MonoBehaviour
             {
                 EndGame();
             }
+        }else
+        {
+            if (NetworkManager.Singleton.IsServer)
+            {
+                foreach (Player player in m_gameState.m_players)
+                {
+                    if (player.GetPlayerState().m_numLivesLeft > 0)
+                    {
+                        numPlayersAlive++;
+                    }
+                }
+
+                if (numPlayersAlive <= 1)
+                {
+                    GameDirector.Instance.WriteToConsole("Server Game Ended");
+                    EndGameClientRPC();
+                    EndGame();
+                    
+                }
+            }
         }
-        
     }
 
     void EndGame()
     {
+        GameDirector.Instance.WriteToConsole("Local Game Ended");
+        SetGameState(InGameGameState.GameState.GameOver);
+    }
+    [ClientRpc]
+    void EndGameClientRPC()
+    {
+        if (IsOwner) return;
+        GameDirector.Instance.WriteToConsole("CLient Game Ended");
         SetGameState(InGameGameState.GameState.GameOver);
     }
 
@@ -449,6 +573,8 @@ public class InGameGameMode : MonoBehaviour
 
     public void OnQuitPressed()
     {
-        SceneManager.LoadScene("MainMenu",LoadSceneMode.Single);
+        string sceneName = "MainMenu";
+        // SceneManager.LoadScene("MainMenu",LoadSceneMode.Single);
+        MenuManager.Instance.ChangeToMainMenu(sceneName);
     }
 }

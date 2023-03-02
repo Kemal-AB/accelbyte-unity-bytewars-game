@@ -34,14 +34,21 @@ public class InGameCamera : MonoBehaviour
 
         foreach( var activeObject in m_gameState.m_activeObjects )
         {
-            Vector3 objPosition = activeObject.transform.position;
-            m_furthestPositionToFrame = Vector2.Max(m_furthestPositionToFrame, new Vector2(Mathf.Abs(objPosition.x) + bufferWidth,Mathf.Abs(objPosition.y)+ bufferWidth));
+            if(activeObject != null)
+            {
+                Vector3 objPosition = activeObject.transform.position;
+                m_furthestPositionToFrame = Vector2.Max(m_furthestPositionToFrame, new Vector2(Mathf.Abs(objPosition.x) + bufferWidth, Mathf.Abs(objPosition.y) + bufferWidth));
+            }
+            
         }
 
         foreach( var activeObject in GameObject.FindObjectsOfType<Missile>() )
         {
-            Vector3 objPosition = activeObject.transform.position;
-            m_furthestPositionToFrame = Vector2.Max(m_furthestPositionToFrame, new Vector2(Mathf.Abs(objPosition.x) + bufferWidth,Mathf.Abs(objPosition.y)+ bufferWidth));
+            if (activeObject != null)
+            {
+                Vector3 objPosition = activeObject.transform.position;
+                m_furthestPositionToFrame = Vector2.Max(m_furthestPositionToFrame, new Vector2(Mathf.Abs(objPosition.x) + bufferWidth,Mathf.Abs(objPosition.y)+ bufferWidth));
+            }
         }
 
         m_furthestPositionToFrame = Vector2.Min(m_furthestPositionToFrame, m_maxExtents);

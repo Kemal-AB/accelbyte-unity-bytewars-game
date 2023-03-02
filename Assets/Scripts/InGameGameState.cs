@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using Unity.Netcode;
 public class InGameGameState : MonoBehaviour
 {
     public enum GameState
@@ -18,6 +18,7 @@ public class InGameGameState : MonoBehaviour
 
     public List<GameplayObjectComponent> m_activeObjects = new List<GameplayObjectComponent>();
     public PlayerController[] m_playerControllers;
+    public List<Player> m_players = new List<Player>();
 
     public void SetGameState(GameState newGameState)
     {
