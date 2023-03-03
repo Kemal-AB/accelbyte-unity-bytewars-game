@@ -17,11 +17,13 @@
       "TeamDeathmatchButton": "MatchLobbyTeamMenuCanvas"
     },
     "PlayMenuCanvas": {
-      "SinglePlayerButton": "GameDirection"
+      "SingleplayerButton": "GameDirection",
+      "MultiplayerButton": "MultiplayerMenuCanvas"
     },
     "PlayOnlineMenuCanvas": {
       "QuickPlayButton": "QuickPlayMenuCanvas",
-      "CreateMatchButton": "CreateMatchMenuCanvas"
+      "CreateMatchButton": "CreateMatchMenuCanvas",
+      "BrowseMatchesButton": "BrowseMatchesMenuCanvas"
     },
     "QuickPlayMenuCanvas": {
       "EliminationButton": "MatchLobbyMenuCanvas",

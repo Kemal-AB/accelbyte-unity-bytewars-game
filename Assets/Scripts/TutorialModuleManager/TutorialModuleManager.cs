@@ -198,7 +198,12 @@ public class TutorialModuleManager : MonoBehaviour
     public Object GetModuleClass(string moduleId)
     {
         Type moduleType = _moduleClassTypes[moduleId].classType;
-        return gameObject.GetComponent(moduleType);
+        return gameObject.GetComponentInChildren(moduleType);
+    }
+    
+    public T GetModuleClass<T>()
+    {
+        return gameObject.GetComponentInChildren<T>();
     }
     
     /// <summary>

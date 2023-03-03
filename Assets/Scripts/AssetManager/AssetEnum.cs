@@ -1,8 +1,10 @@
 //auto generated from AssetNameEnumGenerator
 public enum AssetEnum 
 {
-      LoadingMenuCanvas,
+      RetrySkipQuitMenu,
       MenuConfig,
+      LoginWithDeviceID,
+      LoadingMenuCanvas,
       MainMenuCanvas,
       MenuManager,
       NotificationCanvas,

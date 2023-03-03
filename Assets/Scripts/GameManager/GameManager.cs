@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+using System.Linq;
+using UnityEngine.Events;
 
 public class GameManager : MonoBehaviour
 {
     private WaitForSeconds _wait = new WaitForSeconds(0.5f);
     private static GameManager _instance;
-    private static bool _isLoggedIn = false;
     private void Awake()
     {
 
@@ -28,38 +30,33 @@ public class GameManager : MonoBehaviour
 
     IEnumerator StartWait()
     {
-        if (_isLoggedIn) yield break;
         yield return _wait;
-        var loginWithDeviceIdButton = new MenuButtonData
+        bool isABSDKInstalled = TutorialModuleUtil.IsAccelbyteSDKInstalled();
+        LoginWithDeviceHandler loginWithDeviceHandler =
+            TutorialModuleManager.Instance.GetModuleClass<LoginWithDeviceHandler>();
+        var loginWithDeviceIDdata =
+            AssetManager.Singleton.GetAsset(AssetEnum.LoginWithDeviceID) as TutorialModuleData;
+        if (isABSDKInstalled && loginWithDeviceHandler!=null && 
+            !loginWithDeviceHandler.IsLoggedIn && loginWithDeviceIDdata!=null 
+            && loginWithDeviceIDdata.isActive)
         {
-            label = "Login with Device ID",
-            name = "LoginWithDeviceIDButton",
-            callback = ClickLoginWithDeviceID
-        };
-        var loginWithDeviceIDCanvasData = new MenuCanvasData
+            loginWithDeviceHandler.SetData(loginWithDeviceIDdata, OnLoginWithDeviceIDFinished);
+            MenuManager.Instance.AddMenu(loginWithDeviceIDdata.menuCanvasData);
+            yield return _wait;
+            MenuManager.Instance.ChangeToMenu(loginWithDeviceIDdata.menuCanvasData.name);
+        }
+        else
         {
-            buttons = new Dictionary<string, MenuButtonData>()
-            {
-                {loginWithDeviceIdButton.name, loginWithDeviceIdButton}
-            },
-            name = "LoginWithDeviceIDMenuCanvas"
-        };
-        MenuManager.Instance.AddMenu(loginWithDeviceIDCanvasData);
-        yield return _wait;
-        MenuManager.Instance.ChangeToMenu(loginWithDeviceIDCanvasData.name);
+            MenuManager.Instance.ChangeToMenu(AssetEnum.MainMenuCanvas);
+        }
     }
 
-    private void ClickLoginWithDeviceID()
+    private void OnLoginWithDeviceIDFinished(bool isSuccess)
     {
-        MenuManager.Instance.ChangeToMenu(AssetEnum.LoadingMenuCanvas);
-        Debug.Log("call 3rdparty API, login with device id is clicked");
-        StartCoroutine(PretendApiCallFinishedSuccessfully());
-    }
-
-    IEnumerator PretendApiCallFinishedSuccessfully()
-    {
-        _isLoggedIn = true;
-        yield return _wait;
-        MenuManager.Instance.ChangeToMenu(AssetEnum.MainMenuCanvas);
+        Debug.Log("login with device id isSuccess: "+isSuccess);
+        if (isSuccess)
+        {
+            MenuManager.Instance.ChangeToMenu(AssetEnum.MainMenuCanvas);
+        }
     }
 }

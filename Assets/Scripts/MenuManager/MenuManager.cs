@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Newtonsoft.Json;
 using TMPro;
 using Unity.Tutorials.Core.Editor;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 using TextAsset = UnityEngine.TextAsset;
@@ -442,7 +443,6 @@ public class MenuManager : MonoBehaviour
     #endregion
     
     #region create menu runtime
-
     public void AddMenu(MenuCanvasData menuCanvasData)
     {
         GameObject newMenuGO;
@@ -463,4 +463,19 @@ public class MenuManager : MonoBehaviour
         
     }
     #endregion
+
+    public void ShowRetrySkipQuitMenu(UnityAction retryCallback, UnityAction skipCallback)
+    {
+        var retrySkipMenuData = AssetManager.Singleton.GetAsset(AssetEnum.RetrySkipQuitMenu)
+            as TutorialModuleData;
+        if (retrySkipMenuData != null)
+        {
+            RetrySkipQuitMenuHandler handler =
+                TutorialModuleManager.Instance.GetModuleClass<RetrySkipQuitMenuHandler>();
+            handler.SetCallbacks(retrySkipMenuData, retryCallback, skipCallback);
+            AddMenu(retrySkipMenuData.menuCanvasData);
+            ChangeToMenu(retrySkipMenuData.name);
+        }
+    }
+    
 }
