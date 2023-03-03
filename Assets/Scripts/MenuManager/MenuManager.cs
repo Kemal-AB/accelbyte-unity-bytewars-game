@@ -443,14 +443,14 @@ public class MenuManager : MonoBehaviour
     #endregion
     
     #region create menu runtime
-    public void AddMenu(MenuCanvasData menuCanvasData)
+    public string AddMenu(MenuCanvasData menuCanvasData, string message=null)
     {
         GameObject newMenuGO;
         if (!menusDictionary.TryGetValue(menuCanvasData.name, out newMenuGO))
         {
             var newMenu = Instantiate(_starterMenuCanvasPrefab, transform);
             newMenu.name = menuCanvasData.name;
-            newMenu.InstantiateButtons(menuCanvasData.buttons);
+            newMenu.InstantiateButtons(menuCanvasData.buttons, message);
             GameObject o;
             (o = newMenu.gameObject).SetActive(false);
             menusDictionary[menuCanvasData.name] = o;   
@@ -459,12 +459,13 @@ public class MenuManager : MonoBehaviour
         {
             StarterMenuCanvas starterMenuCanvas = newMenuGO.GetComponent<StarterMenuCanvas>();
             starterMenuCanvas.SetButtonsCallback(menuCanvasData.buttons);
+            starterMenuCanvas.SetAdditionalInfo(message);
         }
-        
+        return menuCanvasData.name;
     }
     #endregion
 
-    public void ShowRetrySkipQuitMenu(UnityAction retryCallback, UnityAction skipCallback)
+    public void ShowRetrySkipQuitMenu(UnityAction retryCallback, UnityAction skipCallback, string message=null)
     {
         var retrySkipMenuData = AssetManager.Singleton.GetAsset(AssetEnum.RetrySkipQuitMenu)
             as TutorialModuleData;
@@ -472,9 +473,9 @@ public class MenuManager : MonoBehaviour
         {
             RetrySkipQuitMenuHandler handler =
                 TutorialModuleManager.Instance.GetModuleClass<RetrySkipQuitMenuHandler>();
-            handler.SetCallbacks(retrySkipMenuData, retryCallback, skipCallback);
-            AddMenu(retrySkipMenuData.menuCanvasData);
-            ChangeToMenu(retrySkipMenuData.name);
+            handler.SetData(retrySkipMenuData, retryCallback, skipCallback, message);
+            string menuName = AddMenu(retrySkipMenuData.menuCanvasData, message);
+            ChangeToMenu(menuName);
         }
     }
     

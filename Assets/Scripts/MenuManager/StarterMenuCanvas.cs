@@ -9,12 +9,22 @@ public class StarterMenuCanvas : MonoBehaviour
     [SerializeField] private ButtonAnimation buttonPrefab;
 
     [SerializeField] private RectTransform buttonPanel;
+    [SerializeField] private TMPro.TMP_Text additionalInfo;
     private Dictionary<string, ButtonAnimation> instantiatedButtons= new Dictionary<string, ButtonAnimation>();
+    private string infoStr;
+    private void OnEnable()
+    {
+        additionalInfo.gameObject.SetActive(!String.IsNullOrEmpty(infoStr));
+    }
 
-    public void InstantiateButtons(MenuButtonData[] buttonsData)
+    public void InstantiateButtons(MenuButtonData[] buttonsData, string message=null)
     {
         if (instantiatedButtons.Count == buttonsData.Length)
             return;
+        if (!String.IsNullOrEmpty(message))
+        {
+            SetAdditionalInfo(message);
+        }
         foreach (var buttonData in buttonsData)
         {
             var instantiatedButton = Instantiate(buttonPrefab, Vector3.zero, Quaternion.identity, buttonPanel);
@@ -39,6 +49,16 @@ public class StarterMenuCanvas : MonoBehaviour
                 if(buttonData.callback!=null)
                 buttonAnimation.button.onClick.AddListener(buttonData.callback);
             }
+        }
+    }
+
+    public void SetAdditionalInfo(string info)
+    {
+        if (!String.IsNullOrEmpty(info))
+        {
+            infoStr = info;
+            additionalInfo.text = infoStr;
+            additionalInfo.gameObject.SetActive(true);
         }
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-using Random = System.Random;
 
 public class LoginWithDeviceHandler : MonoBehaviour
 {
@@ -42,7 +41,7 @@ public class LoginWithDeviceHandler : MonoBehaviour
                 _onFinished(isSuccess);
             else
             {
-                MenuManager.Instance.ShowRetrySkipQuitMenu(ClickLoginWithDeviceId, ()=>_onFinished(true));
+                MenuManager.Instance.ShowRetrySkipQuitMenu(ClickLoginWithDeviceId, ()=>_onFinished(true), "Fail to login with device ID");
             }
         }
     }
