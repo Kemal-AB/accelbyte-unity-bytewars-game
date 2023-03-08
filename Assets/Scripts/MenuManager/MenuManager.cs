@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Collections;
 using System.IO;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
@@ -18,13 +19,14 @@ public class MenuManager : MonoBehaviour
 
     static MenuManager _instance;
     public static MenuManager Instance => _instance;
-
+    public bool IsInitialized => _isInitialized;
+    private bool _isInitialized;
     private Dictionary<string, GameObject> menusDictionary = new Dictionary<string, GameObject>();
     private Stack<GameObject> menusStack = new Stack<GameObject>();
     private GameObject currentMenu;
     
     private Dictionary<string, Dictionary<string,Dictionary<string, string>>> buttonDictionary = new Dictionary<string, Dictionary<string,Dictionary<string, string>>>();
-
+    private readonly WaitForEndOfFrame _waitForEndOfFrame = new WaitForEndOfFrame();
     private Action _onHideAnimateComplete = null;
     [SerializeField]
     private StarterMenuCanvas _starterMenuCanvasPrefab;
@@ -62,8 +64,13 @@ public class MenuManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // init all menu prefabs
-        InitMenuFromAssets();
+        StartCoroutine(StartWait());
+    }
+
+    IEnumerator StartWait()
+    {
+        yield return _waitForEndOfFrame;
+        yield return InitMenuFromAssets();
         SetMenuDirection();
     }
 
@@ -309,7 +316,7 @@ public class MenuManager : MonoBehaviour
     /// <summary>
     /// Init all menu canvas from asset manager
     /// </summary>
-    void InitMenuFromAssets()
+    IEnumerator InitMenuFromAssets()
     {
         var childDictionary = buttonDictionary.GetValueOrDefault("MenuCanvas");
         foreach (var menuCanvas in childDictionary)
@@ -323,10 +330,22 @@ public class MenuManager : MonoBehaviour
             GameObject menuGameObject = Instantiate(menuCanvasGameObject, transform);
             menusDictionary[menuCanvas.Key] = menuGameObject;
             menusDictionary[menuCanvas.Key].name = menusDictionary[menuCanvas.Key].name.Replace("(Clone)", "");
-            menusDictionary[menuCanvas.Key].SetActive(false);
-            
-            // Prepare GameObject for UI References
-            TutorialModuleManager.Instance.PrepareUIAssets(menuGameObject);
+            if(!menuCanvas.Key.Equals(AssetEnum.LoadingMenuCanvas.ToString()))
+                menusDictionary[menuCanvas.Key].SetActive(false);
+        }
+
+        yield return new WaitUntil(()=>TutorialModuleManager.Instance.IsInstantiated);
+        var instantiatedTutorialUIs = TutorialModuleManager.Instance.InstantiatedTutorials;
+        foreach (var tutorialUI in instantiatedTutorialUIs)
+        {
+            if (menusDictionary.TryGetValue(tutorialUI.Key, out var gameObjectWithSameName))
+            {
+                Debug.Log("duplicate or already added UI name: "+tutorialUI.Key);
+            }
+            else
+            {
+                menusDictionary.Add(tutorialUI.Key, tutorialUI.Value);
+            }
         }
         
         currentMenu = menusDictionary[AssetEnum.LoadingMenuCanvas.ToString()];
@@ -353,9 +372,12 @@ public class MenuManager : MonoBehaviour
             var buttons = item.Value.GetComponentsInChildren<Button>();
             // bool isCanvasAvailable = childDictionary.ContainsKey(item.Key);
             var buttonsDictionaryByMenuCanvas = childDictionary.GetValueOrDefault(item.Key);
-            
+            if(buttonsDictionaryByMenuCanvas==null || buttonsDictionaryByMenuCanvas.Count==0)
+                continue;
             foreach (var button in buttons)
             {
+                if(button==null || String.IsNullOrEmpty(button.name))
+                    continue;
                 //Setup Back button listener into all menu
                 if (button.name == BACK_BUTTON)
                 {
@@ -384,6 +406,7 @@ public class MenuManager : MonoBehaviour
                 }
             }
         }
+        _isInitialized = true;
     }
     
     /// <summary>
@@ -467,16 +490,12 @@ public class MenuManager : MonoBehaviour
 
     public void ShowRetrySkipQuitMenu(UnityAction retryCallback, UnityAction skipCallback, string message=null)
     {
-        var retrySkipMenuData = AssetManager.Singleton.GetAsset(AssetEnum.RetrySkipQuitMenu)
-            as TutorialModuleData;
-        if (retrySkipMenuData != null)
-        {
-            RetrySkipQuitMenuHandler handler =
-                TutorialModuleManager.Instance.GetModuleClass<RetrySkipQuitMenuHandler>();
-            handler.SetData(retrySkipMenuData, retryCallback, skipCallback, message);
-            string menuName = AddMenu(retrySkipMenuData.menuCanvasData, message);
-            ChangeToMenu(menuName);
-        }
+        //TODO call RetrySkipQuitMenuHandler.SetData
+        string menuName = AssetEnum.RetrySkipQuitMenuCanvas.ToString();
+        var retryMenu = menusDictionary[menuName];
+        var handler = retryMenu.GetComponent<RetrySkipQuitMenuHandler>();
+        handler.SetData(retryCallback, skipCallback, message);
+        ChangeToMenu(menuName);
     }
     
 }

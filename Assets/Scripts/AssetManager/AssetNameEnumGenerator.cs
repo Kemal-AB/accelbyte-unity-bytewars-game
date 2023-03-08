@@ -73,7 +73,11 @@ public class AssetNameEnumGenerator : AssetModificationProcessor
         bool isDestinationAssetFolder = destinationPath.StartsWith(AssetFolder);
         bool isSourceAssetFolder = sourcePath.StartsWith(AssetFolder);
         if ((isDestinationAssetFolder && !isSourceAssetFolder) ||
-            (isSourceAssetFolder && !isDestinationAssetFolder)  )
+            (isSourceAssetFolder && !isDestinationAssetFolder)  ||
+            (!sourcePath.EndsWith(MetaExtension) && 
+             !Path.GetFileName(sourcePath).Equals(Path.GetFileName(destinationPath)) && 
+             isSourceAssetFolder
+             ))
         {
             //Debug.Log("update on move");
             UpdateAssetEnum();

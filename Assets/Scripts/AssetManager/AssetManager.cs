@@ -11,6 +11,7 @@ public class AssetManager : MonoBehaviour
     public static AssetManager Singleton { get; private set; }
     private readonly Dictionary<string, object> _assets = new Dictionary<string, object>();
     private readonly Dictionary<string, Object> _textAssets = new Dictionary<string, Object>();
+    private const string TutorialDataSuffix = "TData";
     
     private void Awake()
     {
@@ -109,6 +110,15 @@ public class AssetManager : MonoBehaviour
         }
         
         return _textAssets.Values.ToArray();
+    }
+
+    public Dictionary<string, TutorialModuleData> GetTutorialModules()
+    {
+        var tutorialGameObjects = _assets
+            .Where(kvp => kvp.Key.EndsWith(TutorialDataSuffix)
+                          && kvp.Value is TutorialModuleData)
+            .ToDictionary(kvp=>kvp.Key, kvp=>kvp.Value as TutorialModuleData);
+        return tutorialGameObjects;
     }
     
     #endregion

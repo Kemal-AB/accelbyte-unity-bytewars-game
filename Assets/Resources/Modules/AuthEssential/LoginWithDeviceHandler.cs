@@ -1,26 +1,21 @@
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class LoginWithDeviceHandler : MonoBehaviour
 {
+    [SerializeField] private Button loginBtn;
     private TutorialModuleData _moduleData;
-    private Action<bool> _onFinished;
     private bool _isLoggedIn = false;
+
+    private void Start()
+    {
+        loginBtn.onClick.AddListener(ClickLoginWithDeviceId);
+    }
+
     public bool IsLoggedIn
     {
         get { return _isLoggedIn; }
-    }
-    public void SetData(TutorialModuleData moduleData, Action<bool> onFinished)
-    {
-        _onFinished = onFinished;
-        _moduleData = moduleData;
-        for (int i = 0; i < _moduleData.menuCanvasData.buttons.Length; i++)
-        {
-            if (_moduleData.menuCanvasData.buttons[i].name.Equals("LoginWithDeviceIDButton"))
-            {
-                _moduleData.menuCanvasData.buttons[i].callback = ClickLoginWithDeviceId;
-            }
-        }
     }
 
     private int loginDataIndex = 0;
@@ -35,14 +30,14 @@ public class LoginWithDeviceHandler : MonoBehaviour
     private void OnLoginFinished(bool isSuccess)
     {
         _isLoggedIn = isSuccess;
-        if (_onFinished != null)
+        if (isSuccess)
         {
-            if(isSuccess)
-                _onFinished(isSuccess);
-            else
-            {
-                MenuManager.Instance.ShowRetrySkipQuitMenu(ClickLoginWithDeviceId, ()=>_onFinished(true), "Fail to login with device ID");
-            }
+            MenuManager.Instance.ChangeToMenu(AssetEnum.MainMenuCanvas);
+        }
+        else
+        {
+            MenuManager.Instance.ShowRetrySkipQuitMenu(ClickLoginWithDeviceId, 
+                ClickLoginWithDeviceId, "Fail to login with device ID");
         }
     }
     

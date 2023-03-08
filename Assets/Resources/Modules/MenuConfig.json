@@ -28,6 +28,7 @@
     "QuickPlayMenuCanvas": {
       "EliminationButton": "MatchLobbyMenuCanvas",
       "TeamDeathmatchButton": "MatchLobbyTeamMenuCanvas"
-    }
+    },
+    "RetrySkipQuitMenuCanvas": {}
   }
 }

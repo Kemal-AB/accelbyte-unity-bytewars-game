@@ -14,10 +14,13 @@ public class TutorialModuleManager : MonoBehaviour
     private static TutorialModuleManager _instance;
     // instance getter
     public static TutorialModuleManager Instance => _instance;
+    public bool IsInstantiated => _isInstantiated;
+    public Dictionary<string, GameObject> InstantiatedTutorials => _instantiatedTutorialPrefabs;
 
     private Dictionary<string, ModuleData> _moduleClassTypes = new Dictionary<string, ModuleData>();
     private Dictionary<string, List<Transform>> _moduleUITransforms = new Dictionary<string, List<Transform>>();
     private bool _isInstantiated = false;
+    private Dictionary<string, GameObject> _instantiatedTutorialPrefabs = new Dictionary<string, GameObject>();
 
     private void Awake()
     {
@@ -35,8 +38,49 @@ public class TutorialModuleManager : MonoBehaviour
 
     private void Start()
     {
-        PrepareScriptAssets();
-        AddModuleComponents();
+        //PrepareScriptAssets();
+        //AddModuleComponents();
+        InstantiateTutorialUI();
+    }
+
+    private void InstantiateTutorialUI()
+    {
+        var tutorialModules = AssetManager.Singleton.GetTutorialModules();
+        foreach (var tModule in tutorialModules)
+        {
+            if (tModule.Value.isActive)
+            {
+                var instantiatedPrefab =
+                    Instantiate(tModule.Value.prefab, Vector3.zero, Quaternion.identity, transform);
+                instantiatedPrefab.SetActive(false);
+                if (_instantiatedTutorialPrefabs.TryGetValue(tModule.Key, out var existingGameObject))
+                {
+                    Debug.Log($"tutorial {tModule.Value.prefab.name} has been added");
+                }
+                else
+                {
+                    _instantiatedTutorialPrefabs.Add(tModule.Value.prefab.name, instantiatedPrefab);
+                }
+            }
+            else
+            {
+                Debug.Log($"module {tModule.Value.moduleName} is exists but inactive");
+            }
+        }
+        _isInstantiated = true;
+    }
+
+    public T GetTutorialUIHandler<T>(AssetEnum uiEnum)
+    {
+        if(_instantiatedTutorialPrefabs.TryGetValue(uiEnum.ToString(), out var instantiatedUI))
+        {
+            return instantiatedUI.GetComponent<T>();
+        }
+        else
+        {
+            Debug.Log($"value with key {uiEnum.ToString()} does not exist");
+        }
+        return default(T);
     }
 
     #region Runtime Initialize Functions
