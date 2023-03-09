@@ -103,7 +103,7 @@ public class AssetNameEnumGenerator : AssetModificationProcessor
         foreach (var file in assetNames)
         {
             string fullFileName = Path.GetFileName(file);
-            if (!fullFileName.EndsWith(MetaExtension))
+            if (!fullFileName.EndsWith(MetaExtension) && !fullFileName.EndsWith(CsExtension))
             {
                 string fileName = Path.GetFileNameWithoutExtension(fullFileName);
                 if (enumNames.Contains(fileName))
