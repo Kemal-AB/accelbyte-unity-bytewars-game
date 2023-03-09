@@ -1,10 +1,7 @@
 //auto generated from AssetNameEnumGenerator
 public enum AssetEnum 
 {
-      LoginWithDeviceUI,
       MenuConfig,
-      LoginWithDeviceHandler,
-      LoginWithDeviceTData,
       LoadingMenuCanvas,
       MainMenuCanvas,
       MenuManager,

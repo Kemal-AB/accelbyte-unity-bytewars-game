@@ -12,6 +12,7 @@ public class AssetNameEnumGenerator : AssetModificationProcessor
     private const string EnumPath = "/Scripts/AssetManager/AssetEnum.cs";
     private const string AssetFolder = "Assets/Resources/"+AssetManager.ModuleFolder;
     private const string MetaExtension = ".meta";
+    private const string CsExtension = ".cs";
     static string[] OnWillSaveAssets(string[] paths)
     {
         List<string> newAssetNames = new List<string>();
@@ -19,11 +20,13 @@ public class AssetNameEnumGenerator : AssetModificationProcessor
         {
             //don't process meta file updates
             if (path.EndsWith(MetaExtension))
-                return paths;
+                continue;
+            //don't process c# script
+            if (path.EndsWith(CsExtension))
+                continue;
             if (path.StartsWith(AssetFolder))
             {
                 newAssetNames.Add(Path.GetFileNameWithoutExtension(path));
-                break;
             }
         }
 
@@ -53,7 +56,8 @@ public class AssetNameEnumGenerator : AssetModificationProcessor
             throw;
         }
 
-        if (assetPath.StartsWith(AssetFolder))
+        if (assetPath.StartsWith(AssetFolder) &&
+            !assetPath.EndsWith(CsExtension))
         {
             UpdateAssetEnum();
         }
@@ -76,7 +80,7 @@ public class AssetNameEnumGenerator : AssetModificationProcessor
             (isSourceAssetFolder && !isDestinationAssetFolder)  ||
             (!sourcePath.EndsWith(MetaExtension) && 
              !Path.GetFileName(sourcePath).Equals(Path.GetFileName(destinationPath)) && 
-             isSourceAssetFolder
+             isSourceAssetFolder && !sourcePath.EndsWith(CsExtension)
              ))
         {
             //Debug.Log("update on move");
