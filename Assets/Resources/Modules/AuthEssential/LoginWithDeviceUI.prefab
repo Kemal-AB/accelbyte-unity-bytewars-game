@@ -695,6 +695,16 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 73831450492722075}
     m_Modifications:
+    - target: {fileID: 940215663889083257, guid: 0f3d27981f003474aba828ef0603b723,
+        type: 3}
+      propertyPath: m_text
+      value: Login with device ID
+      objectReference: {fileID: 0}
+    - target: {fileID: 940215663889083257, guid: 0f3d27981f003474aba828ef0603b723,
+        type: 3}
+      propertyPath: m_fontSize
+      value: 26.9
+      objectReference: {fileID: 0}
     - target: {fileID: 940215664547834096, guid: 0f3d27981f003474aba828ef0603b723,
         type: 3}
       propertyPath: m_Name
