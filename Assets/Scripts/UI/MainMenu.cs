@@ -7,13 +7,13 @@ using UnityEngine.UI;
 public class MainMenu : MonoBehaviour
 {
     public Button playButton;
-    public Button playOnlineButton;
+    public Button quitButton;
 
     // Start is called before the first frame update
     void Start()
     {
         playButton.onClick.AddListener(OnPlayButtonPressed);
-        playOnlineButton.onClick.AddListener(OnPlayOnlineButtonPressed);
+        quitButton.onClick.AddListener(OnQuitButtonPressed);
     }
 
     // Update is called once per frame
@@ -24,7 +24,7 @@ public class MainMenu : MonoBehaviour
 
     public void OnPlayButtonPressed()
     {
-        // MenuManager.Instance.ChangeToMenu(MenuManager.MenuEnum.PlayMenuCanvas);
+        MenuManager.Instance.ChangeToMenu(AssetEnum.PlayMenuCanvas);
     }
 
     public void OnPlayOnlineButtonPressed()

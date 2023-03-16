@@ -38,10 +38,41 @@ public class TutorialModuleManager : MonoBehaviour
 
     private void Start()
     {
-        //PrepareScriptAssets();
-        //AddModuleComponents();
-        InstantiateTutorialUI();
+        PrepareScriptAssets();
+        AddModuleComponents();
+        // InstantiateTutorialUI();
     }
+    
+    public TutorialModuleData GetModule(string moduleName)
+    {
+        var tutorialModules = AssetManager.Singleton.GetTutorialModules();
+        
+        if (tutorialModules.TryGetValue(moduleName, out TutorialModuleData moduleData))
+        {
+            return moduleData;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    
+    public Dictionary<string, TutorialModuleData> GetAllActiveModule() 
+    {
+        var tutorialModules = AssetManager.Singleton.GetTutorialModules();
+        var activeModules = new Dictionary<string, TutorialModuleData>();
+
+        foreach (var tModule in tutorialModules)
+        {
+            if (tModule.Value.isActive)
+            {
+                activeModules.Add(tModule.Key, tModule.Value);
+            }
+        }
+
+        return activeModules;
+    }
+
 
     private void InstantiateTutorialUI()
     {

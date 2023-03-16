@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using System;
 using System.Collections;
 using System.IO;
+using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using TMPro;
@@ -17,25 +18,20 @@ public class MenuManager : MonoBehaviour
 {
     private const string BACK_BUTTON = "BackButton";
 
-    static MenuManager _instance;
+    private static MenuManager _instance;
     public static MenuManager Instance => _instance;
-    public bool IsInitialized => _isInitialized;
-    private bool _isInitialized;
-    private Dictionary<string, GameObject> menusDictionary = new Dictionary<string, GameObject>();
-    private Stack<GameObject> menusStack = new Stack<GameObject>();
-    private GameObject currentMenu;
-    
-    private Dictionary<string, Dictionary<string,Dictionary<string, string>>> buttonDictionary = new Dictionary<string, Dictionary<string,Dictionary<string, string>>>();
-    private readonly WaitForEndOfFrame _waitForEndOfFrame = new WaitForEndOfFrame();
-    private Action _onHideAnimateComplete = null;
-    [SerializeField]
-    private StarterMenuCanvas _starterMenuCanvasPrefab;
-    //dummy Enum
-    public enum MenuEnum
-    {
-        LoginMenuCanvas,
-    }
 
+    private Dictionary<string, GameObject> _menusDictionary = new Dictionary<string, GameObject>();
+    private Stack<GameObject> _mainMenusStack = new Stack<GameObject>();
+    private Stack<GameObject> _inGameStack = new Stack<GameObject>();
+    private GameObject _currentMainMenu;
+    private GameObject _inGameMenu;
+    private bool _isAGSDKReady = false;
+
+    private Action _onHideAnimateComplete = null;
+
+    
+    
     /// <summary>
     /// Instantiate Menu manager as singleton
     /// </summary>
@@ -51,107 +47,34 @@ public class MenuManager : MonoBehaviour
         {
             _instance = this;
         }
-
-        // Load Menu Config
-        GenerateMenuConfig();
-        LoadConfigFromAssetManager();
         
         // Make MenuManager object persistent in all scene
         DontDestroyOnLoad(this.gameObject);
-
     }
+    
+    #region Runtime Initialize Functions
+    
+    /// <summary>
+    /// Create MenuManager GameObject in Scene on Runtime
+    /// </summary>
+    [RuntimeInitializeOnLoadMethod]
+    private static void SingletonInstanceChecker()
+    {
+        if (_instance == null)
+        {
+            GameObject menuManagerGameObject = new GameObject("MenuManager");
+            _instance = menuManagerGameObject.AddComponent<MenuManager>();
+        }
+    }
+    
+    #endregion
     
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(StartWait());
+        InitMenu();
     }
 
-    IEnumerator StartWait()
-    {
-        yield return _waitForEndOfFrame;
-        yield return InitMenuFromAssets();
-        SetMenuDirection();
-    }
-
-    #region Generate and Load Config files from asset manager
-    
-    /// <summary>
-    /// Load MenuConfig.json from asset manager
-    /// </summary>
-    private void LoadConfigFromAssetManager()
-    {
-        object configObj = AssetManager.Singleton.GetAsset(AssetEnum.MenuConfig);
-        TextAsset config = configObj as TextAsset;
-        if (config != null)
-        {
-            buttonDictionary = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string,Dictionary<string, string>>>>(config.text);
-        }
-    }
-    
-    private void GenerateMenuConfig()
-    {
-        Dictionary<string, Dictionary<string, string>> menuCanvasDict = new Dictionary<string, Dictionary<string, string>>();
-
-        Object[] menuAssets = AssetManager.Singleton.GetAssetsInFolder("MainMenu");
-        
-        // Prepare Lists for searching the desired GameObject for the Config JSON file
-        List<GameObject> menuCanvasObjects = new List<GameObject>();
-        List<string> menuCanvasNames = new List<string>();
-        foreach (Object asset in menuAssets)
-        {
-            if (asset.name.Contains("MenuCanvas"))
-            {
-                menuCanvasObjects.Add(asset as GameObject);
-                menuCanvasNames.Add(asset.name);
-            }
-        }
-
-        foreach (GameObject menuCanvas in menuCanvasObjects)
-        {
-            Dictionary<string, string> buttonsDict = new Dictionary<string, string>();
-            
-            foreach (Button childObject in menuCanvas.GetComponentsInChildren<Button>())
-            {
-                // Remove 'Button' word in object name
-                string objectName = childObject.name.Remove(childObject.name.IndexOf("Button"), 6);
-                
-                // Find Menu Canvas with the same name as the button
-                string canvasName = objectName + "MenuCanvas";
-                if (menuCanvasNames.Contains(canvasName))
-                {
-                    buttonsDict.Add(childObject.name, canvasName);
-                }
-                
-                switch (childObject.name)
-                {
-                    case "EliminationButton":
-                        buttonsDict.Add(childObject.name, "MatchLobbyMenuCanvas");
-                        break;
-                    case "TeamDeathmatchButton":
-                        buttonsDict.Add(childObject.name, "MatchLobbyTeamMenuCanvas");
-                        break;
-                    case "SingleplayerButton":
-                        buttonsDict.Add(childObject.name, "GameDirection");
-                        break;
-                }
-            }
-            
-            menuCanvasDict.Add(menuCanvas.name, buttonsDict);
-        }
-
-        Dictionary<string, Dictionary<string, Dictionary<string, string>>> menuConfig =
-            new Dictionary<string, Dictionary<string, Dictionary<string, string>>>()
-            {
-                {"MenuCanvas", menuCanvasDict}
-            };
-
-        string filePath = Application.dataPath + "/Resources/Modules/MenuConfig.json";
-        SaveToJsonFile(menuConfig, filePath);
-    }
-
-    #endregion
-    
     #region Change menu screen
 
     /// <summary>
@@ -160,7 +83,7 @@ public class MenuManager : MonoBehaviour
     /// <param name="menuName"></param>
     public void ChangeToMenu(AssetEnum menuName)
     {
-        LeanTween.alpha(currentMenu, 0, 0.4f).setOnComplete(() =>
+        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
         {
             OnChangeMenuComplete(menuName.ToString());
         });
@@ -168,7 +91,7 @@ public class MenuManager : MonoBehaviour
 
     public void ChangeToMenu(string menuName)
     {
-        LeanTween.alpha(currentMenu, 0, 0.4f).setOnComplete(() =>
+        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
         {
             OnChangeMenuComplete(menuName);
         });
@@ -180,22 +103,22 @@ public class MenuManager : MonoBehaviour
     /// <param name="menuName"></param>
     private void OnChangeMenuComplete(String menuName)
     {
-        if (currentMenu != null)
+        if (_currentMainMenu != null)
         {
-            currentMenu.SetActive(false);
+            _currentMainMenu.SetActive(false);
         }
 
-        var targetMenu = menusDictionary[menuName];
+        var targetMenu = _menusDictionary[menuName];
             
         targetMenu.gameObject.SetActive(true);
-        currentMenu = targetMenu;
-        menusStack.Push(currentMenu);
+        _currentMainMenu = targetMenu;
+        _mainMenusStack.Push(_currentMainMenu);
     }
     
     
     public void ChangeToMenu<T>(AssetEnum menuName, Action<T> onMenuChanged)
     {
-        LeanTween.alpha(currentMenu, 0, 0.4f).setOnComplete(() =>
+        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
         {
             OnMenuChanged(menuName, onMenuChanged);
         });
@@ -203,26 +126,26 @@ public class MenuManager : MonoBehaviour
     
     private void OnMenuChanged<T>(AssetEnum menuName, Action<T> onComplete)
     {
-        if (currentMenu != null)
+        if (_currentMainMenu != null)
         {
-            currentMenu.SetActive(false);
+            _currentMainMenu.SetActive(false);
         }
 
-        var targetMenu = menusDictionary[menuName.ToString()];
+        var targetMenu = _menusDictionary[menuName.ToString()];
         targetMenu.gameObject.SetActive(true);
         if (onComplete != null)
         {
             var uiController = targetMenu.GetComponent<T>();
             onComplete(uiController);
         }
-        currentMenu = targetMenu;
-        menusStack.Push(currentMenu);
+        _currentMainMenu = targetMenu;
+        _mainMenusStack.Push(_currentMainMenu);
     }
 
     public void HideAnimate(Action onHideAnimateComplete)
     {
         _onHideAnimateComplete = onHideAnimateComplete;
-        LeanTween.alpha(currentMenu, 0, 0.4f).setOnComplete(OnHideAnimateTweenComplete);
+        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(OnHideAnimateTweenComplete);
     }
 
     private void OnHideAnimateTweenComplete()
@@ -241,7 +164,7 @@ public class MenuManager : MonoBehaviour
     /// <param name="sceneName"></param>
     public void ChangeScene(string sceneName)
     {
-        LeanTween.alpha(currentMenu, 0, 0.4f).setOnComplete(() =>
+        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
         {
             OnChangeSceneComplete(sceneName);
         });
@@ -260,13 +183,13 @@ public class MenuManager : MonoBehaviour
     // back to one page before
     public void OnBackPressed()
     {
-        LeanTween.alpha(currentMenu, 0, 0.4f).setOnComplete(() =>
+        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
         {
-            if (currentMenu == menusStack.Peek())
+            if (_currentMainMenu == _mainMenusStack.Peek())
             {
-                menusStack.Pop().SetActive(false);
-                currentMenu = menusStack.Peek();
-                currentMenu.SetActive(true);
+                _mainMenusStack.Pop().SetActive(false);
+                _currentMainMenu = _mainMenusStack.Peek();
+                _currentMainMenu.SetActive(true);
             }
         });
     }
@@ -274,7 +197,7 @@ public class MenuManager : MonoBehaviour
     // close menu panel
     public void CloseMenuPanel()
     {
-        currentMenu.SetActive(false);
+        _currentMainMenu.SetActive(false);
     }
 
     /// <summary>
@@ -286,7 +209,7 @@ public class MenuManager : MonoBehaviour
                 
         Time.timeScale = 1; //this line added to handle Leantween bug
 
-        LeanTween.alpha(currentMenu, 0, 0.4f).setOnComplete(() =>
+        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
         {
             OnChangeToMainMenuComplete(sceneName);
         });
@@ -303,111 +226,109 @@ public class MenuManager : MonoBehaviour
         {
             SceneManager.LoadScene(sceneName,LoadSceneMode.Single);
         }
-        var mainMenu = menusDictionary[AssetEnum.MainMenuCanvas.ToString()];
-        currentMenu = mainMenu;
-        currentMenu.SetActive(true);
-        menusStack.Clear();
-        menusStack.Push(currentMenu);
+        var mainMenu = _menusDictionary[AssetEnum.MainMenuCanvas.ToString()];
+        _currentMainMenu = mainMenu;
+        _currentMainMenu.SetActive(true);
+        _mainMenusStack.Clear();
+        _mainMenusStack.Push(_currentMainMenu);
     }
     #endregion
 
-    #region Initialize All Menu prefab from asset manager
+    #region Initialize and Instantiate Menu prefab
 
-    /// <summary>
-    /// Init all menu canvas from asset manager
-    /// </summary>
-    IEnumerator InitMenuFromAssets()
+    private void InitMenu()
     {
-        var childDictionary = buttonDictionary.GetValueOrDefault("MenuCanvas");
-        foreach (var menuCanvas in childDictionary)
-        {
-            object menuCanvasObj = AssetManager.Singleton.GetAsset(menuCanvas.Key);
-            GameObject menuCanvasGameObject = menuCanvasObj as GameObject;
-            if (menuCanvasGameObject == null)
-            {
-                Debug.Log(menuCanvas.Key+" is null");
-            }
-            GameObject menuGameObject = Instantiate(menuCanvasGameObject, transform);
-            menusDictionary[menuCanvas.Key] = menuGameObject;
-            menusDictionary[menuCanvas.Key].name = menusDictionary[menuCanvas.Key].name.Replace("(Clone)", "");
-            if(!menuCanvas.Key.Equals(AssetEnum.LoadingMenuCanvas.ToString()))
-                menusDictionary[menuCanvas.Key].SetActive(false);
-        }
+        
+        bool isAuthEssentialExist = false; 
+        var allActiveModule = TutorialModuleManager.Instance.GetAllActiveModule();
 
-        yield return new WaitUntil(()=>TutorialModuleManager.Instance.IsInstantiated);
-        var instantiatedTutorialUIs = TutorialModuleManager.Instance.InstantiatedTutorials;
-        foreach (var tutorialUI in instantiatedTutorialUIs)
+        foreach (var moduleNamePair in allActiveModule)
         {
-            if (menusDictionary.TryGetValue(tutorialUI.Key, out var gameObjectWithSameName))
+            if (moduleNamePair.Key.Contains("AuthEssentialTData"))
             {
-                Debug.Log("duplicate or already added UI name: "+tutorialUI.Key);
-            }
-            else
-            {
-                menusDictionary.Add(tutorialUI.Key, tutorialUI.Value);
+                InitMenuByModules(moduleNamePair.Value);
             }
         }
         
-        currentMenu = menusDictionary[AssetEnum.LoadingMenuCanvas.ToString()];
-        if (currentMenu.activeSelf == false)
+        InitCoreMenu();
+        
+        // Check If auth essential active
+        if (allActiveModule.TryGetValue("AuthEssentialTData", out TutorialModuleData authEssential))
         {
-            currentMenu.SetActive(true);
-            menusStack.Push(currentMenu);
-        }
+            _currentMainMenu = _menusDictionary["LoadingMenuCanvas"];
+            if (_currentMainMenu.activeSelf == false)
+            {            
+                _currentMainMenu.SetActive(true);
+                _mainMenusStack.Push(_currentMainMenu);
+            }
 
-    }
+            _isAGSDKReady = TutorialModuleUtil.IsAccelbyteSDKInstalled();
+            IEnumerator check = CheckAGSDKReady();
 
-    #endregion
-
-    #region Set Menu direction(canvas) into button)
-
-    /// <summary>
-    /// Set button menu direction
-    /// </summary>
-    void SetMenuDirection()
-    {
-        var childDictionary = buttonDictionary.GetValueOrDefault("MenuCanvas");
-        foreach (var item in menusDictionary)
-        {
-            var buttons = item.Value.GetComponentsInChildren<Button>();
-            // bool isCanvasAvailable = childDictionary.ContainsKey(item.Key);
-            var buttonsDictionaryByMenuCanvas = childDictionary.GetValueOrDefault(item.Key);
-            if(buttonsDictionaryByMenuCanvas==null || buttonsDictionaryByMenuCanvas.Count==0)
-                continue;
-            foreach (var button in buttons)
+            if (!check.Equals(null))
             {
-                if(button==null || String.IsNullOrEmpty(button.name))
-                    continue;
-                //Setup Back button listener into all menu
-                if (button.name == BACK_BUTTON)
-                {
-                    button.onClick.AddListener(() => Instance.OnBackPressed());
-                }
-                else
-                {
-                    var canvasTarget = buttonsDictionaryByMenuCanvas.GetValueOrDefault(button.name);
-
-                    if (!canvasTarget.IsNullOrEmpty())
-                    {
-                        if (canvasTarget == "GameDirection")
-                        {
-                            continue;
-                        }
-                        //Debug.Log($"L 251 {canvasTarget}");
-                        AssetEnum menuCanvasEnum;
-                        Enum.TryParse(canvasTarget, out menuCanvasEnum);
-                        //Debug.Log($"L 254 {menuCanvasEnum.ToString()}");
-                        button.onClick.AddListener(() => Instance.ChangeToMenu(menuCanvasEnum));
-                    }
-                    else
-                    {
-                        DisableButton(button);
-                    }
-                }
+                _currentMainMenu.SetActive(false);
+                _currentMainMenu = _menusDictionary["LoadingMenuCanvas"];;
+                _currentMainMenu.SetActive(true);
             }
         }
-        _isInitialized = true;
+        else
+        {
+            _currentMainMenu = _menusDictionary["MainMenuCanvas"];
+            if (_currentMainMenu.activeSelf == false)
+            {            
+                _currentMainMenu.SetActive(true);
+                _mainMenusStack.Push(_currentMainMenu);
+            }
+        }
     }
+
+    private IEnumerator CheckAGSDKReady()
+    {
+        while (!_isAGSDKReady)
+        {
+            yield return null;
+        }
+    }
+
+    private void InitCoreMenu()
+    {
+        object mainmenuConfigObj = AssetManager.Singleton.GetAsset(AssetEnum.MainMenuUiConfig);
+        var mainmenuConfig = mainmenuConfigObj as MainMenuUiConfig;
+
+        if (mainmenuConfig == null)
+        {
+            return;
+        }
+
+        var starterMenu = Instantiate(mainmenuConfig.starterMainUI, transform);
+        starterMenu.SetActive(false);
+        starterMenu.name = starterMenu.name;
+        _menusDictionary[mainmenuConfig.starterMainUI.name] = starterMenu;
+
+        foreach (var menuGameObject in mainmenuConfig.otherMainUI)
+        {
+            var otherCoreMenu = Instantiate(menuGameObject, transform);
+            otherCoreMenu.SetActive(false);
+            otherCoreMenu.name = menuGameObject.name;
+            _menusDictionary[menuGameObject.name] = otherCoreMenu;
+        }
+    }
+
+    private void InitMenuByModules(TutorialModuleData moduleData)
+    {
+        var modulePrefab = moduleData.prefab;
+        GameObject menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
+        int childSize = menubyModule.transform.childCount;
+        for (int i = 0; i < childSize; i++)
+        {
+            var child = menubyModule.transform.GetChild(i);
+            GameObject childObj = child.gameObject;
+            childObj.SetActive(false);
+            _menusDictionary[child.name] = childObj;
+        }
+    }
+    
     
     /// <summary>
     /// Helper Function to disable Button UI
@@ -429,16 +350,16 @@ public class MenuManager : MonoBehaviour
     // Back To Login From all Menu
     public void BackToLoginMenu()
     {
-        if (currentMenu != null)
+        if (_currentMainMenu != null)
         {
-            currentMenu.SetActive(false);
+            _currentMainMenu.SetActive(false);
         }
 
-        var loginMenu = menusDictionary[MenuEnum.LoginMenuCanvas.ToString()];
-
-        loginMenu.SetActive(true);
-        currentMenu = loginMenu;
-        menusStack.Clear();
+        // // var loginMenu = _menusDictionary[MenuEnum.LoginMenuCanvas.ToString()];
+        //
+        // loginMenu.SetActive(true);
+        // _currentMainMenu = loginMenu;
+        // _mainMenusStack.Clear();
     }
 
     // Go to Main menu from Login menu
@@ -449,53 +370,14 @@ public class MenuManager : MonoBehaviour
 
     #endregion
 
-    #region Utilities Functions
-    
-    /// <summary>
-    /// Store any object to JSON file
-    /// </summary>
-    /// <param name="desiredObject">any object to write and store in JSON file</param>
-    /// <param name="filePath">destination path of the JSON output file</param>
-    private void SaveToJsonFile(object desiredObject, string filePath)
-    {
-        string jsonString = JsonConvert.SerializeObject(desiredObject, Formatting.Indented);
-        
-        File.WriteAllText(filePath, jsonString);
-    }
-
-    #endregion
-    
-    #region create menu runtime
-    public string AddMenu(MenuCanvasData menuCanvasData, string message=null)
-    {
-        GameObject newMenuGO;
-        if (!menusDictionary.TryGetValue(menuCanvasData.name, out newMenuGO))
-        {
-            var newMenu = Instantiate(_starterMenuCanvasPrefab, transform);
-            newMenu.name = menuCanvasData.name;
-            newMenu.InstantiateButtons(menuCanvasData.buttons, message);
-            GameObject o;
-            (o = newMenu.gameObject).SetActive(false);
-            menusDictionary[menuCanvasData.name] = o;   
-        }
-        else
-        {
-            StarterMenuCanvas starterMenuCanvas = newMenuGO.GetComponent<StarterMenuCanvas>();
-            starterMenuCanvas.SetButtonsCallback(menuCanvasData.buttons);
-            starterMenuCanvas.SetAdditionalInfo(message);
-        }
-        return menuCanvasData.name;
-    }
-    #endregion
-
     public void ShowRetrySkipQuitMenu(UnityAction retryCallback, UnityAction skipCallback, string message=null)
     {
         //TODO call RetrySkipQuitMenuHandler.SetData
-        string menuName = AssetEnum.RetrySkipQuitMenuCanvas.ToString();
-        var retryMenu = menusDictionary[menuName];
+        // string menuName = AssetEnum.RetrySkipQuitMenuCanvas.ToString();
+        var retryMenu = _menusDictionary["RetrySkipQuitMenuCanvas"];
         var handler = retryMenu.GetComponent<RetrySkipQuitMenuHandler>();
         handler.SetData(retryCallback, skipCallback, message);
-        ChangeToMenu(menuName);
+        ChangeToMenu("RetrySkipQuitMenuCanvas");
     }
     
 }
