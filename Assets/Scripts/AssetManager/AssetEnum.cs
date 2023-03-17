@@ -5,6 +5,7 @@ public enum AssetEnum
       InfoMenuCanvas,
       LoadingMenuCanvas,
       MainMenuCanvas,
+      AuthEssentialsAssetConfig,
       MainMenuUiConfig,
       LoadingMenuCanvas,
       LoginMenuCanvas,
