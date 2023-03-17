@@ -1,10 +1,9 @@
 //auto generated from AssetNameEnumGenerator
 public enum AssetEnum 
 {
-      PlayMenuCanvas,
+      AuthEssentialsAssetConfig,
       InfoMenuCanvas,
       MainMenuCanvas,
-      AuthEssentialsAssetConfig,
       MainMenuUiConfig,
       LoadingMenuCanvas,
       LoginMenuCanvas,
@@ -20,6 +19,7 @@ public enum AssetEnum
       MatchLobbyTeamMenuCanvas,
       EliminationMenuCanvas,
       MultiplayerMenuCanvas,
+      PlayMenuCanvas,
       PlayOnlineMenuCanvas,
       QuickPlayMenuCanvas,
       LoginFailedPanel,
