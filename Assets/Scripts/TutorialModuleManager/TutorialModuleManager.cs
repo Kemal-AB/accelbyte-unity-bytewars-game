@@ -40,8 +40,26 @@ public class TutorialModuleManager : MonoBehaviour
     {
         PrepareScriptAssets();
         AddModuleComponents();
-        // InstantiateTutorialUI();
     }
+    
+    #region Runtime Initialize Functions
+    
+    /// <summary>
+    /// Create TutorialModuleManager GameObject in Scene on Runtime
+    /// </summary>
+    [RuntimeInitializeOnLoadMethod]
+    private static void SingletonInstanceChecker()
+    {
+        if (_instance == null)
+        {
+            GameObject moduleManagerGameObject = new GameObject("TutorialModuleManager");
+            _instance = moduleManagerGameObject.AddComponent<TutorialModuleManager>();
+        }
+    }
+    
+    #endregion
+
+    #region Module Config Functions
     
     public TutorialModuleData GetModule(string moduleName)
     {
@@ -113,21 +131,6 @@ public class TutorialModuleManager : MonoBehaviour
         }
         return default(T);
     }
-
-    #region Runtime Initialize Functions
-    
-    /// <summary>
-    /// Create TutorialModuleManager GameObject in Scene on Runtime
-    /// </summary>
-    [RuntimeInitializeOnLoadMethod]
-    private static void SingletonInstanceChecker()
-    {
-        if (_instance == null)
-        {
-            GameObject moduleManagerGameObject = new GameObject("TutorialModuleManager");
-            _instance = moduleManagerGameObject.AddComponent<TutorialModuleManager>();
-        }
-    }
     
     #endregion
 
@@ -152,6 +155,8 @@ public class TutorialModuleManager : MonoBehaviour
             {
                 string scriptPath = Directory.GetFiles(Application.dataPath, script.name + ".cs", SearchOption.AllDirectories)[0];
                 List<string> pathCategories = scriptPath.Split(new char[] {'\\', '/'}).ToList();
+                
+                if (pathCategories.Contains("UI")) continue;
                 
                 // remove all folders path until "Modules" folder
                 pathCategories.RemoveRange(0, pathCategories.IndexOf("Modules") + 1);

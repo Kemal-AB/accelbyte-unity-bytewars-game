@@ -11,7 +11,7 @@ public class AssetManager : MonoBehaviour
     public static AssetManager Singleton { get; private set; }
     private readonly Dictionary<string, object> _assets = new Dictionary<string, object>();
     private readonly Dictionary<string, Object> _textAssets = new Dictionary<string, Object>();
-    private const string TutorialDataSuffix = "TData";
+    private const string TutorialDataSuffix = "AssetConfig";
     
     private void Awake()
     {
