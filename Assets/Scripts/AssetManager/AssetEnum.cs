@@ -3,7 +3,6 @@ public enum AssetEnum
 {
       PlayMenuCanvas,
       InfoMenuCanvas,
-      LoadingMenuCanvas,
       MainMenuCanvas,
       AuthEssentialsAssetConfig,
       MainMenuUiConfig,
