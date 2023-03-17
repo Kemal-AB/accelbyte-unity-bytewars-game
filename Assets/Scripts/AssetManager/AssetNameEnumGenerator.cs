@@ -108,7 +108,7 @@ public class AssetNameEnumGenerator : AssetModificationProcessor
                 string fileName = Path.GetFileNameWithoutExtension(fullFileName);
                 if (enumNames.Contains(fileName))
                 {
-                    Debug.Log("Aseet name: "+fileName+" already exist");
+                    Debug.Log("Asset name: "+fileName+" already exist");
                     continue;
                 }
                 else
