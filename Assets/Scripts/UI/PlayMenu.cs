@@ -16,6 +16,8 @@ public class PlayMenu : MonoBehaviour
     void Start()
     {
         singlePlayerButton.onClick.AddListener(OnSinglePlayerButtonPressed);
+        backButton.onClick.AddListener(() => MenuManager.Instance.OnBackPressed());
+
     }
     
     public void OnSinglePlayerButtonPressed()

@@ -239,7 +239,7 @@ public class MenuManager : MonoBehaviour
     private void InitMenu()
     {
         
-        bool isAuthEssentialExist = false; 
+        // bool isAuthEssentialExist = false; 
         var allActiveModule = TutorialModuleManager.Instance.GetAllActiveModule();
 
         foreach (var moduleNamePair in allActiveModule)
@@ -319,14 +319,8 @@ public class MenuManager : MonoBehaviour
     {
         var modulePrefab = moduleData.prefab;
         GameObject menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
-        int childSize = menubyModule.transform.childCount;
-        for (int i = 0; i < childSize; i++)
-        {
-            var child = menubyModule.transform.GetChild(i);
-            GameObject childObj = child.gameObject;
-            childObj.SetActive(false);
-            _menusDictionary[child.name] = childObj;
-        }
+        menubyModule.name = modulePrefab.name; ;
+        _menusDictionary.Add(menubyModule.name, menubyModule);
     }
     
     
