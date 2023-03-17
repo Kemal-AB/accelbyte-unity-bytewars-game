@@ -1,4 +1,4 @@
-# Byte Wars - Unreal Engine
+# Byte Wars - Unity
 
 ## Overview
 
@@ -11,7 +11,7 @@ Byte Wars is the official tutorial game for AccelByte Gaming Services (AGS). It 
 
 ## Clone Byte Wars
 
-This repository has two main branches, master and online.
+This repository has three main branches, master, online, and tutorial module 2.
 * **Main branch** is the vanila version game source code without any submodule.
 * **Online branch** is the branch that has the AccelByte's Plugins, which are used by the Byte Wars Tutorial Module 1.
 * **tutorial/online-module.2** is the branch based on `online` branch and also has the required resources for user to learn Byte Wars Tutorial Module 2.
@@ -42,7 +42,7 @@ This AccelByte Unity SDK package are required to follow along the Byte Wars Tuto
 1. Open the Byte Wars project on your Unity Editor. 
 2. From project window, go to Assets>Scenes then double click MainMenu scene file. Make sure MainMenu has opened in the hierarchy.
 
-### Run via Packaged Game Client
+### Run via Packaged Game
 
 1. Open the Byte Wars project on your Unity Editor 
 2. In your menu taskbar, go to File > Build Settings, a popup window will appear and and leave build setting as default and click build button.
