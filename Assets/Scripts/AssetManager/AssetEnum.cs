@@ -20,7 +20,6 @@ public enum AssetEnum
       MatchLobbyTeamMenuCanvas,
       EliminationMenuCanvas,
       MultiplayerMenuCanvas,
-      PlayMenuCanvas,
       PlayOnlineMenuCanvas,
       QuickPlayMenuCanvas,
       LoginFailedPanel,
