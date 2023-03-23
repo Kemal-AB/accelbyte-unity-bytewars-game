@@ -16,3 +16,7 @@ MonoBehaviour:
     type: 3}
   otherMainUI:
   - {fileID: 2169716256886031669, guid: 12ec808bbc67c54499a2f09cbcd8ed5b, type: 3}
+  - {fileID: 2169716256886031669, guid: 5b970dc04182d284e9a29f2fe7c18f6a, type: 3}
+  - {fileID: 2169716256886031669, guid: 02e2c47c494a0a1469904b1ce169c567, type: 3}
+  - {fileID: 2169716256886031669, guid: 26bd43055e5559c45a2fd66925b1c060, type: 3}
+  - {fileID: 2169716256886031669, guid: 830160bec5b9b7b499914d36dfb0f60d, type: 3}
