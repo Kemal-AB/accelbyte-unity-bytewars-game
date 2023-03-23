@@ -8,7 +8,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using TMPro;
-using Unity.Tutorials.Core.Editor;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -222,7 +221,7 @@ public class MenuManager : MonoBehaviour
     /// <param name="sceneName"></param>
     private void OnChangeToMainMenuComplete([CanBeNull] string sceneName)
     {
-        if (!sceneName.IsNullOrEmpty())
+        if (sceneName != null)
         {
             SceneManager.LoadScene(sceneName,LoadSceneMode.Single);
         }

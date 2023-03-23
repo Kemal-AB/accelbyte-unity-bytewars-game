@@ -25,8 +25,8 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource sfxSource;
     [SerializeField] private AudioClip[] sfxAudioClips;
 
-    private float currentMusicVolume;
-    private float currentSfxVolume;
+    private float currentMusicVolume = 1;
+    private float currentSfxVolume = 1;
     
     private void Awake()
     {
