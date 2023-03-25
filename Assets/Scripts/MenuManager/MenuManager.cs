@@ -205,6 +205,7 @@ public class MenuManager : MonoBehaviour
     /// <param name="sceneName"></param>
     public void ChangeToMainMenu([CanBeNull] string sceneName)
     {
+        AudioManager.Instance.PlayMusic("BGM_MainMenu");
                 
         Time.timeScale = 1; //this line added to handle Leantween bug
 
@@ -237,6 +238,8 @@ public class MenuManager : MonoBehaviour
 
     private void InitMenu()
     {
+        // Play Default Music
+        AudioManager.Instance.PlayMusic("BGM_MainMenu");;
         
         // bool isAuthEssentialExist = false; 
         var allActiveModule = TutorialModuleManager.Instance.GetAllActiveModule();

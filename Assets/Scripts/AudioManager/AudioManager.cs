@@ -44,9 +44,6 @@ public class AudioManager : MonoBehaviour
 
     private void Start()
     {
-        // Play Default Music
-        PlayMusic("BGM_MainMenu");
-        
         currentMusicVolume = PlayerPrefs.GetFloat(AudioType.MusicAudio.ToString(), 1f);
         currentSfxVolume = PlayerPrefs.GetFloat(AudioType.SfxAudio.ToString(), 1f);
         SetMusicVolume(currentMusicVolume);
