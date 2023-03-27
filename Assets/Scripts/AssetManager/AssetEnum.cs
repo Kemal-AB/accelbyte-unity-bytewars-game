@@ -1,7 +1,7 @@
 //auto generated from AssetNameEnumGenerator
 public enum AssetEnum 
 {
-      OptionsMenuCanvas,
+      MatchLobbyTeamMenuCanvas,
       MainMenuCanvas,
       MainMenuUiConfig,
       NotificationCanvas,
@@ -10,7 +10,6 @@ public enum AssetEnum
       CreateMatchMenuCanvas,
       HelpAndOptionsMenuCanvas,
       MatchLobbyMenuCanvas,
-      MatchLobbyTeamMenuCanvas,
       MultiplayerMenuCanvas,
       PlayMenuCanvas,
       PlayOnlineMenuCanvas,
@@ -18,6 +17,7 @@ public enum AssetEnum
       MatchPanel,
       CreditsMenuCanvas,
       HelpMenuCanvas,
+      OptionsMenuCanvas,
       TeamPanel,
       MemberNameText,
       RoleGroupPanel,

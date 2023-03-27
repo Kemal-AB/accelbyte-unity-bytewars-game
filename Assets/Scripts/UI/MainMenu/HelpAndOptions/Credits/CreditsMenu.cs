@@ -36,6 +36,14 @@ public class CreditsMenu : MonoBehaviour
         }
     }
 
+    private void OnDisable()
+    {
+        // reset auto-scroll
+        waitTime = 1f;
+        scrollPosition = 1f;
+        scrollView.verticalNormalizedPosition = scrollPosition;
+    }
+
     private void DisplayCredits()
     {
         // Get Prefab
