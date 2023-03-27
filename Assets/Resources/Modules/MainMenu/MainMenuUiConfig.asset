@@ -15,7 +15,7 @@ MonoBehaviour:
   starterMainUI: {fileID: 73831450050943427, guid: 897183b7a60b1fa4db0e93228e01fa3f,
     type: 3}
   otherMainUI:
-  - {fileID: 2169716256886031669, guid: 12ec808bbc67c54499a2f09cbcd8ed5b, type: 3}
+  - {fileID: 2169716256886031669, guid: fe0733aa56b1ad64d81aac4ea47b9fac, type: 3}
   - {fileID: 2169716256886031669, guid: 96e90197bca38344286c279119bf6e2c, type: 3}
   - {fileID: 2169716256886031669, guid: 7799470e5bf92194c877064539394dff, type: 3}
   - {fileID: 2169716256886031669, guid: baea9310b50ad964da92bcf693d9c3cb, type: 3}
