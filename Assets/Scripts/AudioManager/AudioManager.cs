@@ -98,13 +98,19 @@ public class AudioManager : MonoBehaviour
     public void SetMusicVolume(float volume)
     {
         musicSource.volume = volume;
+        
+        // store current volume
         SetPlayerPrefsVolume(AudioType.MusicAudio.ToString(), volume);
+        currentMusicVolume = volume;
     }
 
     public void SetSfxVolume(float volume)
     {
         sfxSource.volume = volume;
+        
+        // store current volume
         SetPlayerPrefsVolume(AudioType.SfxAudio.ToString(), volume);
+        currentSfxVolume = volume;
     }
     
     private void SetPlayerPrefsVolume(string prefKeyName, float volume)

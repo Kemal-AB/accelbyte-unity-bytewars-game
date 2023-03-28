@@ -29,6 +29,8 @@ public class Missile : MonoBehaviour
     UnityEngine.Color m_colour;
     MotionComponent m_motionComponent;
 
+    [SerializeField] private AudioSource missileTravelAudioSource;
+
     void Start()
     {
         List<Vector3> outerVerts = new List<Vector3>();
@@ -56,6 +58,13 @@ public class Missile : MonoBehaviour
 
         mesh.RecalculateBounds();
         mesh.RecalculateNormals();
+        
+        // Set Audio for missile
+        AudioManager.Instance.PlaySfx("FireMissileSound");
+        // make sure Missile Travel Audio Source volume same with Sfx Volume before audio played
+        float sfxVolume = AudioManager.Instance.GetCurrentVolume(AudioManager.AudioType.SfxAudio);
+        missileTravelAudioSource.volume = sfxVolume;
+        missileTravelAudioSource.Play();
     }
 
     public void Init(PlayerState owningPlayerState)
@@ -112,6 +121,8 @@ public class Missile : MonoBehaviour
 
                 popupController.Init(transform.position,m_colour,m_scoreIncrement.ToString());
                 
+                AudioManager.Instance.PlaySfx("RewardSound");
+                
                 m_gameMode.OnMissileScoreUpdated(this,m_owningPlayerState, m_score, m_scoreIncrement);
                 m_timeSkimmingPlanetReward = 0.0f;
                 m_scoreIncrement *= m_additionalSkimScoreMultiplier;
@@ -130,6 +141,7 @@ public class Missile : MonoBehaviour
         {
             GameObject explosion = GameObject.Instantiate(m_spawnOnDestroy, transform.position, transform.rotation);
             explosion.GetComponent<Renderer>().material.SetVector("_Colour", m_colour);
+            AudioManager.Instance.PlaySfx("MissileExplosion");
         }
         m_gameMode.OnMissileDestroyed(this);
         Destroy(this.gameObject);
