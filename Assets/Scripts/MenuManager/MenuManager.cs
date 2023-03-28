@@ -8,7 +8,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using Newtonsoft.Json;
 using TMPro;
-using Unity.Tutorials.Core.Editor;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
@@ -206,6 +205,7 @@ public class MenuManager : MonoBehaviour
     /// <param name="sceneName"></param>
     public void ChangeToMainMenu([CanBeNull] string sceneName)
     {
+        AudioManager.Instance.PlayMusic("BGM_MainMenu");
                 
         Time.timeScale = 1; //this line added to handle Leantween bug
 
@@ -222,7 +222,7 @@ public class MenuManager : MonoBehaviour
     /// <param name="sceneName"></param>
     private void OnChangeToMainMenuComplete([CanBeNull] string sceneName)
     {
-        if (!sceneName.IsNullOrEmpty())
+        if (sceneName != null)
         {
             SceneManager.LoadScene(sceneName,LoadSceneMode.Single);
         }
@@ -238,6 +238,8 @@ public class MenuManager : MonoBehaviour
 
     private void InitMenu()
     {
+        // Play Default Music
+        AudioManager.Instance.PlayMusic("BGM_MainMenu");;
         
         // bool isAuthEssentialExist = false; 
         var allActiveModule = TutorialModuleManager.Instance.GetAllActiveModule();

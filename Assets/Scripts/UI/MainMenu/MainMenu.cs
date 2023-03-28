@@ -6,20 +6,16 @@ using UnityEngine.UI;
 
 public class MainMenu : MonoBehaviour
 {
-    public Button playButton;
-    public Button quitButton;
+    [SerializeField] private Button playButton;
+    [SerializeField] private Button helpAndOptionsButton;
+    [SerializeField] private Button quitButton;
 
     // Start is called before the first frame update
     void Start()
     {
         playButton.onClick.AddListener(OnPlayButtonPressed);
+        helpAndOptionsButton.onClick.AddListener(OnHelpAndOptionsButtonPressed);
         quitButton.onClick.AddListener(OnQuitButtonPressed);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     public void OnPlayButtonPressed()
@@ -30,6 +26,11 @@ public class MainMenu : MonoBehaviour
     public void OnPlayOnlineButtonPressed()
     {
         // MenuManager.Instance.ChangeToMenu(MenuManager.MenuEnum.PlayOnlineMenuCanvas);
+    }
+
+    public void OnHelpAndOptionsButtonPressed()
+    {
+        MenuManager.Instance.ChangeToMenu(AssetEnum.HelpAndOptionsMenuCanvas);
     }
 
     public void OnQuitButtonPressed()

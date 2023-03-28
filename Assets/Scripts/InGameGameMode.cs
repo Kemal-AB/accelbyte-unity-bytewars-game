@@ -33,7 +33,8 @@ public class InGameGameMode : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        AudioManager.Instance.PlayMusic("SpaceChillout");
+        
         m_gameState = GameObject.FindObjectOfType<InGameGameState>();
         m_levelParent = new GameObject("LevelObjects");
 
