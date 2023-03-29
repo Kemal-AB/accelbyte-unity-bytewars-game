@@ -1,24 +1,27 @@
-using System;
-using AccelByte.Api;
+using System.Collections;
+using System.Collections.Generic;
 using AccelByte.Core;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LoginHandler : MonoBehaviour
+public class LoginHandler_Starter : MonoBehaviour
 {
+    //Declare each view panels
     [SerializeField] private GameObject loginStatePanel;
     [SerializeField] private GameObject loginLoadingPanel;
     [SerializeField] private GameObject loginFailedPanel;
+    
+    // Declare UI button here
     [SerializeField] private Button loginWithDeviceIdButton;
     [SerializeField] private Button retryLoginButton;
     [SerializeField] private Button quitGameButton;
     [SerializeField] private TMP_Text failedMessageText;
-
-
-    private AuthEssentialsWrapper _authWrapper;
-    private LoginType _lastLoginMethod;
-        
+    
+    //Paste AuthEssentialsSubsystem_Starter from "Put it All together" unit here (step number 3)
+    //Paste LoginType from "Put it All together" unit unit here (step number 4)
+    
+    
     #region LoginView enum
     public enum LoginView
     {
@@ -45,7 +48,7 @@ public class LoginHandler : MonoBehaviour
                     loginLoadingPanel.SetActive(true);
                     loginFailedPanel.SetActive(false);
                     break;
-                
+            
                 case LoginView.LoginFailed:
                     loginStatePanel.SetActive(false);
                     loginLoadingPanel.SetActive(false);
@@ -56,56 +59,28 @@ public class LoginHandler : MonoBehaviour
     }
 
     #endregion
+
+    //Paste Start() from "Put it All together" unit here (step number 3)
+
     
-    private void Start()
-    {
-        // get auth's subsystem
-        _authWrapper = TutorialModuleManager.Instance.GetModuleClass<AuthEssentialsWrapper>();
-    }
+    //Paste OnEnable() function from "Add a Login Menu" here (step number 4)
 
-    private void OnEnable()
-    {
-        // UI initialization
-        loginWithDeviceIdButton.onClick.AddListener(OnLoginWithDeviceIdButtonClicked);
-        retryLoginButton.onClick.AddListener(OnRetryLoginButtonClicked);
-        quitGameButton.onClick.AddListener(OnQuitGameButtonClicked);
-
-        CurrentView = LoginView.LoginState;
-    }
-
-    private void Login(LoginType loginMethod)
-    {
-        CurrentView = LoginView.LoginLoading;
-        _lastLoginMethod = loginMethod;
-        _authWrapper.Login(loginMethod, OnLoginCompleted);
-    }
-
-    private void OnLoginCompleted(Result result)
-    {
-        if (!result.IsError)
-        {
-            MenuManager.Instance.ChangeToMenu(AssetEnum.MainMenuCanvas);
-        }
-        else
-        {
-            failedMessageText.text = "Login Failed: "  + result.Error.Message;
-            CurrentView = LoginView.LoginFailed;
-        }
-    }
-
-    private void OnLoginWithDeviceIdButtonClicked()
-    {
-        Login(LoginType.DeviceId);
-    }
-
-    private void OnRetryLoginButtonClicked()
-    {
-        Login(_lastLoginMethod);
-    }
     
+    //initially Paste Login() function login from "Add a Login Menu" here (step number 5)
+    //then change it using code from "Put it All together" unit (step number 5)
+
+    
+    //Paste all callback function from "Add a Login Menu" here (step number 5)
+    //Then update OnLoginWithDeviceIdButtonClicked and OnRetryLoginButtonClicked from "Put it All together" unit (step number 6)
     private void OnQuitGameButtonClicked()
     {
         Application.Quit();
     }
+
+    
+    
+    //Paste OnLoginCompleted using snippet from "Put it All together" unit here (step number 2)
+
+
 
 }

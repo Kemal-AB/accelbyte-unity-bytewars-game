@@ -6,7 +6,7 @@ using AccelByte.Core;
 using AccelByte.Models;
 using UnityEngine;
 
-public class AuthEssentialsSubsystem : MonoBehaviour
+public class AuthEssentialsWrapper : MonoBehaviour
 {
     // AccelByte's Multi Registry references
     private ApiClient apiClient;
