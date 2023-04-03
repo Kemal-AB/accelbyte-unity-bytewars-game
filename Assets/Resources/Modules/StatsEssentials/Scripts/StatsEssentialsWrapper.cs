@@ -75,7 +75,7 @@ public class StatsEssentialsWrapper : MonoBehaviour
     /// <param name="statCodes">list of stat codes of the desired stat items</param>
     /// <param name="tags">list of custom tags of the desired stat items</param>
     /// <param name="resultCallback">callback function to get result from other script</param>
-    private void GetUserStatsFromClient(string[] statCodes, ResultCallback<PagedStatItems> resultCallback, string[] tags = null)
+    public void GetUserStatsFromClient(string[] statCodes, ResultCallback<PagedStatItems> resultCallback, string[] tags = null)
     {
         statistic.GetUserStatItems(
             statCodes, 
@@ -91,7 +91,7 @@ public class StatsEssentialsWrapper : MonoBehaviour
     /// <param name="statCodes">list of stat codes of the desired stat items</param>
     /// <param name="tags">list of custom tags of the desired stat items</param>
     /// <param name="resultCallback">callback function to get result from other script</param>
-    private void GetUserStatsFromServer(string userId, string[] statCodes, ResultCallback<PagedStatItems> resultCallback, string[] tags = null)
+    public void GetUserStatsFromServer(string userId, string[] statCodes, ResultCallback<PagedStatItems> resultCallback, string[] tags = null)
     {
         serverStatistic.GetUserStatItems(
             userId,
