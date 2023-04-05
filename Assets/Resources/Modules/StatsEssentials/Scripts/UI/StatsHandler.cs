@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using AccelByte.Core;
@@ -28,6 +29,14 @@ public class StatsHandler : MonoBehaviour
         backButton.onClick.AddListener(OnBackButtonClicked);
 		
         DisplayStats();
+    }
+
+    private void OnEnable()
+    {
+        if (gameObject.activeSelf)
+        {
+            DisplayStats();
+        }
     }
 
     private void DisplayStats()
