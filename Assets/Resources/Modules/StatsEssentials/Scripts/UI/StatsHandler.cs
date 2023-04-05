@@ -32,20 +32,26 @@ public class StatsHandler : MonoBehaviour
 
     private void DisplayStats()
     {
+        // set default values
+        singlePlayerText.text = "0";
+        eliminationText.text = "0";
+        teamDeathmatchText.text = "0";
+        
+        // trying to get the stats values
         string[] statCodes =
         {
             SINGLEPLAYER_STATCODE,
             ELIMINATION_STATCODE,
             TEAMDEATHMATCH_STATCODE
         };
-		
-        _statsWrapper.GetUserStatsFromClient(statCodes, OnGetUserStatsCompleted);
+        _statsWrapper.GetUserStatsFromClient(statCodes, null, OnGetUserStatsCompleted);
     }
 	
     private void OnGetUserStatsCompleted(Result<PagedStatItems> result){
         if (!result.IsError){
             foreach (StatItem statItem in result.Value.data)
             {
+                Debug.Log("[STATS]" + statItem.statCode + " - " + statItem.value);
                 switch (statItem.statCode)
                 {
                     case SINGLEPLAYER_STATCODE:

@@ -24,11 +24,11 @@ public class StatsEssentialsWrapper : MonoBehaviour
     /// <summary>
     /// Update User Statistics value from Client side
     /// </summary>
-    /// <param name="statCode">list of stat codes of the desired stat items</param>
+    /// <param name="statCode">stat code of the desired stat items</param>
     /// <param name="statValue">desired value for stat item</param>
-    /// <param name="resultCallback">callback function to get result from other script</param>
     /// <param name="additionalKey">additional custom key that will be added to the slot</param>
-    public void UpdateUserStatsFromClient(string statCode, float statValue, ResultCallback<UpdateUserStatItemValueResponse> resultCallback, string additionalKey = null)
+    /// <param name="resultCallback">callback function to get result from other script</param>
+    public void UpdateUserStatsFromClient(string statCode, float statValue, string additionalKey, ResultCallback<UpdateUserStatItemValueResponse> resultCallback = null)
     {
         PublicUpdateUserStatItem userStatItem = new PublicUpdateUserStatItem
         {
@@ -48,23 +48,25 @@ public class StatsEssentialsWrapper : MonoBehaviour
     /// Update User Statistics value from Server side
     /// </summary>
     /// <param name="userId">user id of the desired user's stats</param>
-    /// <param name="statCode">list of stat codes of the desired stat items</param>
-    /// <param name="statValue">desired value for stat item</param>
-    /// <param name="resultCallback">callback function to get result from other script</param>
+    /// <param name="newStatItemsValue">dictionary of stat codes along with its new values</param>
     /// <param name="additionalKey">additional custom key that will be added to the slot</param>
-    public void UpdateUserStatsFromServer(string userId, string statCode, float statValue, ResultCallback<StatItemOperationResult[]> resultCallback, string additionalKey = null)
+    /// /// <param name="resultCallback">callback function to get result from other script</param>
+    public void UpdateUserStatsFromServer(string userId, Dictionary<string, float> newStatItemsValue, string additionalKey, ResultCallback<StatItemOperationResult[]> resultCallback)
     {
-        StatItemUpdate userStatItem = new StatItemUpdate
+        List<StatItemUpdate> bulkUpdateUserStatItems = new List<StatItemUpdate>();
+        foreach (var newStatItem in newStatItemsValue)
         {
-            statCode = statCode,
-            updateStrategy = StatisticUpdateStrategy.OVERRIDE,
-            value = statValue
-        };
-        StatItemUpdate[] bulkUpdateUserStatItems = { userStatItem };
+            StatItemUpdate userStatItem = new StatItemUpdate
+            {
+                statCode = newStatItem.Key,
+                updateStrategy = StatisticUpdateStrategy.OVERRIDE,
+                value = newStatItem.Value
+            };
+        }
         
         serverStatistic.UpdateUserStatItems(
             userId,
-            bulkUpdateUserStatItems,
+            bulkUpdateUserStatItems.ToArray(),
             result => OnUpdateUserStatsFromServerCompleted(result, resultCallback)
         );
     }
@@ -75,7 +77,7 @@ public class StatsEssentialsWrapper : MonoBehaviour
     /// <param name="statCodes">list of stat codes of the desired stat items</param>
     /// <param name="tags">list of custom tags of the desired stat items</param>
     /// <param name="resultCallback">callback function to get result from other script</param>
-    public void GetUserStatsFromClient(string[] statCodes, ResultCallback<PagedStatItems> resultCallback, string[] tags = null)
+    public void GetUserStatsFromClient(string[] statCodes, string[] tags, ResultCallback<PagedStatItems> resultCallback)
     {
         statistic.GetUserStatItems(
             statCodes, 
@@ -91,7 +93,7 @@ public class StatsEssentialsWrapper : MonoBehaviour
     /// <param name="statCodes">list of stat codes of the desired stat items</param>
     /// <param name="tags">list of custom tags of the desired stat items</param>
     /// <param name="resultCallback">callback function to get result from other script</param>
-    public void GetUserStatsFromServer(string userId, string[] statCodes, ResultCallback<PagedStatItems> resultCallback, string[] tags = null)
+    public void GetUserStatsFromServer(string userId, string[] statCodes, string[] tags, ResultCallback<PagedStatItems> resultCallback)
     {
         serverStatistic.GetUserStatItems(
             userId,
