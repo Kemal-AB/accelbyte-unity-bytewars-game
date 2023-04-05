@@ -33,7 +33,7 @@ public class StatsHandler : MonoBehaviour
 
     private void OnEnable()
     {
-        if (gameObject.activeSelf)
+        if (gameObject.activeSelf && _statsWrapper != null)
         {
             DisplayStats();
         }
