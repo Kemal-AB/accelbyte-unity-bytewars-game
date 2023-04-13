@@ -118,9 +118,9 @@ GameObject:
   - component: {fileID: 2169716256886031664}
   - component: {fileID: 2169716256886031671}
   - component: {fileID: 2169716256886031670}
-  - component: {fileID: 661411819305700635}
+  - component: {fileID: 9062392417976499399}
   m_Layer: 5
-  m_Name: StatsProfileMenuCanvas
+  m_Name: StatsProfileMenuCanvas_Starter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -208,7 +208,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &661411819305700635
+--- !u!114 &9062392417976499399
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -217,7 +217,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2169716256886031669}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2741f4664908fc94f84c518bdcdbc0f4, type: 3}
+  m_Script: {fileID: 11500000, guid: 6aeb09cb650546d29bec5ad34c6aa4a6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   singlePlayerStatValueText: {fileID: 8490820965178571843}

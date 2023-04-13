@@ -9,9 +9,9 @@ using UnityEngine.UI;
 
 public class StatsHandler : MonoBehaviour
 {
-    [SerializeField] private TMP_Text singlePlayerText;
-    [SerializeField] private TMP_Text eliminationText;
-    [SerializeField] private TMP_Text teamDeathmatchText;
+    [SerializeField] private TMP_Text singlePlayerStatValueText;
+    [SerializeField] private TMP_Text eliminationStatValueText;
+    [SerializeField] private TMP_Text teamDeathmatchStatValueText;
     [SerializeField] private Button backButton;
 	
     private StatsEssentialsWrapper _statsWrapper;
@@ -21,7 +21,8 @@ public class StatsHandler : MonoBehaviour
     private const string ELIMINATION_STATCODE = "highestscore-elimination";
     private const string TEAMDEATHMATCH_STATCODE = "highestscore-teamdeathmatch";
 	
-    private void Start(){
+    // Start is called before the first frame update
+    void Start(){
         // get stats' wrapper
         _statsWrapper = TutorialModuleManager.Instance.GetModuleClass<StatsEssentialsWrapper>();
 		
@@ -42,9 +43,9 @@ public class StatsHandler : MonoBehaviour
     private void DisplayStats()
     {
         // set default values
-        singlePlayerText.text = "0";
-        eliminationText.text = "0";
-        teamDeathmatchText.text = "0";
+        singlePlayerStatValueText.text = "0";
+        eliminationStatValueText.text = "0";
+        teamDeathmatchStatValueText.text = "0";
         
         // trying to get the stats values
         string[] statCodes =
@@ -64,13 +65,13 @@ public class StatsHandler : MonoBehaviour
                 switch (statItem.statCode)
                 {
                     case SINGLEPLAYER_STATCODE:
-                        singlePlayerText.text = statItem.value.ToString();
+                        singlePlayerStatValueText.text = statItem.value.ToString();
                         break;
                     case ELIMINATION_STATCODE:
-                        eliminationText.text = statItem.value.ToString();
+                        eliminationStatValueText.text = statItem.value.ToString();
                         break;
                     case TEAMDEATHMATCH_STATCODE:
-                        teamDeathmatchText.text = statItem.value.ToString();
+                        teamDeathmatchStatValueText.text = statItem.value.ToString();
                         break;
                 }
             }
