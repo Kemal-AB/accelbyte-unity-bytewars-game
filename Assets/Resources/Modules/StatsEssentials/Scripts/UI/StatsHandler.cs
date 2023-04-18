@@ -25,7 +25,10 @@ public class StatsHandler : MonoBehaviour
     void Start(){
         // get stats' wrapper
         _statsWrapper = TutorialModuleManager.Instance.GetModuleClass<StatsEssentialsWrapper>();
-		
+        
+        // uncomment to Reset Stat Item's value
+        // _statsWrapper.ResetUserStatsFromClient(SINGLEPLAYER_STATCODE, null, null);
+
         // UI initialization
         backButton.onClick.AddListener(OnBackButtonClicked);
 		
