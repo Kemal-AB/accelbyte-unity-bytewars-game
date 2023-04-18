@@ -8,8 +8,9 @@ using UnityEngine;
 
 public class StatsEssentialsWrapper_Starter : MonoBehaviour
 {
-    //Copy AccelByte's Multi Registry references from "Use the AccelByte SDK to Login" unit here (step number 2)
-    
+    // AccelByte's Multi Registry references 
+    private Statistic statistic;
+    private ServerStatistic serverStatistic;
 
     //paste platform type code from "Use the AccelByte SDK to Login" here (step number 4)
     
