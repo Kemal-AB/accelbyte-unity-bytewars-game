@@ -17,7 +17,12 @@ public class ProfileMenu : MonoBehaviour
 
     private void OnStatsButtonClicked()
     {
-        MenuManager.Instance.ChangeToMenu(AssetEnum.StatsProfileMenuCanvas);
+        TutorialModuleData statsEssentials =
+            TutorialModuleManager.Instance.GetModule(AssetEnum.StatsEssentialsAssetConfig.ToString());
+        if (statsEssentials != null)
+        {
+            MenuManager.Instance.ChangeToMenu(statsEssentials.prefab.name);
+        }
     }
 
     private void OnBackButtonClicked()

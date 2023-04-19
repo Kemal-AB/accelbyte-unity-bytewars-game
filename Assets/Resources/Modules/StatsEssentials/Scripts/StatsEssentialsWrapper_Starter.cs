@@ -12,14 +12,15 @@ public class StatsEssentialsWrapper_Starter : MonoBehaviour
     private Statistic statistic;
     private ServerStatistic serverStatistic;
 
-    //paste platform type code from "Use the AccelByte SDK to Login" here (step number 4)
+    //Paste platform type code from "Use the AccelByte SDK to Login" here (step number 4)
     
     
-    //Copy Start() function from "Use the AccelByte SDK to Login" unit here (step number 2)
+    //Paste Start() function from "Use the AccelByte SDK to Login" unit here (step number 2)
 
     
     //Paste Login() function from "Use the AccelByte SDK to Login" here (step number 5)
 
 
     //Paste OnloginCompleted here from "Use the AccelByte SDK to Login" unit here (step number 3)
+    
 }

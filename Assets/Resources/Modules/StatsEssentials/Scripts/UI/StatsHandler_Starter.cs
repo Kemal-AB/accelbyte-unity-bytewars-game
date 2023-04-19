@@ -14,14 +14,31 @@ public class StatsHandler_Starter : MonoBehaviour
     [SerializeField] private TMP_Text teamDeathmatchStatValueText;
     [SerializeField] private Button backButton;
 
-    //Paste StatsEssentialsWrapper_Starter declaration from unit "" (step number ) here
-    
-    //Paste StatCodes names const variables from unit "" (step number ) here
+    //Paste StatCodes names const variables from "Put It All Together" (step number 3) here
     
     
-    //Paste Start() function from unit "Add a Stats Profile Menu" (step number 4) here
+    //Paste StatsEssentialsWrapper_Starter declaration from "Put It All Together" (step number 2) here
     
     
-    //Paste OnEnable() function from unit "" (step number ) here
+    void Start()
+    {
+        //Paste Get Stats Wrapper from "Put It All Together" (step number 2) here
+        
+        
+        //Paste UI initialization from "Add a Stats Profile Menu" (step number 4) here
+        
+    }
+
+    //Paste OnEnable() function from "Put It All Together" (step number 7) here
     
+    
+    //Paste DisplayStats() function from unit "Add a Stats Profile Menu" (step number 3) here
+    
+    
+    //Paste OnGetUserStatsCompleted() function from "Put It All Together" (step number 4) here
+    
+    
+    private void OnBackButtonClicked(){
+        MenuManager.Instance.OnBackPressed();
+    }
 }

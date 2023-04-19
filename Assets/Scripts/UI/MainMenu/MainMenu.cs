@@ -12,6 +12,10 @@ public class MainMenu : MenuCanvas
     // Start is called before the first frame update
     void Start()
     {
+        TutorialModuleData statsEssentials =
+            TutorialModuleManager.Instance.GetModule(AssetEnum.StatsEssentialsAssetConfig.ToString());
+        profileButton.gameObject.SetActive(statsEssentials.isActive);
+        
         playButton.onClick.AddListener(OnPlayButtonPressed);
         #if !BYTEWARS_DEBUG
         bool isOnlineBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.OnlineMultiplayer);

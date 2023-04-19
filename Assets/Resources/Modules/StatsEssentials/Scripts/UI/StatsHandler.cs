@@ -13,14 +13,14 @@ public class StatsHandler : MonoBehaviour
     [SerializeField] private TMP_Text eliminationStatValueText;
     [SerializeField] private TMP_Text teamDeathmatchStatValueText;
     [SerializeField] private Button backButton;
-	
-    private StatsEssentialsWrapper _statsWrapper;
-	
+
     // statcodes' name configured in Admin Portal
     private const string SINGLEPLAYER_STATCODE = "highestscore-singleplayer";
     private const string ELIMINATION_STATCODE = "highestscore-elimination";
     private const string TEAMDEATHMATCH_STATCODE = "highestscore-teamdeathmatch";
 	
+    private StatsEssentialsWrapper _statsWrapper;
+    
     // Start is called before the first frame update
     void Start(){
         // get stats' wrapper
@@ -35,7 +35,7 @@ public class StatsHandler : MonoBehaviour
         DisplayStats();
     }
 
-    private void OnEnable()
+    void OnEnable()
     {
         if (gameObject.activeSelf && _statsWrapper != null)
         {
