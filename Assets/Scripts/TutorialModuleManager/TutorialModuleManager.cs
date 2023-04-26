@@ -34,11 +34,12 @@ public class TutorialModuleManager : MonoBehaviour
             _instance = this;
             DontDestroyOnLoad(this.gameObject);
         }
+        
+        PrepareScriptAssets();
     }
 
     private void Start()
     {
-        PrepareScriptAssets();
         AddModuleComponents();
     }
     
@@ -153,8 +154,12 @@ public class TutorialModuleManager : MonoBehaviour
 
             if (scriptClassType != null)
             {
-                string scriptPath = Directory.GetFiles(Application.dataPath, script.name + ".cs", SearchOption.AllDirectories)[0];
+                string scriptPath = Path.GetFullPath(script.name + ".cs");
                 List<string> pathCategories = scriptPath.Split(new char[] {'\\', '/'}).ToList();
+                
+                #if UNITY_STANDALONE
+                    if (script.name.Contains("Handler")) continue;
+                #endif
                 
                 if (pathCategories.Contains("UI")) continue;
                 
