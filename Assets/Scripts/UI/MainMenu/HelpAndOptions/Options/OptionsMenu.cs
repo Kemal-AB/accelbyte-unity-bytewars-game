@@ -15,40 +15,44 @@ public class OptionsMenu : MenuCanvas
     [SerializeField] private TMP_Text sfxVolumeText;
     [SerializeField] private Button backButton;
 
-    private CloudSaveEssentialsWrapper _cloudSaveWrapper = new CloudSaveEssentialsWrapper();
+    private CloudSaveEssentialsWrapper _cloudSaveWrapper;
     private Dictionary<string, object> volumeSettings;
 
     // player record key and configurations
-    private const string PLAYERSETTINGS_RECORDKEY = "PLAYER_SETTINGS";
-    private const string MUSICVOLUME_RECORDNAME = "music-volume";
-    private const string SFXVOLUME_RECORDNAME = "sfx-volume"; 
+    private const string PLAYERSETTINGS_RECORDKEY = "GameOptions-Sound";
+    private const string MUSICVOLUME_RECORDNAME = "musicvolume";
+    private const string SFXVOLUME_RECORDNAME = "sfxvolume";
 
     void Start()
     {
         // get cloud save's wrapper
         _cloudSaveWrapper = TutorialModuleManager.Instance.GetModuleClass<CloudSaveEssentialsWrapper>();
-        // Volume Settings dictionary initialization
-        volumeSettings = new Dictionary<string, object>()
-        {
-            {MUSICVOLUME_RECORDNAME, 0},
-            {SFXVOLUME_RECORDNAME, 0}
-        };
-        
+
         // Initialize options value based on PlayerPrefs stored in AudioManager
         musicVolumeSlider.value = AudioManager.Instance.GetCurrentVolume(AudioManager.AudioType.MusicAudio);
         sfxVolumeSlider.value = AudioManager.Instance.GetCurrentVolume(AudioManager.AudioType.SfxAudio);
         ChangeMusicVolume(musicVolumeSlider.value);
         ChangeSfxVolume(sfxVolumeSlider.value);
-        
+
         // UI Initialization
         musicVolumeSlider.onValueChanged.AddListener(volume => ChangeMusicVolume(volume));
         sfxVolumeSlider.onValueChanged.AddListener(volume => ChangeSfxVolume(volume));
         backButton.onClick.AddListener(() => MenuManager.Instance.OnBackPressed());
+        
+        // Get player settings from Cloud Save
+        TutorialModuleData cloudSaveEssentials = TutorialModuleManager.Instance.GetModule(AssetEnum.CloudSaveEssentialsAssetConfig.ToString());
+        if (cloudSaveEssentials.isActive)
+        {
+            GetPlayerSettings();
+        }
     }
 
     void OnEnable()
     {
-        _cloudSaveWrapper.GetUserRecord(PLAYERSETTINGS_RECORDKEY, OnGetUserRecordCompleted);
+        if (gameObject.activeSelf && _cloudSaveWrapper != null)
+        {
+            GetPlayerSettings();
+        }
     }
 
     private void ChangeMusicVolume(float musicVolume)
@@ -57,8 +61,11 @@ public class OptionsMenu : MenuCanvas
         
         int musicVolumeInt = (int)(musicVolume * 100);
         musicVolumeText.text = musicVolumeInt.ToString() + "%";
-        
-        SavePlayerSettings(musicVolume, MUSICVOLUME_RECORDNAME);
+
+        if (volumeSettings != null)
+        {
+            UpdatePlayerSettings(musicVolume, MUSICVOLUME_RECORDNAME);
+        }
     }
     
     private void ChangeSfxVolume(float sfxVolume)
@@ -67,41 +74,70 @@ public class OptionsMenu : MenuCanvas
 
         int sfxVolumeInt = (int)(sfxVolume * 100);
         sfxVolumeText.text = sfxVolumeInt.ToString() + "%";
-        
-        SavePlayerSettings(sfxVolume, SFXVOLUME_RECORDNAME);
+
+        if (volumeSettings != null)
+        {
+            UpdatePlayerSettings(sfxVolume, SFXVOLUME_RECORDNAME);
+        }
     }
 
-    private void SavePlayerSettings(float newVolumeValue, string recordName)
+    public void GetPlayerSettings()
     {
-        Debug.Log(volumeSettings[recordName]);
+        if (volumeSettings == null)
+        {
+            volumeSettings = new Dictionary<string, object>()
+            {
+                {MUSICVOLUME_RECORDNAME, musicVolumeSlider.value},
+                {SFXVOLUME_RECORDNAME, sfxVolumeSlider.value}
+            };
+        }
+        _cloudSaveWrapper.GetUserRecord(PLAYERSETTINGS_RECORDKEY, OnGetPlayerSettingsCompleted);
+    }
+
+    private void SavePlayerSettings()
+    {
+        _cloudSaveWrapper.SaveUserRecord(PLAYERSETTINGS_RECORDKEY, volumeSettings, OnSavePlayerSettingsCompleted);
+    }
+    
+    private void UpdatePlayerSettings(float newVolumeValue, string recordName)
+    {
+        float recordedVolume = Convert.ToSingle(volumeSettings[recordName]);
         
-        float recordedVolume = (float) volumeSettings[recordName];
-        if (recordedVolume != newVolumeValue)
+        if (!recordedVolume.Equals(newVolumeValue))
         {
             volumeSettings[recordName] = newVolumeValue;
             
-            _cloudSaveWrapper.SaveUserRecord(PLAYERSETTINGS_RECORDKEY, volumeSettings, null);
+            SavePlayerSettings();
         }
     }
     
-    private void OnGetUserRecordCompleted(Result<UserRecord> result)
+    private void OnGetPlayerSettingsCompleted(Result<UserRecord> result)
     {
         if (!result.IsError)
         {
-            foreach (KeyValuePair<string, object> record in result.Value.value)
+            Dictionary<string, object> recordData = result.Value.value;
+            if (recordData != null)
             {
-                switch (record.Key)
-                {
-                    case MUSICVOLUME_RECORDNAME:
-                        volumeSettings[MUSICVOLUME_RECORDNAME] = record.Value;
-                        musicVolumeSlider.value = (float) record.Value;
-                        break;
-                    case SFXVOLUME_RECORDNAME:
-                        volumeSettings[SFXVOLUME_RECORDNAME] = record.Value;
-                        sfxVolumeSlider.value = (float) record.Value;
-                        break;
-                }
+                volumeSettings[MUSICVOLUME_RECORDNAME] = recordData[MUSICVOLUME_RECORDNAME];
+                musicVolumeSlider.value = Convert.ToSingle(recordData[MUSICVOLUME_RECORDNAME]);
+                ChangeMusicVolume(musicVolumeSlider.value);
+
+                volumeSettings[SFXVOLUME_RECORDNAME] = recordData[SFXVOLUME_RECORDNAME];
+                sfxVolumeSlider.value = Convert.ToSingle(recordData[SFXVOLUME_RECORDNAME]);
+                ChangeSfxVolume(sfxVolumeSlider.value);
             }
+        }
+        else
+        { 
+            SavePlayerSettings();
+        }
+    }
+
+    private void OnSavePlayerSettingsCompleted(Result result)
+    {
+        if (!result.IsError)
+        {
+            Debug.Log("Player Settings updated to cloud save!");
         }
     }
 

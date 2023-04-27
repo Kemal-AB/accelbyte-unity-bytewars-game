@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c946b292dbcfa2418ef1a2b2e60b8b7, type: 3}
   m_Name: CloudSaveEssentialsAssetConfig
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
+  prefab: {fileID: 2169716256886031669, guid: baea9310b50ad964da92bcf693d9c3cb, type: 3}
   moduleName: CloudSaveEssentialsWrapper
   isActive: 1

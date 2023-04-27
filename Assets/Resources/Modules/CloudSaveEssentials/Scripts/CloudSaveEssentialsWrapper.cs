@@ -23,8 +23,11 @@ public class CloudSaveEssentialsWrapper : MonoBehaviour
         cloudSave.SaveUserRecord(
             recordKey, 
             recordRequest, 
-            result => OnSaveUserRecordCompleted(result, resultCallback)
+            result => OnSaveUserRecordCompleted(result, resultCallback),
+            true
         );
+        
+        // cloudSave.ReplaceUserRecord(recordKey, recordRequest, result => OnSaveUserRecordCompleted(result, resultCallback));
     }
 
     public void GetUserRecord(string recordKey, ResultCallback<UserRecord> resultCallback)
@@ -57,11 +60,11 @@ public class CloudSaveEssentialsWrapper : MonoBehaviour
     {
         if (!result.IsError)
         {
-            Debug.Log("Save Player Record from Client successful.");
+            Debug.Log("Get Player Record from Client successful.");
         }
         else
         {
-            Debug.Log($"Save Player Record from Client failed. Message: {result.Error.Message}");
+            Debug.Log($"Get Player Record from Client failed. Message: {result.Error.Message}");
         }
         
         customCallback?.Invoke(result);
