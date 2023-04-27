@@ -19,9 +19,9 @@ public class OptionsMenu : MenuCanvas
     private Dictionary<string, object> volumeSettings;
 
     // player record key and configurations
-    private const string PLAYERSETTINGS_RECORDKEY = "GameOptions-Sound";
-    private const string MUSICVOLUME_RECORDNAME = "musicvolume";
-    private const string SFXVOLUME_RECORDNAME = "sfxvolume";
+    private const string GAMEOPTIONS_RECORDKEY = "GameOptions-Sound";
+    private const string MUSICVOLUME_ITEMNAME = "musicvolume";
+    private const string SFXVOLUME_ITEMNAME = "sfxvolume";
 
     void Start()
     {
@@ -43,7 +43,7 @@ public class OptionsMenu : MenuCanvas
         TutorialModuleData cloudSaveEssentials = TutorialModuleManager.Instance.GetModule(AssetEnum.CloudSaveEssentialsAssetConfig.ToString());
         if (cloudSaveEssentials.isActive)
         {
-            GetPlayerSettings();
+            GetGameOptions();
         }
     }
 
@@ -51,7 +51,7 @@ public class OptionsMenu : MenuCanvas
     {
         if (gameObject.activeSelf && _cloudSaveWrapper != null)
         {
-            GetPlayerSettings();
+            GetGameOptions();
         }
     }
 
@@ -64,7 +64,7 @@ public class OptionsMenu : MenuCanvas
 
         if (volumeSettings != null)
         {
-            UpdatePlayerSettings(musicVolume, MUSICVOLUME_RECORDNAME);
+            UpdateGameOptions(musicVolume, MUSICVOLUME_ITEMNAME);
         }
     }
     
@@ -77,29 +77,29 @@ public class OptionsMenu : MenuCanvas
 
         if (volumeSettings != null)
         {
-            UpdatePlayerSettings(sfxVolume, SFXVOLUME_RECORDNAME);
+            UpdateGameOptions(sfxVolume, SFXVOLUME_ITEMNAME);
         }
     }
 
-    public void GetPlayerSettings()
+    public void GetGameOptions()
     {
         if (volumeSettings == null)
         {
             volumeSettings = new Dictionary<string, object>()
             {
-                {MUSICVOLUME_RECORDNAME, musicVolumeSlider.value},
-                {SFXVOLUME_RECORDNAME, sfxVolumeSlider.value}
+                {MUSICVOLUME_ITEMNAME, musicVolumeSlider.value},
+                {SFXVOLUME_ITEMNAME, sfxVolumeSlider.value}
             };
         }
-        _cloudSaveWrapper.GetUserRecord(PLAYERSETTINGS_RECORDKEY, OnGetPlayerSettingsCompleted);
+        _cloudSaveWrapper.GetUserRecord(GAMEOPTIONS_RECORDKEY, OnGetGameOptionsCompleted);
     }
 
-    private void SavePlayerSettings()
+    private void SaveGameOptions()
     {
-        _cloudSaveWrapper.SaveUserRecord(PLAYERSETTINGS_RECORDKEY, volumeSettings, OnSavePlayerSettingsCompleted);
+        _cloudSaveWrapper.SaveUserRecord(GAMEOPTIONS_RECORDKEY, volumeSettings, OnSaveGameOptionsCompleted);
     }
     
-    private void UpdatePlayerSettings(float newVolumeValue, string recordName)
+    private void UpdateGameOptions(float newVolumeValue, string recordName)
     {
         float recordedVolume = Convert.ToSingle(volumeSettings[recordName]);
         
@@ -107,33 +107,33 @@ public class OptionsMenu : MenuCanvas
         {
             volumeSettings[recordName] = newVolumeValue;
             
-            SavePlayerSettings();
+            SaveGameOptions();
         }
     }
     
-    private void OnGetPlayerSettingsCompleted(Result<UserRecord> result)
+    private void OnGetGameOptionsCompleted(Result<UserRecord> result)
     {
         if (!result.IsError)
         {
             Dictionary<string, object> recordData = result.Value.value;
             if (recordData != null)
             {
-                volumeSettings[MUSICVOLUME_RECORDNAME] = recordData[MUSICVOLUME_RECORDNAME];
-                musicVolumeSlider.value = Convert.ToSingle(recordData[MUSICVOLUME_RECORDNAME]);
+                volumeSettings[MUSICVOLUME_ITEMNAME] = recordData[MUSICVOLUME_ITEMNAME];
+                musicVolumeSlider.value = Convert.ToSingle(recordData[MUSICVOLUME_ITEMNAME]);
                 ChangeMusicVolume(musicVolumeSlider.value);
 
-                volumeSettings[SFXVOLUME_RECORDNAME] = recordData[SFXVOLUME_RECORDNAME];
-                sfxVolumeSlider.value = Convert.ToSingle(recordData[SFXVOLUME_RECORDNAME]);
+                volumeSettings[SFXVOLUME_ITEMNAME] = recordData[SFXVOLUME_ITEMNAME];
+                sfxVolumeSlider.value = Convert.ToSingle(recordData[SFXVOLUME_ITEMNAME]);
                 ChangeSfxVolume(sfxVolumeSlider.value);
             }
         }
         else
         { 
-            SavePlayerSettings();
+            SaveGameOptions();
         }
     }
 
-    private void OnSavePlayerSettingsCompleted(Result result)
+    private void OnSaveGameOptionsCompleted(Result result)
     {
         if (!result.IsError)
         {
