@@ -5,7 +5,7 @@ using AccelByte.Core;
 using AccelByte.Models;
 using UnityEngine;
 
-public class CloudSaveEssentialsWrapper : MonoBehaviour
+public class CloudSaveEssentialsWrapper_Starter : MonoBehaviour
 {
     // AccelByte's Multi Registry references
     private CloudSave cloudSave;
