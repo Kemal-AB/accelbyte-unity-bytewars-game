@@ -17,8 +17,7 @@ public class ProfileMenu : MonoBehaviour
 
     private void OnStatsButtonClicked()
     {
-        TutorialModuleData statsEssentials =
-            TutorialModuleManager.Instance.GetModule(AssetEnum.StatsEssentialsAssetConfig.ToString());
+        TutorialModuleData statsEssentials = TutorialModuleManager.Instance.GetModule(AssetEnum.StatsEssentialsAssetConfig.ToString());
         if (statsEssentials != null)
         {
             MenuManager.Instance.ChangeToMenu(statsEssentials.prefab.name);

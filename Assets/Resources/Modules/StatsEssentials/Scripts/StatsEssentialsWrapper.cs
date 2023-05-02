@@ -32,7 +32,7 @@ public class StatsEssentialsWrapper : MonoBehaviour
     {
         PublicUpdateUserStatItem userStatItem = new PublicUpdateUserStatItem
         {
-            updateStrategy = StatisticUpdateStrategy.INCREMENT,
+            updateStrategy = StatisticUpdateStrategy.OVERRIDE,
             value = statValue
         };
         
@@ -174,9 +174,9 @@ public class StatsEssentialsWrapper : MonoBehaviour
         else
         {
             Debug.Log($"Update User's Stat Items from Client failed. Message: {result.Error.Message}");
-            
-            customCallback?.Invoke(result);
         }
+        
+        customCallback?.Invoke(result);
     }
 
     /// <summary>
@@ -250,9 +250,9 @@ public class StatsEssentialsWrapper : MonoBehaviour
         else
         {
             Debug.Log($"Reset User Stat Item's value from Client failed. Message: {result.Error.Message}");
-            
-            customCallback?.Invoke(result);
         }
+        
+        customCallback?.Invoke(result);
     }
 
     /// <summary>

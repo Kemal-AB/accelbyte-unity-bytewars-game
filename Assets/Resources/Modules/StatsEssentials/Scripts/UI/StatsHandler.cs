@@ -22,7 +22,8 @@ public class StatsHandler : MonoBehaviour
     private StatsEssentialsWrapper _statsWrapper;
     
     // Start is called before the first frame update
-    void Start(){
+    void Start()
+    {
         // get stats' wrapper
         _statsWrapper = TutorialModuleManager.Instance.GetModuleClass<StatsEssentialsWrapper>();
         
@@ -60,7 +61,8 @@ public class StatsHandler : MonoBehaviour
         _statsWrapper.GetUserStatsFromClient(statCodes, null, OnGetUserStatsCompleted);
     }
 	
-    private void OnGetUserStatsCompleted(Result<PagedStatItems> result){
+    private void OnGetUserStatsCompleted(Result<PagedStatItems> result)
+    {
         if (!result.IsError){
             foreach (StatItem statItem in result.Value.data)
             {
@@ -81,7 +83,8 @@ public class StatsHandler : MonoBehaviour
         }
     }
 	
-    private void OnBackButtonClicked(){
+    private void OnBackButtonClicked()
+    {
         MenuManager.Instance.OnBackPressed();
     }
 }
