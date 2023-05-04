@@ -38,13 +38,6 @@ public class OptionsMenu : MenuCanvas
         musicVolumeSlider.onValueChanged.AddListener(volume => ChangeMusicVolume(volume));
         sfxVolumeSlider.onValueChanged.AddListener(volume => ChangeSfxVolume(volume));
         backButton.onClick.AddListener(() => MenuManager.Instance.OnBackPressed());
-        
-        // Get player settings from Cloud Save
-        TutorialModuleData cloudSaveEssentials = TutorialModuleManager.Instance.GetModule(AssetEnum.CloudSaveEssentialsAssetConfig.ToString());
-        if (cloudSaveEssentials.isActive)
-        {
-            GetGameOptions();
-        }
     }
 
     void OnEnable()

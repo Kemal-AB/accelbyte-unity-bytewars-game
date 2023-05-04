@@ -26,8 +26,6 @@ public class CloudSaveEssentialsWrapper : MonoBehaviour
             result => OnSaveUserRecordCompleted(result, resultCallback),
             true
         );
-        
-        // cloudSave.ReplaceUserRecord(recordKey, recordRequest, result => OnSaveUserRecordCompleted(result, resultCallback));
     }
 
     public void GetUserRecord(string recordKey, ResultCallback<UserRecord> resultCallback)
@@ -36,6 +34,13 @@ public class CloudSaveEssentialsWrapper : MonoBehaviour
             recordKey,
             result => OnGetUserRecordCompleted(result, resultCallback)
         );
+    }
+
+    public void DeleteUserRecord(string recordKey, ResultCallback resultCallback)
+    {
+        cloudSave.DeleteUserRecord(
+            recordKey,
+            result => OnDeleteUserRecordCompleted(result, resultCallback));
     }
     
     #endregion
@@ -69,6 +74,20 @@ public class CloudSaveEssentialsWrapper : MonoBehaviour
         
         customCallback?.Invoke(result);
     }
+    
+        private void OnDeleteUserRecordCompleted(Result result, ResultCallback customCallback = null)
+        {
+            if (!result.IsError)
+            {
+                Debug.Log($"Delete Player Record from Client successful.");
+            }
+            else
+            {
+                Debug.Log($"Delete Player Record from Client failed. Message: {result.Error.Message}");
+            }
+            
+            customCallback?.Invoke(result);
+        }
 
     #endregion
 }
