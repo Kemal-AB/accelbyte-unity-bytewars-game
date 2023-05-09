@@ -59,7 +59,7 @@ public class StatsEssentialsWrapper : MonoBehaviour
             StatItemUpdate userStatItem = new StatItemUpdate
             {
                 statCode = newStatItem.Key,
-                updateStrategy = StatisticUpdateStrategy.INCREMENT,
+                updateStrategy = StatisticUpdateStrategy.OVERRIDE,
                 value = newStatItem.Value
             };
             

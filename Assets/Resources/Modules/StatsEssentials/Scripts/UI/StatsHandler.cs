@@ -42,6 +42,15 @@ public class StatsHandler : MonoBehaviour
         {
             DisplayStats();
         }
+
+        GameOverScreenController.OnGameOver += playerState =>
+        {
+            UpdateUserStats(playerState);
+        };
+        InGameGameMode.OnGameOverState += () =>
+        {
+            UpdateAllUsersStats();
+        };
     }
 
     private void DisplayStats()
@@ -61,6 +70,39 @@ public class StatsHandler : MonoBehaviour
         _statsWrapper.GetUserStatsFromClient(statCodes, null, OnGetUserStatsCompleted);
     }
 	
+    private void UpdateUserStats(PlayerState playerState)
+    {
+        StatsEssentialsWrapper statsEssentialsWrapper = TutorialModuleManager.Instance.GetModuleClass<StatsEssentialsWrapper>();
+        statsEssentialsWrapper.UpdateUserStatsFromClient(SINGLEPLAYER_STATCODE, playerState.m_playerScore, "", OnUpdateUserStatsCompleted);
+    }
+    
+    private void UpdateAllUsersStats()
+    {
+        // update statistic from server
+        // if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER)
+        // {
+        //     if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.ELIMINATION)
+        //     {
+        //         UpdateUserStats(ELIMINATION_STATCODE);
+        //     }
+        //     else if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.TEAMDEATHMATCH)
+        //     {
+        //         UpdateUserStats(TEAMDEATHMATCH_STATCODE);
+        //     }
+        // }
+        
+        // foreach (var player in GetGameState().m_players)
+        // {
+        //     PlayerState playerState = player.GetPlayerState();
+        //     Dictionary<string, float> statItems = new Dictionary<string, float>()
+        //     {
+        //         {multiplayerMode, playerState.m_playerScore}
+        //     };
+        //     
+        //     statsEssentialsWrapper.UpdateUserStatsFromServer(player.userId, statItems, "", null);
+        // }
+    }
+    
     private void OnGetUserStatsCompleted(Result<PagedStatItems> result)
     {
         if (!result.IsError){
@@ -80,6 +122,14 @@ public class StatsHandler : MonoBehaviour
                         break;
                 }
             }
+        }
+    }
+
+    private void OnUpdateUserStatsCompleted(Result<UpdateUserStatItemValueResponse> result)
+    {
+        if (!result.IsError)
+        {
+            Debug.Log($"Player's {SINGLEPLAYER_STATCODE} stat value updated!");
         }
     }
 	
