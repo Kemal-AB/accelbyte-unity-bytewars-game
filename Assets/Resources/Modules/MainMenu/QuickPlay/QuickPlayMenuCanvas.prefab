@@ -222,6 +222,8 @@ MonoBehaviour:
   backButton: {fileID: 5406751274186335520}
   eliminationButton: {fileID: 7614937716666002539}
   teamDeadmatchButton: {fileID: 8382228949925598942}
+  onlineEliminationGameMode: {fileID: 11400000, guid: 1d27941e2edb4994e8c9d70a07137d32,
+    type: 2}
 --- !u!1 &2169716257961203028
 GameObject:
   m_ObjectHideFlags: 0

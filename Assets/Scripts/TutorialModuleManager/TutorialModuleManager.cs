@@ -15,12 +15,12 @@ public class TutorialModuleManager : MonoBehaviour
     // instance getter
     public static TutorialModuleManager Instance => _instance;
     public bool IsInstantiated => _isInstantiated;
-    public Dictionary<string, GameObject> InstantiatedTutorials => _instantiatedTutorialPrefabs;
+    public Dictionary<TutorialType, GameObject> InstantiatedTutorials => _instantiatedTutorialPrefabs;
 
     private Dictionary<string, ModuleData> _moduleClassTypes = new Dictionary<string, ModuleData>();
     private Dictionary<string, List<Transform>> _moduleUITransforms = new Dictionary<string, List<Transform>>();
     private bool _isInstantiated = false;
-    private Dictionary<string, GameObject> _instantiatedTutorialPrefabs = new Dictionary<string, GameObject>();
+    private Dictionary<TutorialType, GameObject> _instantiatedTutorialPrefabs = new Dictionary<TutorialType, GameObject>();
 
     private void Awake()
     {
@@ -62,11 +62,11 @@ public class TutorialModuleManager : MonoBehaviour
 
     #region Module Config Functions
     
-    public TutorialModuleData GetModule(string moduleName)
+    public TutorialModuleData GetModule(TutorialType tutorialType)
     {
         var tutorialModules = AssetManager.Singleton.GetTutorialModules();
         
-        if (tutorialModules.TryGetValue(moduleName, out TutorialModuleData moduleData))
+        if (tutorialModules.TryGetValue(tutorialType, out TutorialModuleData moduleData))
         {
             return moduleData;
         }
@@ -75,21 +75,32 @@ public class TutorialModuleManager : MonoBehaviour
             return null;
         }
     }
-    
-    public Dictionary<string, TutorialModuleData> GetAllActiveModule() 
-    {
-        var tutorialModules = AssetManager.Singleton.GetTutorialModules();
-        var activeModules = new Dictionary<string, TutorialModuleData>();
 
-        foreach (var tModule in tutorialModules)
+    private readonly Dictionary<TutorialType, TutorialModuleData> activeModules =
+        new Dictionary<TutorialType, TutorialModuleData>();
+    public Dictionary<TutorialType, TutorialModuleData> GetAllActiveModule() 
+    {
+        if (AssetManager.Singleton)
         {
-            if (tModule.Value.isActive)
+            var tutorialModules = AssetManager.Singleton.GetTutorialModules();
+            foreach (var tModule in tutorialModules)
             {
-                activeModules.Add(tModule.Key, tModule.Value);
+                if (tModule.Value.isActive)
+                {
+                    activeModules.TryAdd(tModule.Key, tModule.Value);
+                }
             }
         }
-
         return activeModules;
+    }
+
+    public bool IsModuleActive(TutorialType type)
+    {
+        if (activeModules.TryGetValue(type, out var moduleData))
+        {
+            return moduleData.isActive;
+        }
+        return false;
     }
 
 
@@ -102,33 +113,33 @@ public class TutorialModuleManager : MonoBehaviour
             {
                 var instantiatedPrefab =
                     Instantiate(tModule.Value.prefab, Vector3.zero, Quaternion.identity, transform);
-                instantiatedPrefab.SetActive(false);
+                instantiatedPrefab.gameObject.SetActive(false);
                 if (_instantiatedTutorialPrefabs.TryGetValue(tModule.Key, out var existingGameObject))
                 {
                     Debug.Log($"tutorial {tModule.Value.prefab.name} has been added");
                 }
                 else
                 {
-                    _instantiatedTutorialPrefabs.Add(tModule.Value.prefab.name, instantiatedPrefab);
+                    _instantiatedTutorialPrefabs.Add(tModule.Key, instantiatedPrefab.gameObject);
                 }
             }
             else
             {
-                Debug.Log($"module {tModule.Value.moduleName} is exists but inactive");
+                Debug.Log($"module {tModule.Value.type} is exists but inactive");
             }
         }
         _isInstantiated = true;
     }
 
-    public T GetTutorialUIHandler<T>(AssetEnum uiEnum)
+    public T GetTutorialUIHandler<T>(TutorialType tutorialType)
     {
-        if(_instantiatedTutorialPrefabs.TryGetValue(uiEnum.ToString(), out var instantiatedUI))
+        if(_instantiatedTutorialPrefabs.TryGetValue(tutorialType, out var instantiatedUI))
         {
             return instantiatedUI.GetComponent<T>();
         }
         else
         {
-            Debug.Log($"value with key {uiEnum.ToString()} does not exist");
+            Debug.Log($"value with key {tutorialType} does not exist");
         }
         return default(T);
     }

@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class OptionsMenu : MonoBehaviour
+public class OptionsMenu : MenuCanvas
 {
     [SerializeField] private Slider musicVolumeSlider;
     [SerializeField] private Slider sfxVolumeSlider;
@@ -40,5 +40,15 @@ public class OptionsMenu : MonoBehaviour
 
         int sfxVolumeInt = (int)(sfxVolume * 100);
         sfxVolumeText.text = sfxVolumeInt.ToString() + "%";
+    }
+
+    public override GameObject GetFirstButton()
+    {
+        return musicVolumeSlider.gameObject;
+    }
+
+    public override AssetEnum GetAssetEnum()
+    {
+        return AssetEnum.OptionsMenuCanvas;
     }
 }

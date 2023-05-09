@@ -11,8 +11,9 @@ GameObject:
   - component: {fileID: 1952031392179872035}
   - component: {fileID: 7018035413555703141}
   - component: {fileID: 2719278317966552916}
-  - component: {fileID: 1231767652266104174}
-  - component: {fileID: 7021527950986973467}
+  - component: {fileID: 3421930481197425942}
+  - component: {fileID: 2977284709785749156}
+  - component: {fileID: 7136479119093699120}
   m_Layer: 0
   m_Name: PlanetObject
   m_TagString: Planet
@@ -85,7 +86,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &1231767652266104174
+--- !u!114 &3421930481197425942
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,23 +95,41 @@ MonoBehaviour:
   m_GameObject: {fileID: 6316847988675104935}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 72cca2f2a7ddf1946aaaa48926dd9771, type: 3}
+  m_Script: {fileID: 11500000, guid: 8db9de6116b38aa4db6d9cf0fd70ea56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_scale: 1
   m_glowPulseRate: 2
   m_glowPulseScale: 3
---- !u!114 &7021527950986973467
-MonoBehaviour:
+  m_mass: 0
+  m_radius: 1
+  _renderer: {fileID: 2719278317966552916}
+--- !u!135 &2977284709785749156
+SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6316847988675104935}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf290a4e21b311a44a2df45cff2f8896, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_mass: 1
-  m_radius: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &7136479119093699120
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6316847988675104935}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 126
+  m_CollisionDetection: 0

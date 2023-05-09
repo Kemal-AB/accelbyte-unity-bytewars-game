@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HelpAndOptionsMenu : MonoBehaviour
+public class HelpAndOptionsMenu : MenuCanvas
 {
     [SerializeField] private Button helpButton;
     [SerializeField] private Button optionsButton;
@@ -27,5 +27,15 @@ public class HelpAndOptionsMenu : MonoBehaviour
             MenuManager.Instance.ChangeToMenu(AssetEnum.CreditsMenuCanvas);
         }));
         backButton.onClick.AddListener(() => MenuManager.Instance.OnBackPressed());
+    }
+
+    public override GameObject GetFirstButton()
+    {
+        return helpButton.gameObject;
+    }
+
+    public override AssetEnum GetAssetEnum()
+    {
+        return AssetEnum.HelpAndOptionsMenuCanvas;
     }
 }

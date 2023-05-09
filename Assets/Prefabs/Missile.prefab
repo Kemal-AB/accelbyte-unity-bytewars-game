@@ -11,13 +11,10 @@ GameObject:
   - component: {fileID: 8009366691634243758}
   - component: {fileID: 2352445206210135324}
   - component: {fileID: 6747372275707910487}
-  - component: {fileID: 6974293173721039504}
-  - component: {fileID: -4575115200236095556}
-  - component: {fileID: -4476039723222424187}
-  - component: {fileID: 8105622700049913358}
   - component: {fileID: -4094237378551273343}
   - component: {fileID: 8052264586552347945}
-  - component: {fileID: 7582062726346969026}
+  - component: {fileID: 5119555350153725107}
+  - component: {fileID: -1527670407104055140}
   m_Layer: 0
   m_Name: Missile
   m_TagString: Untagged
@@ -90,71 +87,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &6974293173721039504
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8676546774954766483}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.1
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-4575115200236095556
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8676546774954766483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3de048243630967438f482595e2c5d50, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_spawnOnDestroy: {fileID: 8986753919324633490, guid: a325900f3f30b944a9a173d5a057407c,
-    type: 3}
---- !u!114 &-4476039723222424187
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8676546774954766483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf290a4e21b311a44a2df45cff2f8896, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_mass: 1
-  m_radius: 0.1
---- !u!114 &8105622700049913358
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8676546774954766483}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6bd8f6912de62774982fb799c03eaa77, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_spawnOnDestroy: {fileID: 8986753919324633490, guid: a325900f3f30b944a9a173d5a057407c,
-    type: 3}
-  m_popupScoreTextPrefab: {fileID: 8713534360301857744, guid: e24e7f080e6475548a30183ebb23ea2a,
-    type: 3}
-  m_expiryTime: 0
-  m_skimDeltaForIncrementSeconds: 0.25
-  m_additionalSkimScoreMultiplier: 2
-  m_scoreIncrement: 100
-  m_maxTimeAlive: 20
-  m_skimDistanceThreshold: 1
-  missileTravelAudioSource: {fileID: 7582062726346969026}
 --- !u!198 &-4094237378551273343
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -4988,99 +4920,45 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!82 &7582062726346969026
-AudioSource:
+--- !u!114 &5119555350153725107
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8676546774954766483}
   m_Enabled: 1
-  serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: fd4a17ef5f39a4f4d90a55ebdd18ec5b, type: 3}
-  m_PlayOnAwake: 0
-  m_Volume: 1
-  m_Pitch: 1
-  Loop: 1
-  Mute: 0
-  Spatialize: 0
-  SpatializePostEffects: 0
-  Priority: 128
-  DopplerLevel: 1
-  MinDistance: 1
-  MaxDistance: 500
-  Pan2D: 0
-  rolloffMode: 0
-  BypassEffects: 0
-  BypassListenerEffects: 0
-  BypassReverbZones: 0
-  rolloffCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  panLevelCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  spreadCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
-  reverbZoneMixCustomCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 1
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 4
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a4ca556c6072c214eb67edefe1d3b7bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  missileExplosion: {fileID: -7757702795387921814, guid: a325900f3f30b944a9a173d5a057407c,
+    type: 3}
+  m_popupScoreTextPrefab: {fileID: 8058943206113242913, guid: f23f393532a28b24e9b3b21d79715c60,
+    type: 3}
+  m_expiryTime: 0
+  m_skimDeltaForIncrementSeconds: 0.25
+  m_additionalSkimScoreMultiplier: 2
+  scoreIncrement: 100
+  m_maxTimeAlive: 20
+  m_skimDistanceThreshold: 1
+  _mass: 1
+  _radius: 0.1
+  _mesh: {fileID: 2352445206210135324}
+  _renderer: {fileID: 6747372275707910487}
+  _particleSystem: {fileID: -4094237378551273343}
+  travelSoundClip: {fileID: 8300000, guid: fd4a17ef5f39a4f4d90a55ebdd18ec5b, type: 3}
+  fireSoundClip: {fileID: 8300000, guid: e56a817346f4aca41961848167d26d7f, type: 3}
+--- !u!65 &-1527670407104055140
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8676546774954766483}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.31, y: 0.4, z: 0.1}
+  m_Center: {x: 0, y: 0, z: 0}

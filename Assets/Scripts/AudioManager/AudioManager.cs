@@ -52,8 +52,9 @@ public class AudioManager : MonoBehaviour
 
     #region Audio Play functions
 
-    public void PlayMusic(string clipName)
+    private void PlayMusic(string clipName)
     {
+#if !UNITY_SERVER
         foreach (AudioClip clip in musicAudioClips)
         {
             if (clip.name == clipName)
@@ -63,6 +64,17 @@ public class AudioManager : MonoBehaviour
                 break;
             }
         }
+#endif        
+    }
+
+    public void PlayMenuBGM()
+    {
+        PlayMusic("BGM_MainMenu");
+    }
+
+    public void PlayGameplayBGM()
+    {
+        PlayMusic("SpaceChillout");
     }
 
     public void PlaySfx(string clipName)

@@ -77,17 +77,6 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "",
-                    "id": "5ab1ad21-727a-412d-ad35-829198293327",
-                    "path": "",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "RotateShip",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
                     "name": "1D Axis",
                     "id": "12d3ed55-0ebc-4e31-8ca3-775259d5a050",
                     "path": "1DAxis",
@@ -144,11 +133,33 @@
                 },
                 {
                     "name": "",
+                    "id": "ba17f7f2-fb6b-40f1-b4ab-f0c566533896",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "Fire",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "5dbb83a6-80de-4626-af49-96a2ca1f19f1",
-                    "path": "<Keyboard>/q",
+                    "path": "<Keyboard>/escape",
                     "interactions": "",
                     "processors": "",
                     "groups": "Keyboard",
+                    "action": "OpenPauseMenu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "4c1a0db7-1eaf-4b1a-a722-c341b19b4f1a",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
                     "action": "OpenPauseMenu",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -218,34 +229,6 @@
                     "action": "ChangePower",
                     "isComposite": false,
                     "isPartOfComposite": true
-                }
-            ]
-        },
-        {
-            "name": "MenuControls",
-            "id": "35275dc4-dcac-4b79-9257-aa3edea2e3ed",
-            "actions": [
-                {
-                    "name": "OpenPauseMenu",
-                    "type": "Button",
-                    "id": "4b5b00d9-2721-410e-bf62-d5092376f4df",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
-                    "id": "dc1f6324-8b1a-4024-a8b4-fe5feca2cfdf",
-                    "path": "<Keyboard>/q",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "Keyboard",
-                    "action": "OpenPauseMenu",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 }
             ]
         }

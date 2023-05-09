@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CreditsMenu : MonoBehaviour
+public class CreditsMenu : MenuCanvas
 {
     [SerializeField] private ScrollRect scrollView;
     [SerializeField] private Button backButton;
@@ -63,5 +63,15 @@ public class CreditsMenu : MonoBehaviour
                 memberNameText.text = memberName;
             }
         }
+    }
+
+    public override GameObject GetFirstButton()
+    {
+        return backButton.gameObject;
+    }
+
+    public override AssetEnum GetAssetEnum()
+    {
+        return AssetEnum.CreditsMenuCanvas;
     }
 }

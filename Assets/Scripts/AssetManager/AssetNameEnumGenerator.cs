@@ -109,7 +109,7 @@ public class AssetNameEnumGenerator : AssetModificationProcessor
                 if (enumNames.Contains(fileName))
                 {
                     Debug.Log("Asset name: "+fileName+" already exist");
-                    continue;
+                    newAssetNames?.Remove(fileName);
                 }
                 else
                 {
@@ -117,6 +117,8 @@ public class AssetNameEnumGenerator : AssetModificationProcessor
                 }
             }
         }
+        if (newAssetNames?.Count == 0)
+            return;
         string enumScript = @"//auto generated from AssetNameEnumGenerator
 public enum AssetEnum 
 {
@@ -128,6 +130,12 @@ public enum AssetEnum
         enumScript += "}";
         try
         {
+            var existing = File.ReadAllText(Application.dataPath + EnumPath);
+            if (!String.IsNullOrEmpty(existing) && enumScript.Equals(existing))
+            {
+                Debug.Log("AssetEnum is already up to date");
+                return;
+            }
             using var fs = File.Create(Application.dataPath + EnumPath);
             var content = new UTF8Encoding(true).GetBytes(enumScript);
             fs.Write(content, 0, content.Length);

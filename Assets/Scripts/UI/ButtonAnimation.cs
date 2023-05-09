@@ -22,8 +22,7 @@ public class ButtonAnimation : MonoBehaviour
 
         LeanTween.value(text.gameObject, UpdateValueExampleCallback,
             fadeoutcolor, color, 0.1f).setLoopPingPong(6).setOnComplete(OnComplete);
-        
-        AudioManager.Instance.PlaySfx("Click_on_Button");
+        AudioManager.Instance?.PlaySfx("Click_on_Button");
     }
     
     private void UpdateValueExampleCallback(Color val)

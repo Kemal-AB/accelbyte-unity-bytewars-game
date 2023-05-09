@@ -3,40 +3,37 @@ using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.Collections;
-using System.IO;
-using System.Linq;
 using JetBrains.Annotations;
-using Newtonsoft.Json;
 using TMPro;
+using UnityEngine.EventSystems;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
-using Object = UnityEngine.Object;
-using TextAsset = UnityEngine.TextAsset;
 
 public class MenuManager : MonoBehaviour
 {
-    private const string BACK_BUTTON = "BackButton";
 
     private static MenuManager _instance;
     public static MenuManager Instance => _instance;
+    public bool IsInitiated
+    {
+        get { return _isInitiated; }
+    }
+    
+    private Dictionary<AssetEnum, MenuCanvas> _menusDictionary = new Dictionary<AssetEnum, MenuCanvas>();
 
-    private Dictionary<string, GameObject> _menusDictionary = new Dictionary<string, GameObject>();
-    private Stack<GameObject> _mainMenusStack = new Stack<GameObject>();
+    private Stack<MenuCanvas> _mainMenusStack = new Stack<MenuCanvas>();
     private Stack<GameObject> _inGameStack = new Stack<GameObject>();
-    private GameObject _currentMainMenu;
+    private MenuCanvas _currentMainMenu;
     private GameObject _inGameMenu;
     private bool _isAGSDKReady = false;
-
+    private bool _isInitiated = false;
     private Action _onHideAnimateComplete = null;
 
-    
-    
     /// <summary>
     /// Instantiate Menu manager as singleton
     /// </summary>
     private void Awake()
     {
-
         if (_instance != null && _instance != this)
         {
             Destroy(this);
@@ -46,7 +43,6 @@ public class MenuManager : MonoBehaviour
         {
             _instance = this;
         }
-        
         // Make MenuManager object persistent in all scene
         DontDestroyOnLoad(this.gameObject);
     }
@@ -72,70 +68,68 @@ public class MenuManager : MonoBehaviour
     void Start()
     {
         InitMenu();
+        _isInitiated = true;
     }
 
     #region Change menu screen
 
-    /// <summary>
-    /// Move To Next Menu
-    /// </summary>
-    /// <param name="menuName"></param>
-    public void ChangeToMenu(AssetEnum menuName)
+    public MenuCanvas ChangeToMenu(AssetEnum assetEnum)
     {
-        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
+        if (_currentMainMenu.GetAssetEnum() != assetEnum)
         {
-            OnChangeMenuComplete(menuName.ToString());
-        });
-    }
-
-    public void ChangeToMenu(string menuName)
-    {
-        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
-        {
-            OnChangeMenuComplete(menuName);
-        });
+            LeanTween.alpha(_currentMainMenu.gameObject, 0, 0.4f).setOnComplete(() =>
+            {
+                OnChangeMenuComplete(assetEnum);
+            });
+        }
+        return _menusDictionary[assetEnum];
     }
     
     /// <summary>
     /// Change Menu Callback
     /// </summary>
-    /// <param name="menuName"></param>
-    private void OnChangeMenuComplete(String menuName)
+    /// <param name="assetEnum"></param>
+    private void OnChangeMenuComplete(AssetEnum assetEnum)
     {
         if (_currentMainMenu != null)
         {
-            _currentMainMenu.SetActive(false);
+            _currentMainMenu.gameObject.SetActive(false);
         }
 
-        var targetMenu = _menusDictionary[menuName];
-            
+        var targetMenu = _menusDictionary[assetEnum];
+        
         targetMenu.gameObject.SetActive(true);
         _currentMainMenu = targetMenu;
+        _eventSystem.SetSelectedGameObject(targetMenu.GetFirstButton());
         _mainMenusStack.Push(_currentMainMenu);
     }
     
     
-    public void ChangeToMenu<T>(AssetEnum menuName, Action<T> onMenuChanged)
+    public void ChangeToMenu(AssetEnum menuName, Action<MenuCanvas> onMenuChanged)
     {
-        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
+        LeanTween.alpha(_currentMainMenu.gameObject, 0, 0.4f).setOnComplete(() =>
         {
             OnMenuChanged(menuName, onMenuChanged);
         });
     }
     
-    private void OnMenuChanged<T>(AssetEnum menuName, Action<T> onComplete)
+    private void OnMenuChanged(AssetEnum menuName, Action<MenuCanvas> onComplete)
     {
         if (_currentMainMenu != null)
         {
-            _currentMainMenu.SetActive(false);
+            _currentMainMenu.gameObject.SetActive(false);
         }
 
-        var targetMenu = _menusDictionary[menuName.ToString()];
+        var targetMenu = _menusDictionary[menuName];
         targetMenu.gameObject.SetActive(true);
         if (onComplete != null)
         {
-            var uiController = targetMenu.GetComponent<T>();
+            var uiController = targetMenu;
             onComplete(uiController);
+        }
+        if (_eventSystem != null)
+        {
+            
         }
         _currentMainMenu = targetMenu;
         _mainMenusStack.Push(_currentMainMenu);
@@ -144,9 +138,14 @@ public class MenuManager : MonoBehaviour
     public void HideAnimate(Action onHideAnimateComplete)
     {
         _onHideAnimateComplete = onHideAnimateComplete;
-        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(OnHideAnimateTweenComplete);
+        LeanTween.alpha(_currentMainMenu.gameObject, 0, 0.4f).setOnComplete(OnHideAnimateTweenComplete);
     }
 
+    public void ShowAnimate()
+    {
+        LeanTween.alpha(_currentMainMenu.gameObject, 0, 0.4f);
+        _currentMainMenu.gameObject.SetActive(true);
+    }
     private void OnHideAnimateTweenComplete()
     {
         CloseMenuPanel();
@@ -163,7 +162,7 @@ public class MenuManager : MonoBehaviour
     /// <param name="sceneName"></param>
     public void ChangeScene(string sceneName)
     {
-        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
+        LeanTween.alpha(_currentMainMenu.gameObject, 0, 0.4f).setOnComplete(() =>
         {
             OnChangeSceneComplete(sceneName);
         });
@@ -182,13 +181,14 @@ public class MenuManager : MonoBehaviour
     // back to one page before
     public void OnBackPressed()
     {
-        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
+        LeanTween.alpha(_currentMainMenu.gameObject, 0, 0.4f).setOnComplete(() =>
         {
             if (_currentMainMenu == _mainMenusStack.Peek())
             {
-                _mainMenusStack.Pop().SetActive(false);
+                _mainMenusStack.Pop().gameObject.SetActive(false);
                 _currentMainMenu = _mainMenusStack.Peek();
-                _currentMainMenu.SetActive(true);
+                _currentMainMenu.gameObject.SetActive(true);
+                _eventSystem.SetSelectedGameObject(_currentMainMenu.GetFirstButton());
             }
         });
     }
@@ -196,7 +196,7 @@ public class MenuManager : MonoBehaviour
     // close menu panel
     public void CloseMenuPanel()
     {
-        _currentMainMenu.SetActive(false);
+        _currentMainMenu.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -205,11 +205,11 @@ public class MenuManager : MonoBehaviour
     /// <param name="sceneName"></param>
     public void ChangeToMainMenu([CanBeNull] string sceneName)
     {
-        AudioManager.Instance.PlayMusic("BGM_MainMenu");
+        AudioManager.Instance.PlayMenuBGM();
                 
         Time.timeScale = 1; //this line added to handle Leantween bug
 
-        LeanTween.alpha(_currentMainMenu, 0, 0.4f).setOnComplete(() =>
+        LeanTween.alpha(_currentMainMenu.gameObject, 0, 0.4f).setOnComplete(() =>
         {
             OnChangeToMainMenuComplete(sceneName);
         });
@@ -226,11 +226,12 @@ public class MenuManager : MonoBehaviour
         {
             SceneManager.LoadScene(sceneName,LoadSceneMode.Single);
         }
-        var mainMenu = _menusDictionary[AssetEnum.MainMenuCanvas.ToString()];
+        var mainMenu = _menusDictionary[AssetEnum.MainMenuCanvas];
         _currentMainMenu = mainMenu;
-        _currentMainMenu.SetActive(true);
+        _currentMainMenu.gameObject.SetActive(true);
         _mainMenusStack.Clear();
         _mainMenusStack.Push(_currentMainMenu);
+        _eventSystem.SetSelectedGameObject(mainMenu.GetFirstButton());
     }
     #endregion
 
@@ -239,28 +240,27 @@ public class MenuManager : MonoBehaviour
     private void InitMenu()
     {
         // Play Default Music
-        AudioManager.Instance.PlayMusic("BGM_MainMenu");;
-        
+        if(AudioManager.Instance!=null)
+            AudioManager.Instance.PlayMenuBGM();
+        if(!AssetManager.Singleton)
+            return;
         // bool isAuthEssentialExist = false; 
         var allActiveModule = TutorialModuleManager.Instance.GetAllActiveModule();
 
         foreach (var moduleNamePair in allActiveModule)
         {
-            if (moduleNamePair.Key.Contains("AuthEssentialTData"))
-            {
-                InitMenuByModules(moduleNamePair.Value);
-            }
+            InitMenuByModules(moduleNamePair.Value);
         }
         
         InitCoreMenu();
         
         // Check If auth essential active
-        if (allActiveModule.TryGetValue("AuthEssentialTData", out TutorialModuleData authEssential))
+        if (allActiveModule.TryGetValue(TutorialType.AuthEssentials, out TutorialModuleData authEssential))
         {
-            _currentMainMenu = _menusDictionary["LoadingMenuCanvas"];
-            if (_currentMainMenu.activeSelf == false)
+            _currentMainMenu = _menusDictionary[AssetEnum.LoadingMenuCanvas];
+            if (_currentMainMenu.gameObject.activeSelf == false)
             {            
-                _currentMainMenu.SetActive(true);
+                _currentMainMenu.gameObject.SetActive(true);
                 _mainMenusStack.Push(_currentMainMenu);
             }
 
@@ -269,17 +269,17 @@ public class MenuManager : MonoBehaviour
 
             if (!check.Equals(null))
             {
-                _currentMainMenu.SetActive(false);
-                _currentMainMenu = _menusDictionary["LoadingMenuCanvas"];;
-                _currentMainMenu.SetActive(true);
+                _currentMainMenu.gameObject.SetActive(false);
+                _currentMainMenu = _menusDictionary[AssetEnum.LoadingMenuCanvas];;
+                _currentMainMenu.gameObject.SetActive(true);
             }
         }
         else
         {
-            _currentMainMenu = _menusDictionary["MainMenuCanvas"];
-            if (_currentMainMenu.activeSelf == false)
+            _currentMainMenu = _menusDictionary[AssetEnum.MainMenuCanvas];
+            if (!_currentMainMenu.gameObject.activeInHierarchy)
             {            
-                _currentMainMenu.SetActive(true);
+                _currentMainMenu.gameObject.SetActive(true);
                 _mainMenusStack.Push(_currentMainMenu);
             }
         }
@@ -295,6 +295,8 @@ public class MenuManager : MonoBehaviour
 
     private void InitCoreMenu()
     {
+        if(!AssetManager.Singleton)
+            return;
         object mainmenuConfigObj = AssetManager.Singleton.GetAsset(AssetEnum.MainMenuUiConfig);
         var mainmenuConfig = mainmenuConfigObj as MainMenuUiConfig;
 
@@ -302,27 +304,32 @@ public class MenuManager : MonoBehaviour
         {
             return;
         }
+        
+        var starterMenu = Instantiate(mainmenuConfig.starter, transform);
+        GameObject o = starterMenu.gameObject;
+        o.SetActive(false);
+        string mainMenuName = mainmenuConfig.starter.gameObject.name;
+        o.name = mainMenuName;
+        _menusDictionary[starterMenu.GetAssetEnum()] = starterMenu;
+        
 
-        var starterMenu = Instantiate(mainmenuConfig.starterMainUI, transform);
-        starterMenu.SetActive(false);
-        starterMenu.name = starterMenu.name;
-        _menusDictionary[mainmenuConfig.starterMainUI.name] = starterMenu;
-
-        foreach (var menuGameObject in mainmenuConfig.otherMainUI)
+        foreach (var menuCanvas in mainmenuConfig.otherMenuCanvas)
         {
-            var otherCoreMenu = Instantiate(menuGameObject, transform);
-            otherCoreMenu.SetActive(false);
-            otherCoreMenu.name = menuGameObject.name;
-            _menusDictionary[menuGameObject.name] = otherCoreMenu;
+            var otherCoreMenu = Instantiate(menuCanvas, transform);
+            otherCoreMenu.gameObject.SetActive(false);
+            string gameObjectName = menuCanvas.gameObject.name;
+            otherCoreMenu.name = gameObjectName;
+            _menusDictionary[menuCanvas.GetAssetEnum()] = otherCoreMenu;
         }
     }
 
     private void InitMenuByModules(TutorialModuleData moduleData)
     {
         var modulePrefab = moduleData.prefab;
-        GameObject menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
+        var menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
         menubyModule.name = modulePrefab.name; ;
-        _menusDictionary.Add(menubyModule.name, menubyModule);
+        _menusDictionary.Add(menubyModule.GetAssetEnum(), menubyModule);
+        _menusDictionary[menubyModule.GetAssetEnum()].gameObject.SetActive(false);
     }
     
     
@@ -348,7 +355,7 @@ public class MenuManager : MonoBehaviour
     {
         if (_currentMainMenu != null)
         {
-            _currentMainMenu.SetActive(false);
+            _currentMainMenu.gameObject.SetActive(false);
         }
 
         // // var loginMenu = _menusDictionary[MenuEnum.LoginMenuCanvas.ToString()];
@@ -366,14 +373,97 @@ public class MenuManager : MonoBehaviour
 
     #endregion
 
-    public void ShowRetrySkipQuitMenu(UnityAction retryCallback, UnityAction skipCallback, string message=null)
+    private EventSystem _eventSystem;
+
+    public void SetEventSystem(EventSystem eventSystem)
     {
-        //TODO call RetrySkipQuitMenuHandler.SetData
-        // string menuName = AssetEnum.RetrySkipQuitMenuCanvas.ToString();
-        var retryMenu = _menusDictionary["RetrySkipQuitMenuCanvas"];
-        var handler = retryMenu.GetComponent<RetrySkipQuitMenuHandler>();
-        handler.SetData(retryCallback, skipCallback, message);
-        ChangeToMenu("RetrySkipQuitMenuCanvas");
+        _eventSystem = eventSystem;
+        var firstButton = _currentMainMenu.GetFirstButton();
+        _eventSystem.firstSelectedGameObject = firstButton;
+        _eventSystem.SetSelectedGameObject(firstButton);
     }
-    
+
+    public MenuCanvas ShowInGameMenu(AssetEnum assetEnum)
+    {
+        if (_currentMainMenu)
+        {
+            if (_currentMainMenu.GetAssetEnum()==assetEnum)
+            {
+                ShowAnimate();
+                return _currentMainMenu;
+            }
+            else
+            {
+                return SwitchToMenu(assetEnum);
+            }
+        }
+        return null;
+    }
+
+    private MenuCanvas SwitchToMenu(AssetEnum assetEnum)
+    {
+        var targetMenu = _menusDictionary[assetEnum];
+        targetMenu.gameObject.SetActive(true);
+        _currentMainMenu = targetMenu;
+        _eventSystem.SetSelectedGameObject(targetMenu.GetFirstButton());
+        return targetMenu;
+    }
+
+    public void ShowLoading(string info, UnityAction cancelCallback = null)
+    {
+        _currentMainMenu.gameObject.SetActive(false);
+        LoadingMenuCanvas l = (LoadingMenuCanvas) _menusDictionary[AssetEnum.LoadingMenuCanvas];
+        l.Show(info, cancelCallback);
+        l.gameObject.SetActive(true);
+    }
+
+    public void HideLoading(bool showActiveMenuImmediately=true)
+    {
+        _menusDictionary[AssetEnum.LoadingMenuCanvas].gameObject.SetActive(false);
+        if(showActiveMenuImmediately)
+            _currentMainMenu.gameObject.SetActive(true);
+    }
+
+    private MatchLobbyMenu matchLobby;
+    public void UpdateLobbyCountdown(int countdown)
+    {
+        if (matchLobby == null)
+        {
+            var menu = _menusDictionary[AssetEnum.MatchLobbyMenuCanvas];
+            matchLobby = menu as MatchLobbyMenu;
+        }
+        if(matchLobby!=null)
+            matchLobby.Countdown(countdown);
+    }
+
+    private GameOverMenuCanvas gameOverCanvas;
+
+    public void UpdateGameOverCountdown(int countdown)
+    {
+        if (gameOverCanvas == null)
+        {
+            var menu = _menusDictionary[AssetEnum.GameOverMenuCanvas];
+            gameOverCanvas = menu as GameOverMenuCanvas;
+        }
+        if(gameOverCanvas)
+            gameOverCanvas.Countdown(countdown);
+    }
+
+    public void ShowInfo(string info, string title="Info")
+    {
+        _currentMainMenu.gameObject.SetActive(false);
+        var menu = _menusDictionary[AssetEnum.InfoMenuCanvas] as InfoMenuCanvas;
+        menu.Show(info, title);
+    }
+
+    public void HideInfo()
+    {
+        _menusDictionary[AssetEnum.InfoMenuCanvas].gameObject.SetActive(false);
+        _currentMainMenu.gameObject.SetActive(true);
+    }
+    public bool IsLoading => _menusDictionary[AssetEnum.LoadingMenuCanvas].gameObject.activeSelf;
+    public Dictionary<AssetEnum, MenuCanvas> AllMenu
+    {
+        get { return _menusDictionary; }
+    }
 }

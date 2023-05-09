@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8713534360301857757}
   - component: {fileID: 8713534360301857746}
   - component: {fileID: 8713534360301857747}
-  - component: {fileID: 8713534360301857759}
+  - component: {fileID: 905130339957781962}
   m_Layer: 5
   m_Name: PowerBarUI
   m_TagString: Untagged
@@ -102,7 +102,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &8713534360301857759
+--- !u!114 &905130339957781962
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -111,11 +111,16 @@ MonoBehaviour:
   m_GameObject: {fileID: 8713534360301857744}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40398969897b4a84a9ddc6eb4f072b07, type: 3}
+  m_Script: {fileID: 11500000, guid: c70072ec016cd6e4ebec0dce81db70ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_parentPanel: {fileID: 8713534360414513274}
   m_powerBarPanel: {fileID: 8713534361800448835}
+  canvasRect: {fileID: 8713534360301857756}
+  canvas: {fileID: 8713534360301857757}
+  images:
+  - {fileID: 8713534360414513157}
+  - {fileID: 8713534361800448834}
 --- !u!1 &8713534360414513275
 GameObject:
   m_ObjectHideFlags: 0

@@ -48,3 +48,10 @@ This AccelByte Unity SDK package are required to follow along the Byte Wars Tuto
 2. In your menu taskbar, go to File > Build Settings, a popup window will appear and and leave build setting as default and click build button.
 3. Select the destination folder to save the package file and press select folder button.
 4. Open the destination folder and double click the ByteWars.exe to play the game.
+
+### Build from command line
+1. Build Server run: `build_server.bat`
+2. Build Client run: `build_client.bat`
+
+### Debug Mode
+1. to enable debug mode add `DEBUG` in Edit -> Project Settings -> Player -> Script Compilation -> Scripting Define Symbols. please remove `DEBUG` scripting define symbols before publish/release it 

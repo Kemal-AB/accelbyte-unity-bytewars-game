@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6214465121344628360}
   - component: {fileID: 7806067493927219254}
   - component: {fileID: 2585085167187692241}
-  - component: {fileID: 6850550585056106770}
+  - component: {fileID: 7380730269538933391}
   m_Layer: 0
   m_Name: ShipDestroyedEffect
   m_TagString: Untagged
@@ -4871,7 +4871,7 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &6850550585056106770
+--- !u!114 &7380730269538933391
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4880,7 +4880,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 8986753919324633490}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ebc0b056f7acec46b0d4fb2922178ff, type: 3}
+  m_Script: {fileID: 11500000, guid: 360e5d71143624246984966b8ae28a8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_timeToLive: 2
+  lifetimeinSecond: 2
+  _renderer: {fileID: 2585085167187692241}
+  _particle: {fileID: 7806067493927219254}

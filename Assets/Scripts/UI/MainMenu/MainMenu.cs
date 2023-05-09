@@ -1,12 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class MainMenu : MonoBehaviour
+public class MainMenu : MenuCanvas
 {
     [SerializeField] private Button playButton;
+    [SerializeField] private Button playOnlineBtn;
     [SerializeField] private Button helpAndOptionsButton;
     [SerializeField] private Button quitButton;
 
@@ -14,6 +12,11 @@ public class MainMenu : MonoBehaviour
     void Start()
     {
         playButton.onClick.AddListener(OnPlayButtonPressed);
+        #if !DEBUG
+        bool isOnlineBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.OnlineMultiplayer);
+        playOnlineBtn.gameObject.SetActive(isOnlineBtnActive);
+        #endif
+        playOnlineBtn.onClick.AddListener(OnPlayOnlineButtonPressed);
         helpAndOptionsButton.onClick.AddListener(OnHelpAndOptionsButtonPressed);
         quitButton.onClick.AddListener(OnQuitButtonPressed);
     }
@@ -25,7 +28,7 @@ public class MainMenu : MonoBehaviour
 
     public void OnPlayOnlineButtonPressed()
     {
-        // MenuManager.Instance.ChangeToMenu(MenuManager.MenuEnum.PlayOnlineMenuCanvas);
+        MenuManager.Instance.ChangeToMenu(AssetEnum.PlayOnlineMenuCanvas);
     }
 
     public void OnHelpAndOptionsButtonPressed()
@@ -38,4 +41,18 @@ public class MainMenu : MonoBehaviour
         Application.Quit();
     }
 
+    public override GameObject GetFirstButton()
+    {
+        return playButton.gameObject;
+    }
+
+    public override AssetEnum GetAssetEnum()
+    {
+        return AssetEnum.MainMenuCanvas;
+    }
+
+    public void ShowOnlineBtn()
+    {
+        playOnlineBtn.gameObject.SetActive(true);
+    }
 }

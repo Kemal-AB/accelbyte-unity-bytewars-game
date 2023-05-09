@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.Serialization;
 
 public class GameDirector : NetworkBehaviour
 {
@@ -25,14 +26,14 @@ public class GameDirector : NetworkBehaviour
 
     private int _totalPlayersConnected = 0;
     // Start is called before the first frame update
-    [SerializeField]
-    private string _sceneName = "GalaxyWorld";
+    [FormerlySerializedAs("_sceneName")] [SerializeField]
+    private string _gameSceneName = "GalaxyWorld1";
 
     public GameObject PlayerPref;
 
     private Scene m_LoadedScene;
 
-    public enum E_GameMode {MAIN_MENU, SINGLE_PLAYER, MULTI_PLAYER};
+    public enum E_GameMode {MAIN_MENU, SINGLE_PLAYER, MULTI_PLAYER, LOCAL_MULTI_PLAYER};
 
     private void Awake()
     {
@@ -46,10 +47,6 @@ public class GameDirector : NetworkBehaviour
         {
             Instance = this;
         }
-    }
-    private void Start()
-    {
-        
     }
     public override void OnNetworkSpawn()
     {
@@ -77,7 +74,14 @@ public class GameDirector : NetworkBehaviour
     {
         GameMode = E_GameMode.SINGLE_PLAYER;
         WriteToConsole("Starting SinglePlayer Mode");
-        SceneManager.LoadScene("GalaxyWorld", LoadSceneMode.Single);
+        SceneManager.LoadScene(_gameSceneName, LoadSceneMode.Single);
+    }
+
+    public void StartLocalMultiplayer()
+    {
+        // Debug.Log($"Start local multiplayer with {totalPlayer} players");
+        GameMode = E_GameMode.LOCAL_MULTI_PLAYER;
+        SceneManager.LoadScene(_gameSceneName, LoadSceneMode.Single);
     }
     public void StartServer()
     {
@@ -119,10 +123,10 @@ public class GameDirector : NetworkBehaviour
             {
                 WriteToConsole("Max players reached: " + MaxAllowedPlayers.ToString() + " Sending StartGameRPC to clients... ");
 
-                var status = NetworkManager.SceneManager.LoadScene(_sceneName,UnityEngine.SceneManagement.LoadSceneMode.Single);
+                var status = NetworkManager.SceneManager.LoadScene(_gameSceneName,UnityEngine.SceneManagement.LoadSceneMode.Single);
                 if (status != SceneEventProgressStatus.Started)
                 {
-                    Debug.LogWarning($"Failed to load {_sceneName} " +
+                    Debug.LogWarning($"Failed to load {_gameSceneName} " +
                           $"with a {nameof(SceneEventProgressStatus)}: {status}");
                 }
                 //StartGameClientRpc();

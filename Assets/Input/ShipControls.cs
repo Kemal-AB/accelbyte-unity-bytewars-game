@@ -99,17 +99,6 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": """",
-                    ""id"": ""5ab1ad21-727a-412d-ad35-829198293327"",
-                    ""path"": """",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""RotateShip"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
                     ""name"": ""1D Axis"",
                     ""id"": ""12d3ed55-0ebc-4e31-8ca3-775259d5a050"",
                     ""path"": ""1DAxis"",
@@ -166,11 +155,33 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""ba17f7f2-fb6b-40f1-b4ab-f0c566533896"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
+                    ""action"": ""Fire"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""5dbb83a6-80de-4626-af49-96a2ca1f19f1"",
-                    ""path"": ""<Keyboard>/q"",
+                    ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": ""Keyboard"",
+                    ""action"": ""OpenPauseMenu"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4c1a0db7-1eaf-4b1a-a722-c341b19b4f1a"",
+                    ""path"": ""<Gamepad>/start"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Gamepad"",
                     ""action"": ""OpenPauseMenu"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -242,34 +253,6 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 }
             ]
-        },
-        {
-            ""name"": ""MenuControls"",
-            ""id"": ""35275dc4-dcac-4b79-9257-aa3edea2e3ed"",
-            ""actions"": [
-                {
-                    ""name"": ""OpenPauseMenu"",
-                    ""type"": ""Button"",
-                    ""id"": ""4b5b00d9-2721-410e-bf62-d5092376f4df"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                }
-            ],
-            ""bindings"": [
-                {
-                    ""name"": """",
-                    ""id"": ""dc1f6324-8b1a-4024-a8b4-fe5feca2cfdf"",
-                    ""path"": ""<Keyboard>/q"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": ""Keyboard"",
-                    ""action"": ""OpenPauseMenu"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                }
-            ]
         }
     ],
     ""controlSchemes"": [
@@ -303,9 +286,6 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
         m_PlayerShipControls_Fire = m_PlayerShipControls.FindAction("Fire", throwIfNotFound: true);
         m_PlayerShipControls_OpenPauseMenu = m_PlayerShipControls.FindAction("OpenPauseMenu", throwIfNotFound: true);
         m_PlayerShipControls_ChangePower = m_PlayerShipControls.FindAction("ChangePower", throwIfNotFound: true);
-        // MenuControls
-        m_MenuControls = asset.FindActionMap("MenuControls", throwIfNotFound: true);
-        m_MenuControls_OpenPauseMenu = m_MenuControls.FindAction("OpenPauseMenu", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -418,39 +398,6 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
         }
     }
     public PlayerShipControlsActions @PlayerShipControls => new PlayerShipControlsActions(this);
-
-    // MenuControls
-    private readonly InputActionMap m_MenuControls;
-    private IMenuControlsActions m_MenuControlsActionsCallbackInterface;
-    private readonly InputAction m_MenuControls_OpenPauseMenu;
-    public struct MenuControlsActions
-    {
-        private @ShipControls m_Wrapper;
-        public MenuControlsActions(@ShipControls wrapper) { m_Wrapper = wrapper; }
-        public InputAction @OpenPauseMenu => m_Wrapper.m_MenuControls_OpenPauseMenu;
-        public InputActionMap Get() { return m_Wrapper.m_MenuControls; }
-        public void Enable() { Get().Enable(); }
-        public void Disable() { Get().Disable(); }
-        public bool enabled => Get().enabled;
-        public static implicit operator InputActionMap(MenuControlsActions set) { return set.Get(); }
-        public void SetCallbacks(IMenuControlsActions instance)
-        {
-            if (m_Wrapper.m_MenuControlsActionsCallbackInterface != null)
-            {
-                @OpenPauseMenu.started -= m_Wrapper.m_MenuControlsActionsCallbackInterface.OnOpenPauseMenu;
-                @OpenPauseMenu.performed -= m_Wrapper.m_MenuControlsActionsCallbackInterface.OnOpenPauseMenu;
-                @OpenPauseMenu.canceled -= m_Wrapper.m_MenuControlsActionsCallbackInterface.OnOpenPauseMenu;
-            }
-            m_Wrapper.m_MenuControlsActionsCallbackInterface = instance;
-            if (instance != null)
-            {
-                @OpenPauseMenu.started += instance.OnOpenPauseMenu;
-                @OpenPauseMenu.performed += instance.OnOpenPauseMenu;
-                @OpenPauseMenu.canceled += instance.OnOpenPauseMenu;
-            }
-        }
-    }
-    public MenuControlsActions @MenuControls => new MenuControlsActions(this);
     private int m_GamepadSchemeIndex = -1;
     public InputControlScheme GamepadScheme
     {
@@ -475,9 +422,5 @@ public partial class @ShipControls : IInputActionCollection2, IDisposable
         void OnFire(InputAction.CallbackContext context);
         void OnOpenPauseMenu(InputAction.CallbackContext context);
         void OnChangePower(InputAction.CallbackContext context);
-    }
-    public interface IMenuControlsActions
-    {
-        void OnOpenPauseMenu(InputAction.CallbackContext context);
     }
 }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayOnlineMenu : MonoBehaviour
+public class PlayOnlineMenu : MenuCanvas
 {
     public Button backButton;
     public Button browseMatchButton;
@@ -18,19 +18,13 @@ public class PlayOnlineMenu : MonoBehaviour
         browseMatchButton.onClick.AddListener(OnBrowserMatchButtonPressed);
         createMatchButton.onClick.AddListener(OnCreateMatchButtonPressed);
         quickPlayButton.onClick.AddListener(OnQuickPlayButtonPressed);
-    }
-
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        backButton.onClick.AddListener(MenuManager.Instance.OnBackPressed);
     }
 
 
     public void OnQuickPlayButtonPressed()
     {
-        // MenuManager.Instance.ChangeToMenu(MenuManager.MenuEnum.QuickPlayMenuCanvas);
+        MenuManager.Instance.ChangeToMenu(AssetEnum.QuickPlayMenuCanvas);
     }
 
     public void OnCreateMatchButtonPressed()
@@ -44,4 +38,13 @@ public class PlayOnlineMenu : MonoBehaviour
         // MenuManager.Instance.ChangeToMenu(MenuManager.MenuEnum.BrowseMatchesMenuCanvas);
     }
 
+    public override GameObject GetFirstButton()
+    {
+        return quickPlayButton.gameObject;
+    }
+
+    public override AssetEnum GetAssetEnum()
+    {
+        return AssetEnum.PlayOnlineMenuCanvas;
+    }
 }

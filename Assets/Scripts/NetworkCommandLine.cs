@@ -18,6 +18,7 @@ public class NetworkCommandLine : MonoBehaviour
         {
             switch (mode)
             {
+                /*
                 case "server":
                     netManager.StartServer();
                     break;
@@ -28,6 +29,7 @@ public class NetworkCommandLine : MonoBehaviour
 
                     netManager.StartClient();
                     break;
+                */
             }
         }
     }

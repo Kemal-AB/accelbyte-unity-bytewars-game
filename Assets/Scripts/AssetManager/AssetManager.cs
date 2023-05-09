@@ -12,12 +12,13 @@ public class AssetManager : MonoBehaviour
     private readonly Dictionary<string, object> _assets = new Dictionary<string, object>();
     private readonly Dictionary<string, Object> _textAssets = new Dictionary<string, Object>();
     private const string TutorialDataSuffix = "AssetConfig";
+    public GameManager GameManagerPrefab;
     
     private void Awake()
     {
         if (Singleton != null && Singleton != this)
         {
-            Destroy(this);
+            Destroy(gameObject);
             return;
         }
         if (Singleton == null)
@@ -111,14 +112,21 @@ public class AssetManager : MonoBehaviour
         
         return _textAssets.Values.ToArray();
     }
+    
 
-    public Dictionary<string, TutorialModuleData> GetTutorialModules()
+    private Dictionary<TutorialType, TutorialModuleData> tutorialModules =
+        new Dictionary<TutorialType, TutorialModuleData>();
+    public Dictionary<TutorialType, TutorialModuleData> GetTutorialModules()
     {
         var tutorialGameObjects = _assets
             .Where(kvp => kvp.Key.EndsWith(TutorialDataSuffix)
-                          && kvp.Value is TutorialModuleData)
-            .ToDictionary(kvp=>kvp.Key, kvp=>kvp.Value as TutorialModuleData);
-        return tutorialGameObjects;
+                          && kvp.Value is TutorialModuleData);
+        foreach (var keyValuePair in tutorialGameObjects)
+        {
+            var tmd = keyValuePair.Value as TutorialModuleData;
+            tutorialModules.TryAdd(tmd.type, tmd);
+        }
+        return tutorialModules;
     }
     
     #endregion

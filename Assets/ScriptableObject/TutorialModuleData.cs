@@ -4,7 +4,7 @@ using UnityEngine.Events;
 [CreateAssetMenu]
 public class TutorialModuleData : ScriptableObject
 {
-    public GameObject prefab;
-    public string moduleName;
+    public MenuCanvas prefab;
+    public TutorialType type;
     public bool isActive;
 }

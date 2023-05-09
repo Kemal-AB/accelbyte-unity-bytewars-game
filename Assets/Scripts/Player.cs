@@ -1,30 +1,33 @@
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class Player : NetworkBehaviour
+public class Player : GameEntityAbs
 {
-    public PowerBarUIController m_powerBarUIPrefab;
-    PowerBarUIController m_powerBarUI;
-    public GameObject m_missilePrefab;
-    public GameObject m_fireMissileEffectPrefab;
-    public GameObject m_shipDestroyedEffectPrefab;
-    public GameObject m_missileTrailPrefab;
+    public PowerBarUI m_powerBarUIPrefab;
+    PowerBarUI m_powerBarUI;
+    public Missile m_missilePrefab;
+    public ShipDestroyedEffect m_shipDestroyedEffectPrefab;
+    public FxEntity m_missileTrailPrefab;
     public float m_minMissileSpeed = 1.5f;
     public float m_maxMissileSpeed = 9.0f;
-    public int m_maxMissilesInFlight = 2;
+    private int _maxMissilesInFlight = 2;
+    [SerializeField] private Renderer _renderer;
+    [SerializeField] private float _mass;
+    [SerializeField] private float _radius;
 
     float m_normalisedRotateSpeed = 0.0f;
     float m_normalisedPowerChangeSpeed = 0.0f;
 
-    float m_firePowerLevel = 0.5f;
+    public float FirePowerLevel { get; private set; } = 0.5f;
 
-    List<GameObject> m_firedMissiles = new List<GameObject>();
+    Dictionary<int, Missile> _firedMissiles = new Dictionary<int, Missile>();
     List<MissileTrail> m_missileTrails = new List<MissileTrail>();
-
-    PlayerState m_playerState;
-    UnityEngine.Color m_colour;
+    
+    private  PlayerState _playerState;
+    UnityEngine.Color _colour;
 
     void Start()
     {       
@@ -57,152 +60,173 @@ public class Player : NetworkBehaviour
 
     void Update()
     {
-        transform.Rotate(Vector3.forward, Time.deltaTime * m_normalisedRotateSpeed * -100.0f);
-        if( m_normalisedPowerChangeSpeed != 0.0f )
+        if (GameManager.Instance.InGameState == InGameState.Playing)
         {
-            ChangePowerLevel(m_normalisedPowerChangeSpeed);
+            if (m_normalisedRotateSpeed != 0)
+            {
+                transform.Rotate(Vector3.forward, Time.deltaTime * m_normalisedRotateSpeed * -100.0f);
+            }
+            if( m_normalisedPowerChangeSpeed != 0.0f )
+            {
+                ChangePowerLevel(m_normalisedPowerChangeSpeed);
+            }
         }
     }
 
-    public void SetPlayerState(PlayerState playerState)
+    public void SetPlayerState(PlayerState playerState, 
+        int maxMissilesInFlight, 
+        Color teamColor, Vector3 position)
     {
-        m_playerState = playerState;
+        _playerState = playerState;
+        gameObject.name = InGameFactory.PlayerInstancePrefix+"Player" + (_playerState.playerIndex + 1);;
+        Init(maxMissilesInFlight, teamColor, position);
     }
 
-    public PlayerState GetPlayerState()
+    public PlayerState PlayerState
     {
-        return m_playerState;
+        get { return _playerState; }
     }
 
-    public void InitServerPlayer(Color colour)
+    private bool isShowPowerBarUI = false;
+    public void Init(int maxMissilesInFlight, Color color, Vector3 position)
     {
-        m_colour = colour;
-        gameObject.GetComponent<Renderer>().material.SetVector("_PlayerColour", m_colour);
-    }
-    public void Init(Color colour)
-    {
-        m_colour = colour;
-        m_powerBarUI = GameObject.Instantiate(m_powerBarUIPrefab, transform.position, Quaternion.identity,transform);
+        _playerState.position = position;
+        _colour = color;
+        var t = transform;
+        t.position = position;
+        if (!m_powerBarUI)
+        {
+            m_powerBarUI = Instantiate(m_powerBarUIPrefab, t.position, Quaternion.identity, t);
+        }
         m_powerBarUI.Init();
+        _maxMissilesInFlight = maxMissilesInFlight;
         m_powerBarUI.SetPosition(transform.position);
-        gameObject.GetComponent<Renderer>().material.SetVector("_PlayerColour", m_colour);
-        m_powerBarUI.SetColour(colour);
-        m_powerBarUI.SetPercentageFraction(m_firePowerLevel,false);
+        /*if (IsServer)
+        {
+            SetPowerBarUILocationClientRpc(transform.position);
+        }*/
+        SetShipColour(_colour);
+        m_powerBarUI.SetPercentageFraction(FirePowerLevel,false);
+        /*if (NetworkManager.Singleton.IsListening && !NetworkObject.IsSpawned)
+        {
+            NetworkObject.Spawn();
+        }
+        else*/
+        {
+            gameObject.SetActive(true);
+        }
+        isShowPowerBarUI = IsShowPowerBarUI();
     }
 
-    public void LocalFireMissile()
+    private bool IsShowPowerBarUI()
     {
-        if( GameDirector.Instance.GameMode == GameDirector.E_GameMode.SINGLE_PLAYER)
-        {
-            m_firedMissiles.RemoveAll(x => x == null);
-
-            //if (m_firedMissiles.Count >= m_maxMissilesInFlight)
-            //{
-           //     return;
-            //}
-
-            Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
-            GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, transform.rotation);
-
-            missile.GetComponent<Missile>().Init(GetPlayerState());
-
-            MotionComponent motionComponent = missile.GetComponent<MotionComponent>();
-
-            motionComponent.SetVelocity(transform.up * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, m_firePowerLevel));
-
-            m_firedMissiles.Add(missile);
-
-            GameObject missileTrail = GameObject.Instantiate(m_missileTrailPrefab, missileSpawnPosition, transform.rotation);
-
-            m_missileTrails.RemoveAll(x => x == null);
-            m_missileTrails.ForEach(x => x.TriggerFadeOut());
-
-            MissileTrail newTrail = missileTrail.GetComponent<MissileTrail>();
-            newTrail.Init(missile);
-            m_missileTrails.Add(newTrail);
-        }
-        else
-        {
-            Vector3 missileSpawnPosition = transform.position + transform.up * 0.25f;
-
-            PlayerFireMissileServerRPC(missileSpawnPosition, transform.up, transform.rotation, m_firePowerLevel, GetPlayerState());
-        }
-        
+        return !NetworkManager.Singleton.IsListening ||
+               (NetworkManager.Singleton.IsClient &&
+                NetworkManager.Singleton.LocalClientId == _playerState.clientNetworkId);
     }
 
-    [ServerRpc]
-    public void PlayerFireMissileServerRPC(Vector3 MissilePosition, Vector3 transformUP, Quaternion rotation, float firePowerLevel, PlayerState PState)
+    private void SetShipColour(Color color)
     {
-        //GameDirector.Instance.WriteToConsole("Server RPC Missile from Client: " + OwnerClientId);
-        if (NetworkManager.ConnectedClients.ContainsKey(OwnerClientId))
-        {
-            m_firedMissiles.RemoveAll(x => x == null);
-
-           // if (m_firedMissiles.Count >= m_maxMissilesInFlight)
-           // {
-           //     return;
-           // }
-
-            Vector3 missileSpawnPosition = MissilePosition;
-            GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, rotation);
-
-            missile.GetComponent<Missile>().Init(PState);
-
-            MotionComponent motionComponent = missile.GetComponent<MotionComponent>();
-
-            motionComponent.SetVelocity(transformUP * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, firePowerLevel));
-
-            m_firedMissiles.Add(missile);
-
-            GameObject missileTrail = GameObject.Instantiate(m_missileTrailPrefab, missileSpawnPosition, transform.rotation);
-
-            m_missileTrails.RemoveAll(x => x == null);
-            m_missileTrails.ForEach(x => x.TriggerFadeOut());
-
-            MissileTrail newTrail = missileTrail.GetComponent<MissileTrail>();
-            newTrail.Init(missile);
-            m_missileTrails.Add(newTrail);
-
-            RemoteFireMissileClientRPC(MissilePosition, transformUP, rotation, firePowerLevel, PState);
-        }
+        _renderer.material.SetVector("_PlayerColour", color);
+        m_powerBarUI.SetColour(color);
     }
+
+    public void AddKillScore(float score)
+    {
+        _playerState.score += score;
+        _playerState.killCount++;
+    }
+    public MissileFireState LocalFireMissile()
+    {
+        var deactivatedMissiles = _firedMissiles
+            .Where(kvp => !kvp.Value.gameObject.activeSelf).ToList();
+        foreach (var kvp in deactivatedMissiles)
+        {
+            _firedMissiles.Remove(kvp.Key);
+        }
+        if (_firedMissiles.Count >= _maxMissilesInFlight)
+        {
+            return null;
+        }
+
+        Transform t = transform;
+        Vector3 missileSpawnPosition = t.position + t.up * 0.25f;
+        Missile missile = GameManager.Instance.Pool.Get(m_missilePrefab) as Missile;
+        Quaternion rotation = t.rotation;
+        var velocity = t.up * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, FirePowerLevel);
+        missile.Init(_playerState, missileSpawnPosition, rotation, velocity, _colour);
+        _firedMissiles.Add(missile.GetId(), missile);
+        if(!NetworkManager.Singleton.IsServer)
+        {
+            AddMissileTrail(missile.gameObject, missileSpawnPosition);
+        }
+        return new MissileFireState()
+        {
+            spawnPosition = missileSpawnPosition,
+            rotation = rotation,
+            velocity = velocity,
+            color = _colour,
+            id = missile.GetId()
+        };
+    }
+    
+    public void FireMissileClient(MissileFireState missileFireState, PlayerState playerState)
+    {
+        var missile = GameManager.Instance.Pool.Get(m_missilePrefab) as Missile;
+        missile.SetId(missileFireState.id);
+        missile.Init(playerState, missileFireState.spawnPosition, 
+            missileFireState.rotation, missileFireState.velocity, missileFireState.color);
+        _firedMissiles.TryAdd(missile.GetId(), missile);
+        AddMissileTrail(missile.gameObject,  missileFireState.spawnPosition);
+    }
+    
+    
+    /*
     [ClientRpc]
-    public void RemoteFireMissileClientRPC(Vector3 MissilePosition, Vector3 transformUP, Quaternion rotation, float firePowerLevel, PlayerState PState)
+    private void AddMissileTrailClientRpc(ulong missileNetworkObjectId, Vector3 position)
     {
-        //GameDirector.Instance.WriteToConsole("RemoteFireMissileClientRPC febore Owner Check OwnerClientId: " + OwnerClientId);
-        //if (IsOwner) return;
+        var go = GetNetworkObject(missileNetworkObjectId).gameObject;
+        AddMissileTrail(go, position);
+    }*/
 
-        //GameDirector.Instance.WriteToConsole("RemoteFireMissileClientRPC OwnerClientId: " + OwnerClientId);
-        Vector3 missileSpawnPosition = MissilePosition;
-        GameObject missile = GameObject.Instantiate(m_missilePrefab, missileSpawnPosition, rotation);
-
-        missile.GetComponent<Missile>().Init(PState);
-
-        MotionComponent motionComponent = missile.GetComponent<MotionComponent>();
-
-        motionComponent.SetVelocity(transformUP * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, firePowerLevel));
-
-        GameObject missileTrail = GameObject.Instantiate(m_missileTrailPrefab, missileSpawnPosition, rotation);
-
-        m_missileTrails.RemoveAll(x => x == null);
+    private void AddMissileTrail(GameObject missileGameObject, Vector3 position)
+    {
+        var newTrail = GameManager.Instance.Pool.Get(m_missileTrailPrefab) as MissileTrail;
         m_missileTrails.ForEach(x => x.TriggerFadeOut());
-
-        MissileTrail newTrail = missileTrail.GetComponent<MissileTrail>();
-        newTrail.Init(missile);
+        m_missileTrails.RemoveAll(x => !x.gameObject.activeSelf);
+        newTrail.Init(missileGameObject, position, transform.rotation);
         m_missileTrails.Add(newTrail);
     }
 
 
-    public void OnHitByObject(GameplayObjectComponent otherObject)
+    public override void OnHitByMissile()
     {
-        this.m_playerState.m_numLivesLeft--;
-        if (this.m_playerState.m_numLivesLeft <= 0)
+        _playerState.lives--;
+        if (_playerState.lives <= 0)
         {
-            GameObject explosion = GameObject.Instantiate(m_shipDestroyedEffectPrefab, transform.position, transform.rotation);
-            explosion.GetComponent<Renderer>().material.SetVector("_Colour", m_colour);
+            var t = transform;
+            if (NetworkManager.Singleton.IsListening)
+            {
+                DestroyFxClientRpc(_colour, t.position, t.rotation);
+            }
+            else
+            {
+                DestroyFx(_colour, t.position, t.rotation);
+            }
         }
     }
+    
+    [ClientRpc]
+    private void DestroyFxClientRpc(Vector4 color, Vector3 position, Quaternion rotation)
+    {
+        DestroyFx(color, position, rotation);
+    }
 
+    private void DestroyFx(Vector4 color, Vector3 position, Quaternion rotation)
+    {
+        var destroyFx = GameManager.Instance.Pool.Get(m_shipDestroyedEffectPrefab) as ShipDestroyedEffect;
+        destroyFx.Init(color, position, rotation);
+    }
     public void SetNormalisedRotateSpeed(float normalisedRotateSpeed)
     {
         m_normalisedRotateSpeed = normalisedRotateSpeed;
@@ -214,8 +238,111 @@ public class Player : NetworkBehaviour
 
     void ChangePowerLevel(float normalisedChangeSpeed)
     {
-        m_firePowerLevel = Mathf.Clamp01( m_firePowerLevel + normalisedChangeSpeed * Time.deltaTime );
-        m_powerBarUI.SetPercentageFraction(m_firePowerLevel);
+        FirePowerLevel = Mathf.Clamp01( FirePowerLevel + normalisedChangeSpeed * Time.deltaTime );
+        if (isShowPowerBarUI)
+        {
+            var t = transform;
+            if (m_powerBarUI.transform.position != t.position)
+                m_powerBarUI.transform.position = t.position;
+            m_powerBarUI.SetPercentageFraction(FirePowerLevel);
+        }
+    }
+
+    public void ChangePowerLevelDirectly(float powerLevel)
+    {
+        FirePowerLevel = powerLevel;
+        if (isShowPowerBarUI)
+        {
+            var t = transform;
+            if (m_powerBarUI.transform.position != t.position)
+                m_powerBarUI.transform.position = t.position;
+            m_powerBarUI.SetPercentageFraction(FirePowerLevel);
+        }
+    }
+
+    public override float GetScale()
+    {
+        //scale is for planet for other game entity it always 1
+        return 1.0f;
+    }
+
+    public override float GetRadius()
+    {
+        return _radius;
+    }
+
+    public override float GetMass()
+    {
+        return _mass;
+    }
+
+    void OnFire(InputValue amount)
+    {
+        if(GameManager.Instance.InGameState==InGameState.Playing)
+            LocalFireMissile();
+    }
+
+    void OnRotateShip(InputValue amount)
+    {
+        if (GameManager.Instance.InGameState == InGameState.Playing)
+        {
+            SetNormalisedRotateSpeed(amount.Get<float>());
+            //Debug.Log($"rotate value: {amount.Get<float>()}");
+        }
+    }
+    void OnChangePower(InputValue amount)
+    {
+        if(GameManager.Instance.InGameState==InGameState.Playing)
+            SetNormalisedPowerChangeSpeed(amount.Get<float>());
+    }
+
+    void OnOpenPauseMenu()
+    {
+        GameManager.Instance.TriggerPauseLocalGame();
+        if (GameManager.Instance.InGameState == InGameState.LocalPause)
+        {
+            SetNormalisedRotateSpeed(0);
+        }
+    }
+
+    public override void Reset()
+    {
+        m_missileTrails.ForEach(x=>x.Reset());
+        m_missileTrails.Clear();
+        foreach (var kvp in _firedMissiles)
+        {
+            kvp.Value.Reset();
+        }
+        _firedMissiles.Clear();
+        gameObject.SetActive(false);
+        
+    }
+    
+    /*
+    public override void OnNetworkSpawn()
+    {
+        var o = gameObject;
+        o.name = InGameFactory.PlayerInstancePrefix + o.name;
+        base.OnNetworkSpawn();
+    }*/
+
+    private int _id = -1;
+    public override void SetId(int id)
+    {
+        _id = id;
+    }
+
+    public override int GetId()
+    {
+        return _id;
+    }
+
+    public void ExplodeMissile(int missileId, Vector3 pos, Quaternion rot)
+    {
+        if (_firedMissiles.TryGetValue(missileId, out var missile))
+        {
+            missile.Destruct(pos, rot);
+        }
     }
 
 }

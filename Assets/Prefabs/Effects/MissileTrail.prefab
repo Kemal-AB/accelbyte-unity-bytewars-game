@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3051621638803177860}
   - component: {fileID: -8800856192759446673}
-  - component: {fileID: 4526272470533985694}
+  - component: {fileID: 4799660512040940187}
   m_Layer: 0
   m_Name: MissileTrail
   m_TagString: Untagged
@@ -132,7 +132,7 @@ TrailRenderer:
   m_MinVertexDistance: 0.1
   m_Autodestruct: 0
   m_Emitting: 1
---- !u!114 &4526272470533985694
+--- !u!114 &4799660512040940187
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -141,8 +141,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7146446808593904168}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3c5e680ce8d73744f8de2072237f65e8, type: 3}
+  m_Script: {fileID: 11500000, guid: 1620b5f99b57a7947a8da1fd2dec9d71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_FadeDelayAfterMissileDestruct: 7
-  m_FadeRate: 4
+  trailRenderer: {fileID: -8800856192759446673}
