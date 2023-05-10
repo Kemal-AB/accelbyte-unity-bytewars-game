@@ -14,10 +14,10 @@ public class OptionsMenu : MenuCanvas
     [SerializeField] private Button backButton;
 
     public delegate void OptionsMenuDelegate(float musicVolume, float sfxVolume);
+    public delegate void OptionsValueUpdatedDelegate(string settingType, float newVolumeValue);
 
-    public delegate void OptionsValueUpdatedDelegate();
-    public static event OptionsMenuDelegate onOptionsMenuActivated;
-    public static event OptionsValueUpdatedDelegate onOptionsValueChanged;
+    public static event OptionsMenuDelegate onOptionsMenuActivated = delegate {};
+    public static event OptionsValueUpdatedDelegate onOptionsValueChanged = delegate {};
 
     void Start()
     {
@@ -35,26 +35,33 @@ public class OptionsMenu : MenuCanvas
 
     void OnEnable()
     {
-        onOptionsMenuActivated.Invoke(musicVolumeSlider.value, sfxVolumeSlider.value);
+        if (gameObject.activeSelf)
+        {
+            musicVolumeSlider.value = AudioManager.Instance.GetCurrentVolume(AudioManager.AudioType.MusicAudio);
+            sfxVolumeSlider.value = AudioManager.Instance.GetCurrentVolume(AudioManager.AudioType.SfxAudio);
+
+            onOptionsMenuActivated.Invoke(musicVolumeSlider.value, sfxVolumeSlider.value);
+        }
     }
 
     private void ChangeMusicVolume(float musicVolume)
     {
-        onOptionsValueChanged.Invoke();
         AudioManager.Instance.SetMusicVolume(musicVolume);
         
         int musicVolumeInt = (int)(musicVolume * 100);
         musicVolumeText.text = musicVolumeInt.ToString() + "%";
+        
+        onOptionsValueChanged.Invoke("musicaudio", musicVolume);
     }
     
     private void ChangeSfxVolume(float sfxVolume)
     {
-        onOptionsValueChanged.Invoke();
-        
         AudioManager.Instance.SetSfxVolume(sfxVolume);
 
         int sfxVolumeInt = (int)(sfxVolume * 100);
         sfxVolumeText.text = sfxVolumeInt.ToString() + "%";
+        
+        onOptionsValueChanged.Invoke("sfxvolume", sfxVolume);
     }
 
     public void ChangeVolumeSlider(AudioManager.AudioType audioType, float volumeValue)
