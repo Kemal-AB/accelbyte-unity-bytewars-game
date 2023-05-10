@@ -51,7 +51,7 @@ public class OptionsMenu : MenuCanvas
         int musicVolumeInt = (int)(musicVolume * 100);
         musicVolumeText.text = musicVolumeInt.ToString() + "%";
         
-        onOptionsValueChanged.Invoke("musicaudio", musicVolume);
+        onOptionsValueChanged.Invoke("musicvolume", musicVolume);
     }
     
     private void ChangeSfxVolume(float sfxVolume)
