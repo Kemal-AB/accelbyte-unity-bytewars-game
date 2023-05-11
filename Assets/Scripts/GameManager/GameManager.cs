@@ -265,7 +265,6 @@ public class GameManager : NetworkBehaviour
         if (IsClient)
         {
             QuitToMainMenu();
-            OnClientLeaveSession?.Invoke();
         }
     }
 
@@ -646,6 +645,8 @@ public class GameManager : NetworkBehaviour
         SetInGameState(InGameState.None);
         _menuManager.HideAnimate(null);
         _menuManager.ChangeToMainMenu(MenuSceneName);
+        OnClientLeaveSession?.Invoke();
+
     }
     public void OnObjectHit(Player player, Missile missile)
     {
@@ -884,8 +885,8 @@ public class GameManager : NetworkBehaviour
             if (!NetworkManager.Singleton.ShutdownInProgress)
             {
                 NetworkManager.Singleton.Shutdown();
-                //TODO unregister dedicated server, etc
-                Application.Quit();
+                DeregisterServer();
+                // Application.Quit();
             }
         }
     }
@@ -1062,6 +1063,6 @@ public class GameManager : NetworkBehaviour
         OnDeregisterServer?.Invoke();
 #endif
         await Task.Delay(150);
-        Application.Quit();
+        // Application.Quit();
     }
 }
