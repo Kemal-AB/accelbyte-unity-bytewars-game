@@ -6,7 +6,7 @@ using UnityEngine;
 public class Planet : GameEntityAbs
 {
     public float m_scale = 1.0f;
-    #if !UNITY_SERVER
+    #if !UNITY_SERVER || BYTEWARS_DEBUG
     public float m_glowPulseRate = 2.0f;
     public float m_glowPulseScale = 3.0f;
     float m_baseGlow = 1.0f;
@@ -23,7 +23,7 @@ public class Planet : GameEntityAbs
     {
         m_scale = m_radius * 2.0f;
         transform.localScale = Vector3.one * m_scale;
-#if UNITY_SERVER
+#if UNITY_SERVER && !BYTEWARS_DEBUG
         _renderer.enabled = false;
         _renderer.material = null;
 #else

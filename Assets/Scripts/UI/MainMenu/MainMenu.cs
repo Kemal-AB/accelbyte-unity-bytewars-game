@@ -12,7 +12,7 @@ public class MainMenu : MenuCanvas
     void Start()
     {
         playButton.onClick.AddListener(OnPlayButtonPressed);
-        #if !DEBUG
+        #if !BYTEWARS_DEBUG
         bool isOnlineBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.OnlineMultiplayer);
         playOnlineBtn.gameObject.SetActive(isOnlineBtnActive);
         #endif

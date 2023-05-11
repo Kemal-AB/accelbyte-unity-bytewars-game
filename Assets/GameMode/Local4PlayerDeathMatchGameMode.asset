@@ -42,7 +42,7 @@ MonoBehaviour:
   gameMode: 2
   playerPerTeamCount: 2
   teamCount: 2
-  maxInFlightMissilesPerPlayer: 2
+  maxInFlightMissilesPerPlayer: 1
   lobbyCountdownSecond: 30
   beforeGameCountdownSecond: 5
   beforeShutDownCountdownSecond: 30

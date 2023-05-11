@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c946b292dbcfa2418ef1a2b2e60b8b7, type: 3}
-  m_Name: AuthEssentialsAssetConfig
+  m_Name: MatchmakingEssentialAssetConfig
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1612556656819436589, guid: a952c9a561255ae459f426088209bce8, type: 3}
-  type: 0
+  prefab: {fileID: -4880654269033223669, guid: 0044bfe5ec17a4545870d4b878881821, type: 3}
+  type: 1
   isActive: 1
