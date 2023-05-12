@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c946b292dbcfa2418ef1a2b2e60b8b7, type: 3}
   m_Name: AuthEssentialsAssetConfig
   m_EditorClassIdentifier: 
-  prefab: {fileID: 73831450050943427, guid: a952c9a561255ae459f426088209bce8, type: 3}
-  moduleName: AuthEssentialsSubsystem
+  prefab: {fileID: 1612556656819436589, guid: a952c9a561255ae459f426088209bce8, type: 3}
+  type: 0
   isActive: 1

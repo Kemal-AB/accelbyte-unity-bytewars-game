@@ -257,18 +257,16 @@ public class MenuManager : MonoBehaviour
         // Check If auth essential active
         if (allActiveModule.TryGetValue(TutorialType.AuthEssentials, out TutorialModuleData authEssential))
         {
-            _currentMainMenu = _menusDictionary[AssetEnum.LoadingMenuCanvas];
-            if (_currentMainMenu.gameObject.activeSelf == false)
-            {            
-                _currentMainMenu.gameObject.SetActive(true);
-                _mainMenusStack.Push(_currentMainMenu);
-            }
-
-            _isAGSDKReady = TutorialModuleUtil.IsAccelbyteSDKInstalled();
-            IEnumerator check = CheckAGSDKReady();
-
-            if (!check.Equals(null))
+            AssetEnum prefabname = (AssetEnum)System.Enum.Parse(typeof(AssetEnum), authEssential.prefab.name);
+            _currentMainMenu = _menusDictionary[prefabname];
+            _currentMainMenu.gameObject.SetActive(true);
+            _mainMenusStack.Push(_currentMainMenu);
+            
+            bool check = CheckAGSDKReady();
+            
+            if (!check.Equals(true))
             {
+                //TODO: initialize ags sdk
                 _currentMainMenu.gameObject.SetActive(false);
                 _currentMainMenu = _menusDictionary[AssetEnum.LoadingMenuCanvas];;
                 _currentMainMenu.gameObject.SetActive(true);
@@ -285,12 +283,14 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    private IEnumerator CheckAGSDKReady()
+    private bool CheckAGSDKReady()
     {
+        _isAGSDKReady = TutorialModuleUtil.IsAccelbyteSDKInstalled();
         while (!_isAGSDKReady)
         {
-            yield return null;
+            CheckAGSDKReady();
         }
+        return true;
     }
 
     private void InitCoreMenu()
