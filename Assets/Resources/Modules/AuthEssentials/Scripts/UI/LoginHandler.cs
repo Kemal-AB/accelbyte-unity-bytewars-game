@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LoginHandler : MonoBehaviour
+public class LoginHandler : MenuCanvas
 {
     [SerializeField] private GameObject loginStatePanel;
     [SerializeField] private GameObject loginLoadingPanel;
@@ -108,4 +108,13 @@ public class LoginHandler : MonoBehaviour
         Application.Quit();
     }
 
+    public override GameObject GetFirstButton()
+    {
+        return loginWithDeviceIdButton.gameObject;
+    }
+
+    public override AssetEnum GetAssetEnum()
+    {
+        return AssetEnum.LoginMenuCanvas;
+    }
 }
