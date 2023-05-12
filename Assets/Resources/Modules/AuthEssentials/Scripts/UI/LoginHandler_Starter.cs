@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LoginHandler_Starter : MonoBehaviour
+public class LoginHandler_Starter : MenuCanvas
 {
     //Declare each view panels
     [SerializeField] private GameObject loginStatePanel;
@@ -82,5 +82,15 @@ public class LoginHandler_Starter : MonoBehaviour
     //Paste OnLoginCompleted using snippet from "Put it All together" unit here (step number 2)
 
 
+    public override GameObject GetFirstButton()
+    {
+        return loginWithDeviceIdButton.gameObject;
+    }
+
+    public override AssetEnum GetAssetEnum()
+    {
+        return AssetEnum.LoginMenuCanvas_Starter;
+    }
+    
 
 }
