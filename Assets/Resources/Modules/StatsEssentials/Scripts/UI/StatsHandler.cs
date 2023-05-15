@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StatsHandler : MonoBehaviour
+public class StatsHandler : MenuCanvas
 {
     [SerializeField] private TMP_Text singlePlayerStatValueText;
     [SerializeField] private TMP_Text eliminationStatValueText;
@@ -43,14 +43,14 @@ public class StatsHandler : MonoBehaviour
             DisplayStats();
         }
 
-        GameOverScreenController.OnGameOver += playerState =>
-        {
-            UpdateUserStats(playerState);
-        };
-        InGameGameMode.OnGameOverState += () =>
-        {
-            UpdateAllUsersStats();
-        };
+        // GameOverScreenController.OnGameOver += playerState =>
+        // {
+        //     UpdateUserStats(playerState);
+        // };
+        // InGameGameMode.OnGameOverState += () =>
+        // {
+        //     UpdateAllUsersStats();
+        // };
     }
 
     private void DisplayStats()
@@ -73,7 +73,7 @@ public class StatsHandler : MonoBehaviour
     private void UpdateUserStats(PlayerState playerState)
     {
         StatsEssentialsWrapper statsEssentialsWrapper = TutorialModuleManager.Instance.GetModuleClass<StatsEssentialsWrapper>();
-        statsEssentialsWrapper.UpdateUserStatsFromClient(SINGLEPLAYER_STATCODE, playerState.m_playerScore, "", OnUpdateUserStatsCompleted);
+        statsEssentialsWrapper.UpdateUserStatsFromClient(SINGLEPLAYER_STATCODE, playerState.score, "", OnUpdateUserStatsCompleted);
     }
     
     private void UpdateAllUsersStats()
@@ -136,5 +136,15 @@ public class StatsHandler : MonoBehaviour
     private void OnBackButtonClicked()
     {
         MenuManager.Instance.OnBackPressed();
+    }
+
+    public override GameObject GetFirstButton()
+    {
+        return backButton.gameObject;
+    }
+
+    public override AssetEnum GetAssetEnum()
+    {
+        return AssetEnum.StatsProfileMenuCanvas;
     }
 }

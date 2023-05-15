@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StatsHandler_Starter : MonoBehaviour
+public class StatsHandler_Starter : MenuCanvas
 {
     [SerializeField] private TMP_Text singlePlayerStatValueText;
     [SerializeField] private TMP_Text eliminationStatValueText;
@@ -40,5 +40,15 @@ public class StatsHandler_Starter : MonoBehaviour
     
     private void OnBackButtonClicked(){
         MenuManager.Instance.OnBackPressed();
+    }
+
+    public override GameObject GetFirstButton()
+    {
+        return backButton.gameObject;
+    }
+
+    public override AssetEnum GetAssetEnum()
+    {
+        return AssetEnum.StatsProfileMenuCanvas_Starter;
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class ProfileMenu : MonoBehaviour
+public class ProfileMenu : MenuCanvas
 {
     [SerializeField] private Button statsButton;
     [SerializeField] private Button backButton;
@@ -17,15 +17,25 @@ public class ProfileMenu : MonoBehaviour
 
     private void OnStatsButtonClicked()
     {
-        TutorialModuleData statsEssentials = TutorialModuleManager.Instance.GetModule(AssetEnum.StatsEssentialsAssetConfig.ToString());
+        TutorialModuleData statsEssentials = TutorialModuleManager.Instance.GetModule(TutorialType.StatsEssentials);
         if (statsEssentials != null)
         {
-            MenuManager.Instance.ChangeToMenu(statsEssentials.prefab.name);
+            MenuManager.Instance.ChangeToMenu(statsEssentials.prefab.GetAssetEnum());
         }
     }
 
     private void OnBackButtonClicked()
     {
         MenuManager.Instance.OnBackPressed();
+    }
+
+    public override GameObject GetFirstButton()
+    {
+        return statsButton.gameObject;
+    }
+
+    public override AssetEnum GetAssetEnum()
+    {
+        return AssetEnum.ProfileMenuCanvas;
     }
 }

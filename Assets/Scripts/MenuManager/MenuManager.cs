@@ -250,11 +250,6 @@ public class MenuManager : MonoBehaviour
         foreach (var moduleNamePair in allActiveModule)
         {
             InitMenuByModules(moduleNamePair.Value);
-
-            if (moduleNamePair.Key.Contains(AssetEnum.StatsEssentialsAssetConfig.ToString()))
-            {
-                InitMenuByModules(moduleNamePair.Value);
-            }
         }
         
         InitCoreMenu();
@@ -324,7 +319,6 @@ public class MenuManager : MonoBehaviour
         var modulePrefab = moduleData.prefab;
         var menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
         menubyModule.name = modulePrefab.name;
-        menubyModule.SetActive(false);
         _menusDictionary.Add(menubyModule.GetAssetEnum(), menubyModule);
         _menusDictionary[menubyModule.GetAssetEnum()].gameObject.SetActive(false);
     }
