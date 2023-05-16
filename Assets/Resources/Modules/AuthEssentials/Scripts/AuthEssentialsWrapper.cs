@@ -24,7 +24,7 @@ public class AuthEssentialsWrapper : MonoBehaviour
 
     #region AB Service Functions
 
-    public void Login(LoginType loginMethod, ResultCallback resultCallback)
+    public void Login(LoginType loginMethod, ResultCallback<TokenData, OAuthError> resultCallback)
     {
         switch (loginMethod)
         {
@@ -48,7 +48,7 @@ public class AuthEssentialsWrapper : MonoBehaviour
     /// </summary>
     /// <param name="result">result of the LoginWithOtherPlatform() function call</param>
     /// <param name="customCallback">additional callback function that can be customized from other script</param>
-    private void OnLoginCompleted(Result result, ResultCallback customCallback = null)
+    private void OnLoginCompleted(Result<TokenData, OAuthError> result, ResultCallback<TokenData, OAuthError> customCallback = null)
     {
         if (!result.IsError)
         {
@@ -56,7 +56,7 @@ public class AuthEssentialsWrapper : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Login user failed. Message: {result.Error.Message}");
+            Debug.Log($"Login user failed. Message: {result.Error.error}");
         }
 
         customCallback?.Invoke(result);

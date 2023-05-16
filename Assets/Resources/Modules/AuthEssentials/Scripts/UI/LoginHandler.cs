@@ -1,6 +1,7 @@
 using System;
 using AccelByte.Api;
 using AccelByte.Core;
+using AccelByte.Models;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,7 +16,9 @@ public class LoginHandler : MenuCanvas
     [SerializeField] private Button quitGameButton;
     [SerializeField] private TMP_Text failedMessageText;
 
-
+    public delegate void LoginHandlerDelegate(TokenData tokenData);
+    public static event LoginHandlerDelegate onLoginCompleted = delegate {};
+    
     private AuthEssentialsWrapper _authWrapper;
     private LoginType _lastLoginMethod;
         
@@ -80,15 +83,17 @@ public class LoginHandler : MenuCanvas
         _authWrapper.Login(loginMethod, OnLoginCompleted);
     }
 
-    private void OnLoginCompleted(Result result)
+    private void OnLoginCompleted(Result<TokenData, OAuthError> result)
     {
         if (!result.IsError)
         {
+            onLoginCompleted.Invoke(result.Value);
+            
             MenuManager.Instance.ChangeToMenu(AssetEnum.MainMenuCanvas);
         }
         else
         {
-            failedMessageText.text = "Login Failed: "  + result.Error.Message;
+            failedMessageText.text = "Login Failed: "  + result.Error.error;
             CurrentView = LoginView.LoginFailed;
         }
     }
