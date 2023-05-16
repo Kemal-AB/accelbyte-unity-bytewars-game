@@ -17,7 +17,9 @@ public class MatchLobbyMenu : MenuCanvas
     private Dictionary<int, TeamState> _teamStates;
     private Dictionary<ulong, PlayerState> _playerStates;
     [SerializeField]
-    private TextMeshProUGUI countdownLabel;
+    private TextMeshProUGUI statusLabel;
+    [SerializeField]
+    private GameObject statusContainer;
 
     private void Start()
     {
@@ -81,9 +83,17 @@ public class MatchLobbyMenu : MenuCanvas
         }
     }
 
+    private const string CountDownPrefix = "MATCH START IN: ";
     public void Countdown(int second)
     {
-        countdownLabel.text = second.ToString();
+        ShowStatus(CountDownPrefix+second);
+    }
+
+    public void ShowStatus(string status)
+    {
+        if(!statusContainer.activeSelf)
+            statusContainer.SetActive(true);
+        statusLabel.text = status;
     }
 
     public override AssetEnum GetAssetEnum()

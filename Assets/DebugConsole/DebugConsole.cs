@@ -98,7 +98,7 @@ namespace Debugger
 
         public static void AddButton(string btnLabel, UnityAction callback)
         {
-#if DEBUG
+#if BYTEWARS_DEBUG
             DebugButtonItem localButton = Instantiate(Instance.btnPrefab, Instance.container, false);
             localButton.SetBtn(btnLabel, callback);
             localButton.name = btnLabel;
@@ -107,7 +107,7 @@ namespace Debugger
 
         public static void Log(string text)
         {
-#if DEBUG
+#if BYTEWARS_DEBUG
             Instance.logText.text += text + '\n';
             Instance.contentSizeFitter.enabled = false;
             Instance.StartCoroutine(waitOneFrame(() => { Instance.contentSizeFitter.enabled = true; }));

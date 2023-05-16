@@ -51,31 +51,43 @@ public class ConnectionHelper
         }
         else
         {
-            //TODO will handle reconnection later
-            /*
-            if (_inGameState != InGameState.GameOver)
+            //handle reconnection
+            if (inGameState != InGameState.GameOver)
             {
                 Debug.Log($"player sessionId:{initialData.sessionId} try to reconnect");
-                bool isSuccess = _serverHelper.AddReconnectPlayerState(initialData.sessionId, 
+                Player player = serverHelper.AddReconnectPlayerState(initialData.sessionId, 
                     request.ClientNetworkId, 
-                    availableInGameMode[_onlineGameModeIndex]);
-                if (!isSuccess)
+                    availableInGameMode[clientRequestedGameModeIndex]);
+                if (player)
+                {
+                    if (result == null)
+                    {
+                        result = new ConnectionApprovalResult()
+                        {
+                            reconnectPlayer = player
+                        };
+                    }
+                    else
+                    {
+                        result.reconnectPlayer = player;
+                    }
+                    Debug.Log($"player reconnect success sessionId:{initialData.sessionId}");
+                }
+                else
                 {
                     RejectConnection(response, 
                         $"failed to reconnect, clientNetworkId already claimed by another player, sessionId:{initialData.sessionId} clientNetworkId:{request.ClientNetworkId}");
-                    return;
+                    return result;
                 }
             }
             else
             {
                 RejectConnection(response,
                     $"failed to reconnect game is over, sessionId:{initialData.sessionId}");
+                return result;
             }
-            */
-            string reason = $"//TODO will handle reconnection later";
-            RejectConnection(response, reason);
-            return null;
             
+
         }
         //TODO verify client against IAM services before approving
         //spawns player controller
@@ -98,4 +110,5 @@ public class ConnectionApprovalResult
 {
     public InGameMode InGameMode;
     public GameModeSO GameModeSo;
+    public Player reconnectPlayer;
 }

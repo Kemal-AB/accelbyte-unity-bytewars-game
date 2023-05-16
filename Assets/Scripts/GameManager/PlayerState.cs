@@ -16,6 +16,7 @@ public class PlayerState : INetworkSerializable
     public ulong clientNetworkId;
     public string sessionId;
     public Vector3 position;
+    public string playerId;
 
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
@@ -29,5 +30,6 @@ public class PlayerState : INetworkSerializable
         serializer.SerializeValue(ref clientNetworkId);
         serializer.SerializeValue(ref sessionId);
         serializer.SerializeValue(ref position);
+        serializer.SerializeValue(ref playerId);
     }
 }

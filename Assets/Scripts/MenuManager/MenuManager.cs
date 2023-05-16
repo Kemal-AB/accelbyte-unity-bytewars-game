@@ -254,34 +254,11 @@ public class MenuManager : MonoBehaviour
         
         InitCoreMenu();
         
-        // Check If auth essential active
-        if (allActiveModule.TryGetValue(TutorialType.AuthEssentials, out TutorialModuleData authEssential))
-        {
-            _currentMainMenu = _menusDictionary[AssetEnum.LoadingMenuCanvas];
-            if (_currentMainMenu.gameObject.activeSelf == false)
-            {            
-                _currentMainMenu.gameObject.SetActive(true);
-                _mainMenusStack.Push(_currentMainMenu);
-            }
-
-            _isAGSDKReady = TutorialModuleUtil.IsAccelbyteSDKInstalled();
-            IEnumerator check = CheckAGSDKReady();
-
-            if (!check.Equals(null))
-            {
-                _currentMainMenu.gameObject.SetActive(false);
-                _currentMainMenu = _menusDictionary[AssetEnum.LoadingMenuCanvas];;
-                _currentMainMenu.gameObject.SetActive(true);
-            }
-        }
-        else
-        {
-            _currentMainMenu = _menusDictionary[AssetEnum.MainMenuCanvas];
-            if (!_currentMainMenu.gameObject.activeInHierarchy)
-            {            
-                _currentMainMenu.gameObject.SetActive(true);
-                _mainMenusStack.Push(_currentMainMenu);
-            }
+        _currentMainMenu = _menusDictionary[AssetEnum.MainMenuCanvas];
+        if (!_currentMainMenu.gameObject.activeInHierarchy)
+        {            
+            _currentMainMenu.gameObject.SetActive(true);
+            _mainMenusStack.Push(_currentMainMenu);
         }
     }
 
@@ -465,5 +442,10 @@ public class MenuManager : MonoBehaviour
     public Dictionary<AssetEnum, MenuCanvas> AllMenu
     {
         get { return _menusDictionary; }
+    }
+
+    public MenuCanvas GetCurrentMenu()
+    {
+        return _currentMainMenu;
     }
 }

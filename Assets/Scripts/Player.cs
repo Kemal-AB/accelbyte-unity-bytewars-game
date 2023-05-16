@@ -23,7 +23,11 @@ public class Player : GameEntityAbs
 
     public float FirePowerLevel { get; private set; } = 0.5f;
 
-    Dictionary<int, Missile> _firedMissiles = new Dictionary<int, Missile>();
+    private Dictionary<int, Missile> _firedMissiles = new Dictionary<int, Missile>();
+    public Dictionary<int, Missile> FiredMissiles
+    {
+        get { return _firedMissiles; }
+    }
     List<MissileTrail> m_missileTrails = new List<MissileTrail>();
     
     private  PlayerState _playerState;
@@ -75,11 +79,11 @@ public class Player : GameEntityAbs
 
     public void SetPlayerState(PlayerState playerState, 
         int maxMissilesInFlight, 
-        Color teamColor, Vector3 position)
+        Color teamColor)
     {
         _playerState = playerState;
         gameObject.name = InGameFactory.PlayerInstancePrefix+"Player" + (_playerState.playerIndex + 1);;
-        Init(maxMissilesInFlight, teamColor, position);
+        Init(maxMissilesInFlight, teamColor);
     }
 
     public PlayerState PlayerState
@@ -88,12 +92,11 @@ public class Player : GameEntityAbs
     }
 
     private bool isShowPowerBarUI = false;
-    public void Init(int maxMissilesInFlight, Color color, Vector3 position)
+    public void Init(int maxMissilesInFlight, Color color)
     {
-        _playerState.position = position;
         _colour = color;
         var t = transform;
-        t.position = position;
+        t.position = _playerState.position;
         if (!m_powerBarUI)
         {
             m_powerBarUI = Instantiate(m_powerBarUIPrefab, t.position, Quaternion.identity, t);
@@ -342,6 +345,48 @@ public class Player : GameEntityAbs
         if (_firedMissiles.TryGetValue(missileId, out var missile))
         {
             missile.Destruct(pos, rot);
+        }
+    }
+
+    public void SyncMissile(int missileId, Vector3 velocity,
+        Vector3 position, Quaternion rotation)
+    {
+        if (_firedMissiles.TryGetValue(missileId, out var missile))
+        {
+            missile.Sync(velocity, position, rotation);
+        }
+    }
+
+    public void SetFiredMissilesID(int[] firedMissilesId)
+    {
+        foreach (var missileId in firedMissilesId)
+        {
+            foreach (var activeGe in GameManager.Instance.ActiveGEs)
+            {
+                if (activeGe is Missile missile && missile.GetId() == missileId)
+                {
+                    missile.SetPlayerState(_playerState);
+                    _firedMissiles.TryAdd(missileId, missile);
+                    break;
+                }
+            }
+        }
+    }
+
+    public int[] GetFiredMissilesId()
+    {
+        return _firedMissiles.Keys.ToArray();
+    }
+
+    public void UpdateMissilesState()
+    {
+        foreach (var kvp in _firedMissiles)
+        {
+            var missile = kvp.Value;
+            if (missile && missile.gameObject.activeSelf)
+            {
+                missile.SetPlayerState(_playerState);
+            }
         }
     }
 

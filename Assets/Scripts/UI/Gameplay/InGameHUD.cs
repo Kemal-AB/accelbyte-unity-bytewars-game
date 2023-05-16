@@ -55,7 +55,7 @@ public class InGameHUD : MonoBehaviour
         {
             playerHUD.Reset();
         }
-        gameStatusContainer.gameObject.SetActive(false);
+        HideGameStatusContainer();
     }
 
     readonly TimeSpan _oneSecond = TimeSpan.FromSeconds(1);
@@ -68,7 +68,7 @@ public class InGameHUD : MonoBehaviour
         if (second == 0)
         {
             gameStatusText.text = "Game Started";
-            gameStatusContainer.gameObject.SetActive(false);
+            HideGameStatusContainer();
             // LeanTween.alpha(gameStatusContainer, 0, 1)
             //     .setOnComplete(OnGameStatusContainerFullyHidden);
         }
@@ -85,11 +85,11 @@ public class InGameHUD : MonoBehaviour
         gameStatusText.text = prefix+second;
         if (second == 0)
         {
-            gameStatusContainer.gameObject.SetActive(false);
+           HideGameStatusContainer();
         }
     }
 
-    private void OnGameStatusContainerFullyHidden()
+    public void HideGameStatusContainer()
     {
         gameStatusContainer.gameObject.SetActive(false);
     }
