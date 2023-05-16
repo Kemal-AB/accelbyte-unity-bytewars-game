@@ -22,7 +22,7 @@ public class CloudSaveHelper : MonoBehaviour
         _cloudSaveWrapper = TutorialModuleManager.Instance.GetModuleClass<CloudSaveEssentialsWrapper>();
 
         OptionsMenu.onOptionsMenuActivated += (musicVolume, sfxVolume) => GetGameOptions(musicVolume, sfxVolume);
-        OptionsMenu.onOptionsValueChanged += (settingType, volumeValue) => UpdateGameOptions(settingType, volumeValue);
+        OptionsMenu.onOptionsMenuDeactivated += (musicVolume, sfxVolume) => UpdateGameOptions(musicVolume, sfxVolume);
     }
 
     #region Game Options Getter Setter Function
@@ -45,16 +45,12 @@ public class CloudSaveHelper : MonoBehaviour
         _cloudSaveWrapper.SaveUserRecord(GAMEOPTIONS_RECORDKEY, volumeSettings, OnSaveGameOptionsCompleted);
     }
 
-    private void UpdateGameOptions(string settingName, float newVolumeValue)
+    private void UpdateGameOptions(float musicVolume, float sfxVolume)
     {
-        float recordedVolume = Convert.ToSingle(volumeSettings[settingName]);
-
-        if (!recordedVolume.Equals(newVolumeValue))
-        {
-            volumeSettings[settingName] = newVolumeValue;
-
-            SaveGameOptions();
-        }
+        volumeSettings[MUSICVOLUME_ITEMNAME] = musicVolume;
+        volumeSettings[SFXVOLUME_ITEMNAME] = sfxVolume;
+        
+        SaveGameOptions();
     }
 
     #endregion

@@ -14,10 +14,9 @@ public class OptionsMenu : MenuCanvas
     [SerializeField] private Button backButton;
 
     public delegate void OptionsMenuDelegate(float musicVolume, float sfxVolume);
-    public delegate void OptionsValueUpdatedDelegate(string settingType, float newVolumeValue);
 
     public static event OptionsMenuDelegate onOptionsMenuActivated = delegate {};
-    public static event OptionsValueUpdatedDelegate onOptionsValueChanged = delegate {};
+    public static event OptionsMenuDelegate onOptionsMenuDeactivated = delegate {};
 
     void Start()
     {
@@ -44,14 +43,17 @@ public class OptionsMenu : MenuCanvas
         }
     }
 
+    private void OnDisable()
+    {
+        onOptionsMenuDeactivated.Invoke(musicVolumeSlider.value, sfxVolumeSlider.value);
+    }
+
     private void ChangeMusicVolume(float musicVolume)
     {
         AudioManager.Instance.SetMusicVolume(musicVolume);
         
         int musicVolumeInt = (int)(musicVolume * 100);
         musicVolumeText.text = musicVolumeInt.ToString() + "%";
-        
-        onOptionsValueChanged.Invoke("musicvolume", musicVolume);
     }
     
     private void ChangeSfxVolume(float sfxVolume)
@@ -60,8 +62,6 @@ public class OptionsMenu : MenuCanvas
 
         int sfxVolumeInt = (int)(sfxVolume * 100);
         sfxVolumeText.text = sfxVolumeInt.ToString() + "%";
-        
-        onOptionsValueChanged.Invoke("sfxvolume", sfxVolume);
     }
 
     public void ChangeVolumeSlider(AudioManager.AudioType audioType, float volumeValue)

@@ -7,7 +7,6 @@ public enum AssetEnum
       LoadingMenuCanvas,
       MainMenuCanvas,
       MainMenuUiConfig,
-      LoadingMenuCanvas,
       LoginMenuCanvas,
       LoginMenuCanvas_Starter,
       NotificationCanvas,

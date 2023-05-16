@@ -106,7 +106,7 @@ public class LoginHandler : MenuCanvas
             Debug.Log(MultiRegistry.GetApiClient().session.UserId);
             
             // Get player settings from Cloud Save
-            TutorialModuleData cloudSaveEssentials = TutorialModuleManager.Instance.GetModule(AssetEnum.CloudSaveEssentialsAssetConfig.ToString());
+            TutorialModuleData cloudSaveEssentials = TutorialModuleManager.Instance.GetModule(TutorialType.CloudSaveEssentials);
             if (cloudSaveEssentials.isActive)
             {
                 GetGameOptions();
