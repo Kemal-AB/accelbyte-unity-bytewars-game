@@ -33,7 +33,7 @@ public class QuickPlayMenu : MenuCanvas
 
     public enum QuickPlayView
     {
-        ContentMatch,
+        Default,
         FindingMatch,
         JoiningMatch,
         CancelingMatch,
@@ -63,7 +63,7 @@ public class QuickPlayMenu : MenuCanvas
             case QuickPlayView.Failed:
                 switcherHelper(failedPanel, value);
                 break;
-            case QuickPlayView.ContentMatch:
+            case QuickPlayView.Default:
                 switcherHelper(contentPanel, value);
                 break;
         }
@@ -74,7 +74,7 @@ public class QuickPlayMenu : MenuCanvas
         panel.SetActive(true);
         _panels.Except(new []{panel})
             .ToList().ForEach(x => x.SetActive(false));
-        if (value != QuickPlayView.ContentMatch)
+        if (value != QuickPlayView.Default)
         {
             headerPanel.SetActive(false);
             footerButtonPanel.SetActive(false);
@@ -93,11 +93,11 @@ public class QuickPlayMenu : MenuCanvas
         _matchmakingEssentialsWrapper = TutorialModuleManager.Instance.GetModuleClass<MatchmakingEssentialsWrapper>();
         _matchmakingEssentialsWrapper.OnMatchFound += ChangeLoading;
 
-        eliminationButton.onClick.AddListener(OnEliminationButtonPressed);
-        teamDeadmatchButton.onClick.AddListener(OnTeamDeadmatchButtonPressed);
+        eliminationButton.onClick.AddListener(OnEliminationButtonClicked);
+        teamDeadmatchButton.onClick.AddListener(OnTeamDeadmatchButtonClicked);
         backButton.onClick.AddListener(MenuManager.Instance.OnBackPressed);
-        cancelButton.onClick.AddListener(ClickCancelMatchmaking);
-        okButton.onClick.AddListener(OnOkFailedButtonPressed);
+        cancelButton.onClick.AddListener(OnCancelMatchmakingClicked);
+        okButton.onClick.AddListener(OnOkFailedButtonClicked);
         
         _panels = new List<GameObject>()
         {
@@ -109,9 +109,9 @@ public class QuickPlayMenu : MenuCanvas
         };
     }
 
-    private void OnOkFailedButtonPressed()
+    private void OnOkFailedButtonClicked()
     {
-        currentView = QuickPlayView.ContentMatch;
+        currentView = QuickPlayView.Default;
     }
 
     private void ChangeLoading(Result<MatchmakingV2MatchTicketStatus> result)
@@ -121,7 +121,8 @@ public class QuickPlayMenu : MenuCanvas
             currentView = QuickPlayView.JoiningMatch;
         }
     }
-    public void OnEliminationButtonPressed()
+
+    private void OnEliminationButtonClicked()
     {
         currentView = QuickPlayView.FindingMatch;
         _matchmakingEssentialsWrapper.StartMatchmaking("elimination_unity", OnMatchmakingCreated);
@@ -135,25 +136,26 @@ public class QuickPlayMenu : MenuCanvas
         
             if (result.Value.dsInformation.status == SessionV2DsStatus.AVAILABLE)
             {
+                Debug.Log(result.Value.dsInformation.server.ports["unityds"]);
                 GameManager.Instance
-                    .StartAsClient(result.Value.dsInformation.server.ip, (ushort)result.Value.dsInformation.server.port, 
+                    .StartAsClient(result.Value.dsInformation.server.ip, (ushort)result.Value.dsInformation.server.ports["unityds"], 
                         InGameMode.OnlineEliminationGameMode);
             }
             else
             {
                 currentView = QuickPlayView.Failed;
-                Debug.Log("failed to matchmaking, please try again, error: ");
+                Debug.Log("Failed to create matchmaking, no response from the server ");
             }
         }
         else
         {
-            Debug.Log($"error");
+            Debug.Log($"Failed to create matchmaking, please try again, error: ");
             currentView = QuickPlayView.Failed;
         }
 
     }
     
-    private void ClickCancelMatchmaking()
+    private void OnCancelMatchmakingClicked()
     {
         _matchmakingEssentialsWrapper.CancelMatchMatch(OnMatchCanceled);
     }
@@ -162,8 +164,8 @@ public class QuickPlayMenu : MenuCanvas
     {
         if (!result.IsError)
         {
-            Debug.Log($"Matchcanceled");
-            currentView = QuickPlayView.ContentMatch;
+            Debug.Log($"Success to cancel matchmaking");
+            currentView = QuickPlayView.Default;
             return;
         }
         else
@@ -172,7 +174,7 @@ public class QuickPlayMenu : MenuCanvas
         }
     }
 
-    public void OnTeamDeadmatchButtonPressed()
+    private void OnTeamDeadmatchButtonClicked()
     {
         currentView = QuickPlayView.FindingMatch;
         _matchmakingEssentialsWrapper.StartMatchmaking("teamdeathmatch_unity", OnTeamDeathMatchMatchmakingFinished);
@@ -188,13 +190,13 @@ public class QuickPlayMenu : MenuCanvas
             if (result.Value.dsInformation.status == SessionV2DsStatus.AVAILABLE)
             {
                 GameManager.Instance
-                    .StartAsClient(result.Value.dsInformation.server.ip, (ushort)result.Value.dsInformation.server.port, 
+                    .StartAsClient(result.Value.dsInformation.server.ip, (ushort)result.Value.dsInformation.server.ports["unityds"], 
                         InGameMode.OnlineDeathMatchGameMode);
             }
             else
             {
                 currentView = QuickPlayView.Failed;
-                Debug.Log("failed to matchmaking, please try again, error: ");
+                Debug.Log("Failed to create matchmaking, please try again, error: ");
             }
         }
         else
@@ -216,6 +218,6 @@ public class QuickPlayMenu : MenuCanvas
     
     private void OnEnable()
     {
-        currentView = QuickPlayView.ContentMatch;
+        currentView = QuickPlayView.Default;
     }
 }

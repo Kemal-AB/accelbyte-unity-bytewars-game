@@ -3,7 +3,6 @@
 // and restrictions contact your company contract manager.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using AccelByte.Api;
 using AccelByte.Core;
@@ -32,65 +31,57 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
         _dedicatedServerManager = MultiRegistry.GetServerApiClient().GetDedicatedServerManager();
 
         GameManager.Instance.OnClientLeaveSession += LeaveSession;
-        GameManager.Instance.OnDeregisterServer += DeregisterServer;
-        GameManager.Instance.OnRegisterServer += RegisterServer;
+        GameManager.Instance.OnDeregisterServer += UnRegisterServer;
+        GameManager.Instance.OnRegisterServer += LoginAndRegisterServer;
     }
     
-    private void RegisterServer()
+    private void LoginAndRegisterServer()
     {
-        Debug.Log("MatchmakingEssentialsWrapper Register Server");
-        bool isLocal = ConnectionHandler.GetArgument();
-        
         AccelByteServerPlugin.GetDedicatedServer().LoginWithClientCredentials(result =>
         {
             if (result.IsError)
             {
                 // If we error, grab the Error Code and Message to print in the Log
                 Debug.Log($"Server login failed : {result.Error.Code}: {result.Error.Message}");
+                Application.Quit();
             }
             else
             {
                 Debug.Log("Server login successful");
-
-                if (!isLocal)
-                {
-                    // Register Server to DSM
-                    _dedicatedServerManager.RegisterServer((int)ConnectionHandler.LocalPort, registerResult =>
-                    {
-                        if (registerResult.IsError)
-                        {
-                            Debug.Log("Register Server to DSM failed");
-                        }
-                        else
-                        {
-                            Debug.Log("Register Server to DSM successful");
-                        }
-                    });
-                }
-                else
-                {
-                    string ip = ConnectionHandler.LocalServerIP;
-                    string name = ConnectionHandler.LocalServerName;
-                    // string name = "localds-unity";
-                    uint portNumber = Convert.ToUInt32(ConnectionHandler.LocalPort);
-                    Debug.Log(ip);
-                    Debug.Log(name);
-                    
-                    // Register Local Server to DSM
-                    _dedicatedServerManager.RegisterLocalServer(ip, portNumber, name, registerResult =>
-                    {
-                        if (registerResult.IsError)
-                        {
-                            Debug.Log("Register Local Server to DSM failed");
-                        }
-                        else
-                        {
-                            Debug.Log("Register Local Server to DSM successful");
-                        }
-                    });
-                }
+                RegisterServer();
             }
         });
+    }
+
+    private void RegisterServer()
+    {
+        bool isLocal = ConnectionHandler.GetArgument();
+        
+        if (!isLocal)
+        {
+            // Register Server to DSM
+            _dedicatedServerManager.RegisterServer((int)ConnectionHandler.LocalPort, registerResult =>
+            {
+                Debug.Log(
+                    registerResult.IsError 
+                        ? "Register Server to DSM failed" 
+                        : "Register Server to DSM successful");
+            });
+        }
+        else
+        {
+            string ip = ConnectionHandler.LocalServerIP;
+            string name = ConnectionHandler.LocalServerName;
+            uint portNumber = Convert.ToUInt32(ConnectionHandler.LocalPort);
+            
+            // Register Local Server to DSM
+            _dedicatedServerManager.RegisterLocalServer(ip, portNumber, name, registerResult =>
+            {
+                Debug.Log(registerResult.IsError
+                    ? "Register Local Server to DSM failed"
+                    : "Register Local Server to DSM successful");
+            });
+        }
     }
 
     public void StartMatchmaking(string matchPoolName, ResultCallback<SessionV2GameSession> resultCallback)
@@ -101,17 +92,15 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
         }
         
         bool isLocal = ConnectionHandler.GetArgument();
-        // bool isLocal = true;
         if (isLocal)
         {
             string localServerName = ConnectionHandler.LocalServerName;
-            // string localServerName = "testserver";
-            MatchmakingV2CreateTicketRequestOptionalParams Optionals = new MatchmakingV2CreateTicketRequestOptionalParams();
-            Optionals.attributes = new Dictionary<string, object>()
+            MatchmakingV2CreateTicketRequestOptionalParams optionals = new MatchmakingV2CreateTicketRequestOptionalParams();
+            optionals.attributes = new Dictionary<string, object>()
             {
                 { "server_name", localServerName },
             };
-            _matchmakingV2.CreateMatchmakingTicket(matchPoolName, Optionals, result => OnCreateMatchmakingCompleted(result, resultCallback)); 
+            _matchmakingV2.CreateMatchmakingTicket(matchPoolName, optionals, result => OnCreateMatchmakingCompleted(result, resultCallback)); 
         }         
         else
         {
@@ -123,54 +112,38 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
     {
         if (!result.IsError)
         {
-            Debug.Log($"matchmaking ticket created: {result.Value.matchTicketId}");
+            Debug.Log($"Matchmaking ticket created: {result.Value.matchTicketId}");
             _matchmakingV2TicketId = result.Value.matchTicketId;
             CheckMatchmakingV2Status();
-            OnMatchFound += JoinSession;
+            OnMatchFound += OnStartJoinSession;
             OnServerTimeout += server => resultCallback?.Invoke(server);
             OnSessionJoined += server => resultCallback?.Invoke(server);
         }
         else
         {
-            Debug.Log($"create matchmaking failed: {result.Error.Message}");
+            Debug.Log($"Failed to create matchmaking : {result.Error.Message}");
         }
         
     }
     
-    private void JoinSession(Result<MatchmakingV2MatchTicketStatus> result)
+    private void OnStartJoinSession(Result<MatchmakingV2MatchTicketStatus> result)
     {
-        if (_matchCanceled)
-        {
-            Debug.Log($"Matchmaking canceled");
-
-            return;
-        }
-        
-        Debug.Log($"start join session JoinSession {result.Value.matchFound}");
+        IsMatchCanceled();
+        Debug.Log($"Start to join the session {result.Value.matchFound}");
         _matchmakingV2Session.JoinGameSession(_sessionId, OnJoinGameSession);
 
     }
 
     public void CheckMatchmakingV2Status()
     {
-        if (_matchCanceled)
-        {
-            Debug.Log($"Matchmaking canceled");
-            CancelInvoke(nameof(CheckMatchmakingV2Status));
-            return;
-        }
+        IsMatchCanceled(() => CancelInvoke(nameof(CheckMatchmakingV2Status)));
+
         _matchmakingV2.GetMatchmakingTicket(_matchmakingV2TicketId, OnGetMatchmakingV2Status);
     }
     
     private void CheckGameSessionDetail()
     {
-        if (_matchCanceled)
-        {
-            Debug.Log($"Matchmaking canceled");
-            CancelInvoke(nameof(CheckGameSessionDetail));
-
-            return;
-        }
+        IsMatchCanceled(() => CancelInvoke(nameof(CheckGameSessionDetail)));
         
         _matchmakingV2Session.GetGameSessionDetailsBySessionId(_sessionId, OnSessionV2Callback);
     }
@@ -178,19 +151,15 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
     
     private void OnGetMatchmakingV2Status(Result<MatchmakingV2MatchTicketStatus> result)
     {
-        if (_matchCanceled)
-        {
-            Debug.Log($"Matchmaking canceled");
+        IsMatchCanceled();
 
-            return;
-        }
-        
         if (!result.IsError)
         {
             Debug.Log(JsonUtility.ToJson(result.Value));
             if (result.Value.matchFound)
             {
                 _sessionId = result.Value.sessionId;
+                Debug.Log($"Success to find a match, matchfound status: {result.Value.matchFound}");
                 OnMatchFound?.Invoke(result);
             }
             else
@@ -231,12 +200,8 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
     
     private void OnSessionV2Callback(Result<SessionV2GameSession> result)
     {
-        if (_matchCanceled)
-        {
-            Debug.Log($"Matchmaking canceled");
+        IsMatchCanceled();
 
-            return;
-        }
         if (result.IsError)
         {
             Debug.Log($"get game session error 'OnSessionV2Callback': {result.Error.Message}");
@@ -272,20 +237,29 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
 
     }
 
+    private void IsMatchCanceled(Action function = null)
+    {
+        if (_matchCanceled)
+        {
+            Debug.LogWarning($"Matchmaking canceled from IsMatchCanceled");
+            function?.Invoke();
+            return;
+        }
+    }
+
     private void OnCancelMatchCompleted(Result result, ResultCallback  customCallback = null)
     {
         if (!result.IsError)
         {
-            Debug.Log($"success delete ticket");
+            Debug.Log($"Success to delete the ticket.");
             _matchCanceled = true;
         }
         else
         {
-            Debug.Log($"failed delete matchmaking ticket. Message: {result.Error.Message}");
+            Debug.Log($"Failed to delete matchmaking ticket. Message: {result.Error.Message}");
         }
         
         customCallback?.Invoke(result);
-
     }
 
     private void LeaveSession()
@@ -305,18 +279,19 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
 
         }
     }
+
+    private void OnBackfillProposalReceived()
+    {
+        
+    }
     
-    private void DeregisterServer()
+    private void UnRegisterServer()
     {
         bool isLocal = ConnectionHandler.GetArgument();
-
-        Debug.Log("start DeregisterServer");
         
         if (isLocal)
         {
-            Debug.Log("Deregister Local Server to DSM");
-
-            // Deregister Local Server to DSM
+            // Deregister Local Server from AMS
             _dedicatedServerManager.DeregisterLocalServer(result =>
             {
                 if (result.IsError)
@@ -333,9 +308,7 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
         }
         else
         {
-            Debug.Log("Shutdown Server to DSM");
-
-            // Shutdown Server to DSM
+            // Shutdown Server from AMS
             _dedicatedServerManager.ShutdownServer(true, result =>
             {
                 if (result.IsError)
