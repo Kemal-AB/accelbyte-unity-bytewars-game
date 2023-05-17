@@ -21,22 +21,22 @@ public class CloudSaveHelper : MonoBehaviour
         // get cloud save's wrapper
         _cloudSaveWrapper = TutorialModuleManager.Instance.GetModuleClass<CloudSaveEssentialsWrapper>();
 
-        OptionsMenu.onOptionsMenuActivated += (musicVolume, sfxVolume) => GetGameOptions(musicVolume, sfxVolume);
+        // initialize dictionary with volume values stored in PlayerPrefs
+        volumeSettings = new Dictionary<string, object>()
+        {
+            {MUSICVOLUME_ITEMNAME, AudioManager.Instance.GetCurrentVolume(AudioManager.AudioType.MusicAudio)},
+            {SFXVOLUME_ITEMNAME, AudioManager.Instance.GetCurrentVolume(AudioManager.AudioType.SfxAudio)}
+        };
+
+        LoginHandler.onLoginCompleted += tokenData => GetGameOptions();
+        OptionsMenu.onOptionsMenuActivated += (musicVolume, sfxVolume) => GetGameOptions();
         OptionsMenu.onOptionsMenuDeactivated += (musicVolume, sfxVolume) => UpdateGameOptions(musicVolume, sfxVolume);
     }
 
     #region Game Options Getter Setter Function
 
-    public void GetGameOptions(float musicVolume, float sfxVolume)
+    public void GetGameOptions()
     {
-        if (volumeSettings == null)
-        {
-            volumeSettings = new Dictionary<string, object>()
-            {
-                {MUSICVOLUME_ITEMNAME, musicVolume},
-                {SFXVOLUME_ITEMNAME, sfxVolume}
-            };
-        }
         _cloudSaveWrapper.GetUserRecord(GAMEOPTIONS_RECORDKEY, OnGetGameOptionsCompleted);
     }
 

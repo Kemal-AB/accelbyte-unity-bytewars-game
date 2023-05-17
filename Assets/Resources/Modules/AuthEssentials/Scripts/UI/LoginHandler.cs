@@ -21,13 +21,7 @@ public class LoginHandler : MenuCanvas
     public static event LoginHandlerDelegate onLoginCompleted = delegate {};
     
     private AuthEssentialsWrapper _authWrapper;
-    private CloudSaveEssentialsWrapper _cloudSaveWrapper;
     private LoginType _lastLoginMethod;
-
-    // player record key and configurations
-    private const string GAMEOPTIONS_RECORDKEY = "GameOptions-Sound";
-    private const string MUSICVOLUME_ITEMNAME = "musicvolume";
-    private const string SFXVOLUME_ITEMNAME = "sfxvolume";
     
     #region LoginView enum
     public enum LoginView
@@ -71,7 +65,6 @@ public class LoginHandler : MenuCanvas
     {
         // get auth's subsystem
         _authWrapper = TutorialModuleManager.Instance.GetModuleClass<AuthEssentialsWrapper>();
-        _cloudSaveWrapper = TutorialModuleManager.Instance.GetModuleClass<CloudSaveEssentialsWrapper>();
     }
 
     private void OnEnable()
@@ -91,11 +84,6 @@ public class LoginHandler : MenuCanvas
         _authWrapper.Login(loginMethod, OnLoginCompleted);
     }
 
-    private void GetGameOptions()
-    {
-        _cloudSaveWrapper.GetUserRecord(GAMEOPTIONS_RECORDKEY, OnGetGameOptionsCompleted);
-    }
-
     private void OnLoginCompleted(Result<TokenData, OAuthError> result)
     {
         if (!result.IsError)
@@ -104,37 +92,11 @@ public class LoginHandler : MenuCanvas
             
             MenuManager.Instance.ChangeToMenu(AssetEnum.MainMenuCanvas);
             Debug.Log(MultiRegistry.GetApiClient().session.UserId);
-            
-            // Get player settings from Cloud Save
-            TutorialModuleData cloudSaveEssentials = TutorialModuleManager.Instance.GetModule(TutorialType.CloudSaveEssentials);
-            if (cloudSaveEssentials.isActive)
-            {
-                GetGameOptions();
-            }
         }
         else
         {
             failedMessageText.text = "Login Failed: "  + result.Error.error;
             CurrentView = LoginView.LoginFailed;
-        }
-    }
-
-    private void OnGetGameOptionsCompleted(Result<UserRecord> result)
-    {
-        if (!result.IsError)
-        {
-            foreach (KeyValuePair<string, object> recordData in result.Value.value)
-            {
-                if (recordData.Key == MUSICVOLUME_ITEMNAME)
-                {
-                    AudioManager.Instance.SetMusicVolume(Convert.ToSingle(recordData.Value));
-                }
-
-                if (recordData.Key == SFXVOLUME_ITEMNAME)
-                {
-                    AudioManager.Instance.SetSfxVolume(Convert.ToSingle(recordData.Value));
-                }
-            }
         }
     }
 
