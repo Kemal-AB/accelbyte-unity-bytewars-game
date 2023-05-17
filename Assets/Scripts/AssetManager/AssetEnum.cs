@@ -36,6 +36,7 @@ public enum AssetEnum
       FindingMatchPanel,
       JoiningMatchPanel,
       LoadingAnimation,
+      QuickPlayMenuCanvas_Starter,
       MemberNameText,
       RoleGroupPanel,
       OptionsSliderPanel,
