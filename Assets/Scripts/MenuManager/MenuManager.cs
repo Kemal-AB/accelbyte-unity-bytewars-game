@@ -266,6 +266,7 @@ public class MenuManager : MonoBehaviour
             
             if (!check.Equals(true))
             {
+                //TODO: initialize ags sdk
                 _currentMainMenu.gameObject.SetActive(false);
                 _currentMainMenu = _menusDictionary[AssetEnum.LoadingMenuCanvas];;
                 _currentMainMenu.gameObject.SetActive(true);
