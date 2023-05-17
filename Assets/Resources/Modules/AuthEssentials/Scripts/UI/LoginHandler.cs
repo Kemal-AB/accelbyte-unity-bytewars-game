@@ -22,7 +22,7 @@ public class LoginHandler : MenuCanvas
     
     private AuthEssentialsWrapper _authWrapper;
     private LoginType _lastLoginMethod;
-    
+
     #region LoginView enum
     public enum LoginView
     {
@@ -60,7 +60,7 @@ public class LoginHandler : MenuCanvas
     }
 
     #endregion
-
+    
     private void Start()
     {
         // get auth's subsystem
@@ -91,7 +91,6 @@ public class LoginHandler : MenuCanvas
             onLoginCompleted.Invoke(result.Value);
             
             MenuManager.Instance.ChangeToMenu(AssetEnum.MainMenuCanvas);
-            Debug.Log(MultiRegistry.GetApiClient().session.UserId);
         }
         else
         {
