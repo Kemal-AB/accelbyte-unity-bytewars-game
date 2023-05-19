@@ -11,9 +11,9 @@ using UnityEngine.UI;
 public class MatchLobbyMenu : MenuCanvas
 {
     [SerializeField] private PlayerEntry[] _playersEntries;
-    public Button backButton;
-    public Button inviteFriendsButton;
-    public Button startButton;
+    [SerializeField] private Button quitButton;
+    [SerializeField] private Button inviteFriendsButton;
+    [SerializeField] private Button startButton;
     private ulong _clientNetworkId;
     private Dictionary<int, TeamState> _teamStates;
     private Dictionary<ulong, PlayerState> _playerStates;
