@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 
 public class MatchLobbyMenu : MenuCanvas
 {
-    [SerializeField] private PlayerLobby[] _playersLobby;
+    [SerializeField] private PlayerEntry[] _playersEntries;
     public Button backButton;
     public Button inviteFriendsButton;
     public Button startButton;
@@ -41,19 +42,19 @@ public class MatchLobbyMenu : MenuCanvas
 
     private void Init()
     {
-        foreach (var playerLobby in _playersLobby)
+        foreach (var playerEntry in _playersEntries)
         {
-            playerLobby.gameObject.SetActive(false);
+            playerEntry.gameObject.SetActive(false);
         }
     }
     public void SpawnPlayer(TeamState teamState, PlayerState playerState, bool isCurrentPlayer)
     {
-        foreach (var playerLobby in _playersLobby)
+        foreach (var playerEntry in _playersEntries)
         {
-            if (!playerLobby.gameObject.activeSelf)
+            if (!playerEntry.gameObject.activeSelf)
             {
-                playerLobby.Set(teamState, playerState, isCurrentPlayer);
-                playerLobby.gameObject.SetActive(true);
+                playerEntry.Set(teamState, playerState, isCurrentPlayer);
+                playerEntry.gameObject.SetActive(true);
                 break;
             }
         }
