@@ -18,6 +18,9 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
     private static bool _matchCanceled = false;
     private Session _matchmakingV2Session;
     private static DedicatedServerManager _dedicatedServerManager;
+    private ServerDSHub _serverDSHub;
+    private ServerMatchmakingV2 _matchmakingV2Server;
+    private bool _isGameStarted = false;
 
     public event Action<Result<MatchmakingV2MatchTicketStatus>> OnMatchFound;
     public event Action<Result<SessionV2GameSession>> OnSessionJoined;
@@ -29,62 +32,21 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
         _matchmakingV2 = MultiRegistry.GetApiClient().GetMatchmakingV2();
         _matchmakingV2Session = MultiRegistry.GetApiClient().GetSession();
         _dedicatedServerManager = MultiRegistry.GetServerApiClient().GetDedicatedServerManager();
+        _matchmakingV2Server = MultiRegistry.GetServerApiClient().GetMatchmakingV2();
+        _serverDSHub = MultiRegistry.GetServerApiClient().GetDsHub();
 
         GameManager.Instance.OnClientLeaveSession += LeaveSession;
         GameManager.Instance.OnDeregisterServer += UnRegisterServer;
         GameManager.Instance.OnRegisterServer += LoginAndRegisterServer;
-    }
-    
-    private void LoginAndRegisterServer()
-    {
-        AccelByteServerPlugin.GetDedicatedServer().LoginWithClientCredentials(result =>
-        {
-            if (result.IsError)
-            {
-                // If we error, grab the Error Code and Message to print in the Log
-                Debug.Log($"Server login failed : {result.Error.Code}: {result.Error.Message}");
-                Application.Quit();
-            }
-            else
-            {
-                Debug.Log("Server login successful");
-                RegisterServer();
-            }
-        });
-    }
-
-    private void RegisterServer()
-    {
-        bool isLocal = ConnectionHandler.GetArgument();
+        GameManager.Instance.OnRejectBackfill += OnBackfillRejected;
         
-        if (!isLocal)
-        {
-            // Register Server to DSM
-            _dedicatedServerManager.RegisterServer((int)ConnectionHandler.LocalPort, registerResult =>
-            {
-                Debug.Log(
-                    registerResult.IsError 
-                        ? "Register Server to DSM failed" 
-                        : "Register Server to DSM successful");
-            });
-        }
-        else
-        {
-            string ip = ConnectionHandler.LocalServerIP;
-            string name = ConnectionHandler.LocalServerName;
-            uint portNumber = Convert.ToUInt32(ConnectionHandler.LocalPort);
-            
-            // Register Local Server to DSM
-            _dedicatedServerManager.RegisterLocalServer(ip, portNumber, name, registerResult =>
-            {
-                Debug.Log(registerResult.IsError
-                    ? "Register Local Server to DSM failed"
-                    : "Register Local Server to DSM successful");
-            });
-        }
     }
 
-    public void StartMatchmaking(string matchPoolName, ResultCallback<SessionV2GameSession> resultCallback)
+    #region ClientSide
+
+    #region MatchmakingRelatedCode
+
+        public void StartMatchmaking(string matchPoolName, ResultCallback<SessionV2GameSession> resultCallback)
     {
         if (_matchCanceled)
         {
@@ -280,9 +242,64 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
         }
     }
 
-    private void OnBackfillProposalReceived()
+    #endregion
+
+    #endregion
+    
+    #region ServerSideCode
+
+    #region ServerRegistrationRelatedCode
+
+    private void LoginAndRegisterServer()
     {
+        AccelByteServerPlugin.GetDedicatedServer().LoginWithClientCredentials(result =>
+        {
+            if (result.IsError)
+            {
+                // If we error, grab the Error Code and Message to print in the Log
+                Debug.Log($"Server login failed : {result.Error.Code}: {result.Error.Message}");
+                Application.Quit();
+            }
+            else
+            {
+                Debug.Log("Server login successful");
+                RegisterServer();
+                ConnectAndListenDSHubNotification();
+            }
+        });
+    }
+
+    private void RegisterServer()
+    {
+        bool isLocal = ConnectionHandler.GetArgument();
         
+        if (!isLocal)
+        {
+            // Register Server to DSM
+            _dedicatedServerManager.RegisterServer((int)ConnectionHandler.LocalPort, registerResult =>
+            {
+                Debug.Log(
+                    registerResult.IsError 
+                        ? "Register Server to DSM failed" 
+                        : "Register Server to DSM successful");
+
+            });
+        }
+        else
+        {
+            string ip = ConnectionHandler.LocalServerIP;
+            string name = ConnectionHandler.LocalServerName;
+            uint portNumber = Convert.ToUInt32(ConnectionHandler.LocalPort);
+            
+            // Register Local Server to DSM
+            _dedicatedServerManager.RegisterLocalServer(ip, portNumber, name, registerResult =>
+            {
+                Debug.Log(registerResult.IsError
+                    ? "Register Local Server to DSM failed"
+                    : "Register Local Server to DSM successful");
+
+            });
+        }
     }
     
     private void UnRegisterServer()
@@ -324,5 +341,79 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
             });
         }    
     }
+
+    #endregion
+    
+    #region BackFillRelatedCode
+
+    private void ConnectAndListenDSHubNotification()
+    {
+        _serverDSHub.OnConnected += () =>
+        {
+            Debug.Log($"Login TO DSHUB");
+        };
+
+        _serverDSHub.MatchmakingV2ServerClaimed += (Result<ServerClaimedNotification> result) =>
+        {
+            if (!result.IsError)
+            {
+                var serverSession = result.Value.sessionId;
+                Debug.Log($"Server Claimed and Assigned to sessionId = {serverSession}");
+            }
+        };
+
+        _serverDSHub.MatchmakingV2BackfillProposalReceived += (Result<MatchmakingV2BackfillProposalNotification> result) =>
+        {
+            if (!result.IsError)
+            {
+                if (!_isGameStarted)
+                {
+                    Debug.Log($"_isGameStarted {_isGameStarted}");
+                    OnBackfillProposalReceived(result.Value, _isGameStarted );
+                    Debug.Log($"Start back-filling process {result.Value.matchSessionId}");
+
+                }
+                else
+                {
+                    OnBackfillProposalRejected(result.Value);
+                }
+            }
+        };
+
+        // server must be registered first to DSMC to have a ServerName
+        string serverName = _dedicatedServerManager.ServerName;
+        _serverDSHub.Connect(serverName);
+    }
+    
+
+    private void OnBackfillProposalReceived(MatchmakingV2BackfillProposalNotification proposal, bool isStopBackfilling)
+    {
+        _matchmakingV2Server.AcceptBackfillProposal(proposal, isStopBackfilling, result =>
+        {
+            if (!result.IsError)
+            {
+                Debug.Log($"Backfill accepted {!isStopBackfilling}");
+            }
+        });
+    }
+
+    private void OnBackfillRejected()
+    {
+        _isGameStarted = true;
+    }
+    private void OnBackfillProposalRejected(MatchmakingV2BackfillProposalNotification proposal)
+    {
+        _matchmakingV2Server.RejectBackfillProposal(proposal, true, result =>
+        {
+            if (!result.IsError)
+            {
+                Debug.Log($"Backfill rejected- Game already started");
+            }
+        });
+    }
+
+    #endregion
+    
+    #endregion
 }
 
