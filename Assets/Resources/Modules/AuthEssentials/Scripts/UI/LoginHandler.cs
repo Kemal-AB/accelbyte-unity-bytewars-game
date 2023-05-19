@@ -21,7 +21,7 @@ public class LoginHandler : MenuCanvas
     
     private AuthEssentialsWrapper _authWrapper;
     private LoginType _lastLoginMethod;
-
+        
     #region LoginView enum
     public enum LoginView
     {

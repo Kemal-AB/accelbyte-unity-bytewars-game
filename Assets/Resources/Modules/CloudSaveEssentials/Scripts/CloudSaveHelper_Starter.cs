@@ -12,6 +12,7 @@ public class CloudSaveHelper_Starter : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        LoginHandler.onLoginCompleted += tokenData => {};
         OptionsMenu.onOptionsMenuActivated += (musicVolume, sfxVolume) => {};
         OptionsMenu.onOptionsMenuDeactivated += (musicVolume, sfxVolume) => {};
     }
