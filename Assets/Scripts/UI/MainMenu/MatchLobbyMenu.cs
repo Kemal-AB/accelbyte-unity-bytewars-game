@@ -25,6 +25,12 @@ public class MatchLobbyMenu : MenuCanvas
     private void Start()
     {
         startButton.onClick.AddListener(StartGame);
+        quitButton.onClick.AddListener(LeaveSessionAndQuit);
+    }
+
+    private void LeaveSessionAndQuit()
+    {
+        throw new NotImplementedException();
     }
 
     private void StartGame()
