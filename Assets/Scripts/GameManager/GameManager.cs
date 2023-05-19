@@ -182,6 +182,7 @@ public class GameManager : NetworkBehaviour
         if (isServer && sceneEvent.SceneEventType==SceneEventType.LoadComplete && 
             isGameScene)
         {
+            OnRejectBackfill?.Invoke();
             MenuManager.Instance.CloseMenuPanel();
             if (_objectPooling == null)
                 _objectPooling = new ObjectPooling(_container, _gamePrefabs, _FxPrefabs);
@@ -980,6 +981,7 @@ public class GameManager : NetworkBehaviour
     public event Action OnClientLeaveSession;
     public event Action OnDeregisterServer;
     public event Action OnRegisterServer;
+    public event Action OnRejectBackfill; 
     private async void DeregisterServer()
     {
 #if UNITY_SERVER
