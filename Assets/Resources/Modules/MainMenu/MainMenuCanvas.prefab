@@ -117,6 +117,7 @@ MonoBehaviour:
   playButton: {fileID: 867537189888110524}
   playOnlineBtn: {fileID: 5676985755904903461}
   profileButton: {fileID: 3981638937120910261}
+  leaderboardButton: {fileID: 577762009745449034}
   helpAndOptionsButton: {fileID: 867537189723416779}
   quitButton: {fileID: 867537188822523570}
 --- !u!1 &73831450215799208
@@ -258,6 +259,7 @@ RectTransform:
   - {fileID: 867537189888110525}
   - {fileID: 5676985755904903460}
   - {fileID: 3981638937120910260}
+  - {fileID: 577762009745449035}
   - {fileID: 867537189723416778}
   - {fileID: 867537188822523571}
   m_Father: {fileID: 73831451679267268}

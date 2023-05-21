@@ -6,6 +6,7 @@ public class MainMenu : MenuCanvas
     [SerializeField] private Button playButton;
     [SerializeField] private Button playOnlineBtn;
     [SerializeField] private Button profileButton;
+    [SerializeField] private Button leaderboardButton;
     [SerializeField] private Button helpAndOptionsButton;
     [SerializeField] private Button quitButton;
 
@@ -19,6 +20,8 @@ public class MainMenu : MenuCanvas
         profileButton.onClick.AddListener(OnProfileButtonPressed);
         helpAndOptionsButton.onClick.AddListener(OnHelpAndOptionsButtonPressed);
         quitButton.onClick.AddListener(OnQuitButtonPressed);
+
+        leaderboardButton.onClick.AddListener(OnLeaderboardButtonClicked);
     }
 
     public void OnPlayButtonPressed()
@@ -70,5 +73,10 @@ public class MainMenu : MenuCanvas
 
         bool isStatsModuleActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.StatsEssentials);
         profileButton.gameObject.SetActive(isStatsModuleActive);
+    }
+
+    public void OnLeaderboardButtonClicked()
+    {
+        MenuManager.Instance.ChangeToMenu(AssetEnum.LeaderboardsMenuCanvas);
     }
 }
