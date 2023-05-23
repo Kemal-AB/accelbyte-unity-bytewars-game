@@ -1,12 +1,15 @@
 //auto generated from AssetNameEnumGenerator
 public enum AssetEnum 
 {
+      TutorialModuleConfig,
       AuthEssentialsAssetConfig,
+      CloudSaveEssentialsAssetConfig,
       InfoMenuCanvas,
       LoadingMenuCanvas,
       MainMenuCanvas,
       MainMenuUiConfig,
-      MatchmakingEssentialAssetConfig,
+      MatchmakingEssentialsAssetConfig,
+      StatEssentialsAssetConfig,
       LoginMenuCanvas,
       LoginMenuCanvas_Starter,
       NotificationCanvas,

@@ -10,9 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c946b292dbcfa2418ef1a2b2e60b8b7, type: 3}
-  m_Name: AuthEssentialsAssetConfig
+  m_Name: StatEssentialsAssetConfig
   m_EditorClassIdentifier: 
-  prefab: {fileID: 1612556656819436589, guid: a952c9a561255ae459f426088209bce8, type: 3}
-  type: 0
+  prefab: {fileID: 0}
+  type: 3
   isActive: 1
-  moduleDependencies: []
+  moduleDependencies:
+  - {fileID: 11400000, guid: 1dc066d616db09145bf7a108bd065296, type: 2}
+  - {fileID: 11400000, guid: 1d5cecf3f35150545ad2ba42c0be2e9d, type: 2}
