@@ -74,7 +74,6 @@ public static class TutorialModuleOverride
         if (_overrideModule != null)
         {
             Debug.Log($"{_overrideModule.name} it's a dependency module ");
-            Debug.Log(_overrideModule.moduleDependencies.Length);
             return true;
         }
 
