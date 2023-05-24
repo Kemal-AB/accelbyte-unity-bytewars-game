@@ -27,7 +27,7 @@ public class TutorialModuleDataEditor : Editor
         // _overrideStatus = TutorialModuleOverride.OverrideDependencyModules(_moduleDependencies.serializedObject.targetObject);
         _overrideStatus = TutorialModuleOverride.OverrideModules();
         _isDependencyModule = TutorialModuleOverride.IsDependency(Selection.activeObject.name);
-        Debug.Log($"is this CA dependant {TutorialModuleOverride.IsDependency(Selection.activeObject.name)}");
+        Debug.Log($"is this CA dependant {_isDependencyModule}");
     }
 
     public override void OnInspectorGUI()

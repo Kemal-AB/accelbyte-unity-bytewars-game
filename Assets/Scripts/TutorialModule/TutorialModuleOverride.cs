@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -63,7 +64,7 @@ public static class TutorialModuleOverride
         return _overrideModule.name == Selection.activeObject.name ? true : false;
     }
 
-    public static bool IsDependency(string name)
+    public static bool IsDependency(string selectedAssetConfig)
     {
         if (_overrideModule != null)
         {
@@ -71,12 +72,19 @@ public static class TutorialModuleOverride
             if (_overrideModule.moduleDependencies.Length > 0)
             {
                 return _overrideModule.moduleDependencies
-                    .Any(x => x.name == name 
-                              || x.moduleDependencies.Any(y => y.name == name));
+                .Any(x => x.moduleDependencies != null 
+                          && ((x.moduleDependencies != null && x.name == selectedAssetConfig) 
+                              || x.moduleDependencies.Any(y => y.moduleDependencies != null 
+                                                               && y.name == selectedAssetConfig)));
             }
         }
 
         return false;
+    }
+
+    private static void GrandChildChecker()
+    {
+        
     }
 
     private static string ReadJsonConfig()
