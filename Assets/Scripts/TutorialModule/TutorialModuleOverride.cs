@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
@@ -9,10 +10,10 @@ public static class TutorialModuleOverride
 {
     internal const string FIRST_TIME = "FIRST_TIME"; // the key
 
-    public static string ForcedModule
+    public static string[] ForcedModules
     {
-        get => _forcedModule;
-        set => _forcedModule = value;
+        get => _forcedModules;
+        set => _forcedModules = value;
     }
 
     public static bool IsError
@@ -22,8 +23,9 @@ public static class TutorialModuleOverride
     }
     
     private static TutorialModuleData _overrideModule;
-    private static string _forcedModule;
+    private static string[] _forcedModules;
     private static bool _isError;
+    private static Dictionary<string, TutorialModuleData> _moduleDictionary = new Dictionary<string, TutorialModuleData>();
 
     static TutorialModuleOverride()
     {
@@ -66,63 +68,78 @@ public static class TutorialModuleOverride
 
     public static bool IsDependency(string selectedAssetConfig)
     {
+        Debug.Log($"check if it's a dependency module {selectedAssetConfig}");
+
+        _moduleDictionary.TryGetValue(selectedAssetConfig, out _overrideModule);
         if (_overrideModule != null)
         {
+            Debug.Log($"{_overrideModule.name} it's a dependency module ");
             Debug.Log(_overrideModule.moduleDependencies.Length);
-            if (_overrideModule.moduleDependencies.Length > 0)
-            {
-                return _overrideModule.moduleDependencies
-                .Any(x => x.moduleDependencies != null 
-                          && ((x.moduleDependencies != null && x.name == selectedAssetConfig) 
-                              || x.moduleDependencies.Any(y => y.moduleDependencies != null 
-                                                               && y.name == selectedAssetConfig)));
-            }
+            return true;
         }
 
         return false;
     }
 
-    private static void GrandChildChecker()
-    {
-        
-    }
-
-    private static string ReadJsonConfig()
+    private static string[] ReadJsonConfig()
     {
         var tutorialModuleConfig = (TextAsset)Resources.Load("Modules/TutorialModuleConfig");
         var json = JsonUtility.FromJson<TutorialModuleConfig>(tutorialModuleConfig.text);
-        Debug.Log($"override module {json.moduleName}");
+        Debug.Log($"override module {String.Join(" ",json.modulesName)}");
         Debug.Log($"override status {json.moduleOverrideStatus}");
         if (!json.moduleOverrideStatus)
         {
             return null;
         }
 
-        _forcedModule = json.moduleName;
-        return _forcedModule;
+        _forcedModules = json.modulesName;
+        return _forcedModules;
     }
 
-    public static bool OverrideModules()
+    public static bool OverrideModules(string moduleName)
     {
-        var overridesModuleName = ReadJsonConfig();
-        var module = GetTutorialModuleDataObject(overridesModuleName);
-        if ( module == null)
+        var overrideStatus = false;
+        var overridesModules = ReadJsonConfig();
+        var modulesDictionary = new Dictionary<string, bool>();
+        overridesModules.ToList().ForEach(x =>
         {
-            return false;
-        }
+            var module = GetTutorialModuleDataObject(x);
+            if ( module == null)
+            {
+                overrideStatus = false;
+                return;
+            }
 
-        _overrideModule = module;
-        Debug.Log(_overrideModule.name);
+            _overrideModule = module;
+            if (IsTargetModuleCurrentSelectedModule())
+            {
+                _overrideModule.isActive = true;
+                overrideStatus = SetDependenciesToActive();
+            }
+            else
+            {
+                overrideStatus = false;
+            }
+            
+            modulesDictionary.Add(_overrideModule.name, overrideStatus);
+            _moduleDictionary.TryAdd(_overrideModule.name, _overrideModule);
 
-        if (IsTargetModuleCurrentSelectedModule())
+            CheckDependency(_overrideModule);
+        });
+        modulesDictionary.TryGetValue(moduleName, out overrideStatus);
+        return overrideStatus;
+    }
+
+    private static void CheckDependency(TutorialModuleData moduleData)
+    {
+        foreach (var tutorialModuleData in moduleData.moduleDependencies)
         {
-            _overrideModule.isActive = true;
-            return SetDependenciesToActive();
-        }
-        else
-        {
-            return false;
-        }
+            _moduleDictionary.TryAdd(tutorialModuleData.name, tutorialModuleData);
+            if (tutorialModuleData.moduleDependencies != null)
+            {
+                CheckDependency(tutorialModuleData);
+            }
+        } 
     }
 
     private static bool SetDependenciesToActive()
@@ -143,7 +160,7 @@ public static class TutorialModuleOverride
                         return false;
                     }
 
-                    Debug.Log(dependency.value.name);
+                    Debug.Log($"element {dependency.index} {dependency.value.name}");
                     dependency.value.isActive = true;
                 }
 
@@ -173,52 +190,9 @@ public static class TutorialModuleOverride
     }
 }
 
-
-#region UnusedCode
-//     public static bool OverrideDependencyModules(Object moduleName)
-//     {
-//         ReadJsonConfig();
-//         
-//         Debug.Log($"current selected module {moduleName.name}");
-//
-//         if (moduleName == null)
-//         {
-//             return false;
-//         }
-//             
-//         var modules = (TutorialModuleData)moduleName;
-//         var modulesLength = modules.ModuleDependency.TutorialModuleDatas.Length;
-//         Debug.Log(modulesLength);
-//         if (modulesLength > 1)
-//         {
-//             foreach (var dependency in modules.ModuleDependency.TutorialModuleDatas.Select((value, index) => (value, index)))
-//             {
-//                 if (dependency.value == null)
-//                 {
-//                     Debug.Log($"this element {dependency.index} is null");
-//                     return false;
-//                 }
-//
-//                 
-//                 Debug.Log(dependency.value.name);
-//                 dependency.value.isActive = true;
-//             }
-//
-//             return true;
-//         }
-//         else
-//         {
-//             return false;
-//         }
-//     }
-// }
-    
-
-    #endregion
-    
 public class TutorialModuleConfig
 {
     public bool moduleOverrideStatus;
-    public string moduleName;
+    public string[] modulesName;
 
 }

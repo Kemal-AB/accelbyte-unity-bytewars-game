@@ -25,7 +25,7 @@ public class TutorialModuleDataEditor : Editor
         _isActive = serializedObject.FindProperty("isActive");
         _moduleDependencies = serializedObject.FindProperty("moduleDependencies");
         // _overrideStatus = TutorialModuleOverride.OverrideDependencyModules(_moduleDependencies.serializedObject.targetObject);
-        _overrideStatus = TutorialModuleOverride.OverrideModules();
+        _overrideStatus = TutorialModuleOverride.OverrideModules(Selection.activeObject.name);
         _isDependencyModule = TutorialModuleOverride.IsDependency(Selection.activeObject.name);
         Debug.Log($"is this CA dependant {_isDependencyModule}");
     }
@@ -37,7 +37,7 @@ public class TutorialModuleDataEditor : Editor
         EditorGUILayout.PropertyField(_type);
         EditorGUI.BeginDisabledGroup(_overrideStatus || _isDependencyModule);
         EditorGUILayout.PropertyField(_isActive);
-        EditorGUILayout.PropertyField(_moduleDependencies, new GUIContent("Label Text"), true);
+        EditorGUILayout.PropertyField(_moduleDependencies, true);
         EditorGUI.EndDisabledGroup();
         EditorGUILayout.Space();
         serializedObject.ApplyModifiedProperties();

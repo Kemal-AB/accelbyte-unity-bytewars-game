@@ -1,4 +1,4 @@
 ﻿{
   "moduleOverrideStatus": true,
-  "moduleName": "StatEssentials"
+  "modulesName": ["StatEssentials", "CobaEssentials", "TestEssentials"]
 }

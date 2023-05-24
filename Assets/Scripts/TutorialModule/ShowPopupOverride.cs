@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -16,15 +18,16 @@ public class ShowPopupOverride : EditorWindow
 
     void OnGUI()
     {
-        var moduleName = TutorialModuleOverride.ForcedModule;
+        var modulesName = TutorialModuleOverride.ForcedModules;
+        var modules = String.Join(' ', modulesName);
         if (TutorialModuleOverride.IsError)
         {
-            EditorGUILayout.LabelField($"Check your {moduleName} module, the Asset Config cannot be found ", EditorStyles.wordWrappedLabel);
+            EditorGUILayout.LabelField($"Check your {modules} module, the Asset Config cannot be found ", EditorStyles.wordWrappedLabel);
 
         }
         else
         {
-            EditorGUILayout.LabelField($"Tutorial Module Is Override {moduleName}", EditorStyles.wordWrappedLabel);
+            EditorGUILayout.LabelField($"Tutorial Module Is Override {modules}", EditorStyles.wordWrappedLabel);
         }
         GUILayout.Space(70);
         if (GUILayout.Button("Ok!")) this.Close();
