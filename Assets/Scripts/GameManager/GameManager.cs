@@ -143,7 +143,7 @@ public class GameManager : NetworkBehaviour
                     inGameMode = _inGameMode,
                     sessionId = playerState.sessionId
                 };
-                reconnect.TryReconnect(initialData);
+                // reconnect.TryReconnect(initialData);
                 RemoveConnectedClient(_clientHelper.ClientNetworkId);
             }
         }
