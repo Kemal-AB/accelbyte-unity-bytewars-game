@@ -221,7 +221,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   backButton: {fileID: 5406751274186335520}
   eliminationButton: {fileID: 7614937716666002539}
-  teamDeadmatchButton: {fileID: 8382228949925598942}
+  teamDeathmatchButton: {fileID: 8382228949925598942}
   cancelButton: {fileID: 6853579227091426329}
   okButton: {fileID: 5011818249006759226}
   contentPanel: {fileID: 85849768249186688}

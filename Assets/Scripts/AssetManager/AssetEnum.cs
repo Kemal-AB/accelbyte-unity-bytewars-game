@@ -6,7 +6,7 @@ public enum AssetEnum
       LoadingMenuCanvas,
       MainMenuCanvas,
       MainMenuUiConfig,
-      MatchmakingEssentialAssetConfig,
+      MatchmakingEssentialsAssetConfig,
       LoginMenuCanvas,
       LoginMenuCanvas_Starter,
       NotificationCanvas,

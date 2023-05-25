@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class QuickPlayMenu_Starter : MenuCanvas
+public class QuickPlayMenuHandler_Starter : MenuCanvas
 {
     [SerializeField] private Button backButton;
     [SerializeField] private Button eliminationButton;
@@ -25,6 +25,8 @@ public class QuickPlayMenu_Starter : MenuCanvas
     [SerializeField] private GameObject headerPanel;
     
     private List<GameObject> _panels = new List<GameObject>();
+    
+    //Copy 3a code from connecting-game-mode-selection-ui-with-matchmaking step 1 here
     
     #region QuickPlayView
 
@@ -88,6 +90,8 @@ public class QuickPlayMenu_Starter : MenuCanvas
     // Start is called before the first frame update
     void Start()
     {
+        //Copy 3a code from connecting-game-mode-selection-ui-with-matchmaking step 2 here
+
         _panels = new List<GameObject>()
         {
             contentPanel, 
@@ -97,10 +101,20 @@ public class QuickPlayMenu_Starter : MenuCanvas
             failedPanel
         };
         
+        //Copy 3a code from Ready The UI step 2 here
+
     }
 
+    //Copy 3a code from Ready The UI step 1 here
+    //Modify OnEliminationButtonClicked() from connecting-game-mode-selection-ui-with-matchmaking step 3
+    //Modify OnCancelMatchmakingClicked()() from connecting-game-mode-selection-ui-with-matchmaking step 5
+    
 
-
+    //Copy 3a code from connecting-game-mode-selection-ui-with-matchmaking step 4
+    
+    
+    //Copy 3a code from connecting-game-mode-selection-ui-with-matchmaking step 6
+    
     public override GameObject GetFirstButton()
     {
         return eliminationButton.gameObject;

@@ -8,11 +8,11 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class QuickPlayMenu : MenuCanvas
+public class QuickPlayMenuHandler : MenuCanvas
 {
     [SerializeField] private Button backButton;
     [SerializeField] private Button eliminationButton;
-    [SerializeField] private Button teamDeadmatchButton;
+    [SerializeField] private Button teamDeathmatchButton;
     [SerializeField] private Button cancelButton;
     [SerializeField] private Button okButton;
     
@@ -94,7 +94,7 @@ public class QuickPlayMenu : MenuCanvas
         _matchmakingEssentialsWrapper.OnMatchFound += ChangeLoading;
 
         eliminationButton.onClick.AddListener(OnEliminationButtonClicked);
-        teamDeadmatchButton.onClick.AddListener(OnTeamDeadmatchButtonClicked);
+        teamDeathmatchButton.onClick.AddListener(OnTeamDeathmatchButtonClicked);
         backButton.onClick.AddListener(MenuManager.Instance.OnBackPressed);
         cancelButton.onClick.AddListener(OnCancelMatchmakingClicked);
         okButton.onClick.AddListener(OnOkFailedButtonClicked);
@@ -125,7 +125,7 @@ public class QuickPlayMenu : MenuCanvas
     private void OnEliminationButtonClicked()
     {
         currentView = QuickPlayView.FindingMatch;
-        _matchmakingEssentialsWrapper.StartMatchmaking("elimination_unity", OnMatchmakingCreated);
+        _matchmakingEssentialsWrapper.StartMatchmaking("elimination", OnMatchmakingCreated);
     }
 
     private void OnMatchmakingCreated(Result<SessionV2GameSession> result)
@@ -136,9 +136,8 @@ public class QuickPlayMenu : MenuCanvas
         
             if (result.Value.dsInformation.status == SessionV2DsStatus.AVAILABLE)
             {
-                Debug.Log(result.Value.dsInformation.server.ports["unityds"]);
                 GameManager.Instance
-                    .StartAsClient(result.Value.dsInformation.server.ip, (ushort)result.Value.dsInformation.server.ports["unityds"], 
+                    .StartAsClient(result.Value.dsInformation.server.ip, (ushort)result.Value.dsInformation.server.port, 
                         InGameMode.OnlineEliminationGameMode);
             }
             else
@@ -170,11 +169,11 @@ public class QuickPlayMenu : MenuCanvas
         }
         else
         {
-            Debug.Log($"Is Canceled error {result.IsError}, {result.Error.Message}");
+            Debug.Log($"Cannot cancel matchmaking, error = {result.IsError}, {result.Error.Message}");
         }
     }
 
-    private void OnTeamDeadmatchButtonClicked()
+    private void OnTeamDeathmatchButtonClicked()
     {
         currentView = QuickPlayView.FindingMatch;
         _matchmakingEssentialsWrapper.StartMatchmaking("teamdeathmatch_unity", OnTeamDeathMatchMatchmakingFinished);
