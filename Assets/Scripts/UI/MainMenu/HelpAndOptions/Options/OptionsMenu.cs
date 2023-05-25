@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -12,6 +13,11 @@ public class OptionsMenu : MenuCanvas
     [SerializeField] private TMP_Text sfxVolumeText;
     [SerializeField] private Button backButton;
 
+    public delegate void OptionsMenuDelegate(float musicVolume, float sfxVolume);
+
+    public static event OptionsMenuDelegate onOptionsMenuActivated = delegate {};
+    public static event OptionsMenuDelegate onOptionsMenuDeactivated = delegate {};
+
     void Start()
     {
         // Initialize options value based on PlayerPrefs stored in AudioManager
@@ -19,11 +25,27 @@ public class OptionsMenu : MenuCanvas
         sfxVolumeSlider.value = AudioManager.Instance.GetCurrentVolume(AudioManager.AudioType.SfxAudio);
         ChangeMusicVolume(musicVolumeSlider.value);
         ChangeSfxVolume(sfxVolumeSlider.value);
-        
+
         // UI Initialization
         musicVolumeSlider.onValueChanged.AddListener(volume => ChangeMusicVolume(volume));
         sfxVolumeSlider.onValueChanged.AddListener(volume => ChangeSfxVolume(volume));
         backButton.onClick.AddListener(() => MenuManager.Instance.OnBackPressed());
+    }
+
+    void OnEnable()
+    {
+        if (gameObject.activeSelf)
+        {
+            musicVolumeSlider.value = AudioManager.Instance.GetCurrentVolume(AudioManager.AudioType.MusicAudio);
+            sfxVolumeSlider.value = AudioManager.Instance.GetCurrentVolume(AudioManager.AudioType.SfxAudio);
+
+            onOptionsMenuActivated.Invoke(musicVolumeSlider.value, sfxVolumeSlider.value);
+        }
+    }
+
+    private void OnDisable()
+    {
+        onOptionsMenuDeactivated.Invoke(musicVolumeSlider.value, sfxVolumeSlider.value);
     }
 
     private void ChangeMusicVolume(float musicVolume)
@@ -40,6 +62,19 @@ public class OptionsMenu : MenuCanvas
 
         int sfxVolumeInt = (int)(sfxVolume * 100);
         sfxVolumeText.text = sfxVolumeInt.ToString() + "%";
+    }
+
+    public void ChangeVolumeSlider(AudioManager.AudioType audioType, float volumeValue)
+    {
+        switch (audioType)
+        {
+            case AudioManager.AudioType.MusicAudio:
+                musicVolumeSlider.value = volumeValue;
+                break;
+            case AudioManager.AudioType.SfxAudio:
+                sfxVolumeSlider.value = volumeValue;
+                break;
+        }
     }
 
     public override GameObject GetFirstButton()
