@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AccelByte.Core;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
@@ -27,6 +28,9 @@ public class GameManager : NetworkBehaviour
     private MenuManager _menuManager;
     private Dictionary<string, GameEntityAbs> _gamePrefabDict = new Dictionary<string, GameEntityAbs>();
 
+    public delegate void GameOverDelegate(GameModeEnum gameMode, List<PlayerState> playerStates);
+    public static event GameOverDelegate onGameOver = delegate {};
+    
     [SerializeField]
     private Transform _container;
 
@@ -825,6 +829,8 @@ public class GameManager : NetworkBehaviour
                 _hud.gameObject.SetActive(false);
                 break;
             case InGameState.GameOver:
+                onGameOver.Invoke(_gameMode, ConnectedPlayerStates.Values.ToList());
+                
                 _serverHelper.CancelCountdown();
                 if (NetworkManager.Singleton.IsListening)
                 {
@@ -966,9 +972,19 @@ public class GameManager : NetworkBehaviour
     {
         //client side, because the previous playerState only exists in server, clientrpc is called on client
         Debug.Log($"update player state lobby playerState count:{playerStates.Length} teamState count:{teamStates.Length}");
+
+        foreach (PlayerState playerState in playerStates)
+        {
+            if (playerState.clientNetworkId == NetworkManager.Singleton.LocalClientId)
+            {
+                playerState.playerId = MultiRegistry.GetApiClient().session.UserId;
+            }
+        }
+        
         _serverHelper.UpdatePlayerStates(teamStates, playerStates);
         _inGameMode = inGameMode;
         GameData.GameModeSo = availableInGameMode[(int)inGameMode];
+        
         if (!isInGameScene)
         {
             var lobby = (MatchLobbyMenu)_menuManager.ChangeToMenu(AssetEnum.MatchLobbyMenuCanvas);

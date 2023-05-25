@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using AccelByte.Api;
 using AccelByte.Core;
 using AccelByte.Models;
 using TMPro;
@@ -33,6 +34,11 @@ public class StatsHandler : MenuCanvas
         // UI initialization
         backButton.onClick.AddListener(OnBackButtonClicked);
 		
+        // set default values
+        singlePlayerStatValueText.text = "0";
+        eliminationStatValueText.text = "0";
+        teamDeathmatchStatValueText.text = "0";
+        
         DisplayStats();
     }
 
@@ -42,24 +48,10 @@ public class StatsHandler : MenuCanvas
         {
             DisplayStats();
         }
-
-        // GameOverScreenController.OnGameOver += playerState =>
-        // {
-        //     UpdateUserStats(playerState);
-        // };
-        // InGameGameMode.OnGameOverState += () =>
-        // {
-        //     UpdateAllUsersStats();
-        // };
     }
 
     private void DisplayStats()
     {
-        // set default values
-        singlePlayerStatValueText.text = "0";
-        eliminationStatValueText.text = "0";
-        teamDeathmatchStatValueText.text = "0";
-        
         // trying to get the stats values
         string[] statCodes =
         {
@@ -69,40 +61,7 @@ public class StatsHandler : MenuCanvas
         };
         _statsWrapper.GetUserStatsFromClient(statCodes, null, OnGetUserStatsCompleted);
     }
-	
-    private void UpdateUserStats(PlayerState playerState)
-    {
-        StatsEssentialsWrapper statsEssentialsWrapper = TutorialModuleManager.Instance.GetModuleClass<StatsEssentialsWrapper>();
-        statsEssentialsWrapper.UpdateUserStatsFromClient(SINGLEPLAYER_STATCODE, playerState.score, "", OnUpdateUserStatsCompleted);
-    }
-    
-    private void UpdateAllUsersStats()
-    {
-        // update statistic from server
-        // if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.MULTI_PLAYER)
-        // {
-        //     if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.ELIMINATION)
-        //     {
-        //         UpdateUserStats(ELIMINATION_STATCODE);
-        //     }
-        //     else if (GameDirector.Instance.GameMode == GameDirector.E_GameMode.TEAMDEATHMATCH)
-        //     {
-        //         UpdateUserStats(TEAMDEATHMATCH_STATCODE);
-        //     }
-        // }
-        
-        // foreach (var player in GetGameState().m_players)
-        // {
-        //     PlayerState playerState = player.GetPlayerState();
-        //     Dictionary<string, float> statItems = new Dictionary<string, float>()
-        //     {
-        //         {multiplayerMode, playerState.m_playerScore}
-        //     };
-        //     
-        //     statsEssentialsWrapper.UpdateUserStatsFromServer(player.userId, statItems, "", null);
-        // }
-    }
-    
+
     private void OnGetUserStatsCompleted(Result<PagedStatItems> result)
     {
         if (!result.IsError){
@@ -125,14 +84,6 @@ public class StatsHandler : MenuCanvas
         }
     }
 
-    private void OnUpdateUserStatsCompleted(Result<UpdateUserStatItemValueResponse> result)
-    {
-        if (!result.IsError)
-        {
-            Debug.Log($"Player's {SINGLEPLAYER_STATCODE} stat value updated!");
-        }
-    }
-	
     private void OnBackButtonClicked()
     {
         MenuManager.Instance.OnBackPressed();
