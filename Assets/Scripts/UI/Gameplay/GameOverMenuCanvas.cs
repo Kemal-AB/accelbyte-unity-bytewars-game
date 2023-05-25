@@ -21,11 +21,16 @@ public class GameOverMenuCanvas : MenuCanvas
 
     private void Start()
     {
-        playAgainBtn.onClick.AddListener(GameManager.Instance.RestartLocalGame);
-        quitBtn.onClick.AddListener(OnClickQuitBtn);
+        playAgainBtn.onClick.AddListener(OnPlayAgainButtonClicked);
+        quitBtn.onClick.AddListener(OnQuitButtonClicked);
     }
 
-    private void OnClickQuitBtn()
+    private void OnPlayAgainButtonClicked()
+    {
+        GameManager.Instance.RestartLocalGame();
+    }
+
+    private void OnQuitButtonClicked()
     {
         GameManager.Instance.QuitToMainMenu();
     }

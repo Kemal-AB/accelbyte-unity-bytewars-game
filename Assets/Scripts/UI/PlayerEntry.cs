@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerLobby : MonoBehaviour
+public class PlayerEntry : MonoBehaviour
 {
     [SerializeField] private Image shipAvatar;
 
@@ -16,7 +16,7 @@ public class PlayerLobby : MonoBehaviour
         shipName.color = teamState.teamColour;
         if (isCurrentPlayer)
         {
-            shipName.text = "You: "+playerState.playerName;
+            shipName.text = $"You: {playerState.playerName}";
         }
         else
         {
