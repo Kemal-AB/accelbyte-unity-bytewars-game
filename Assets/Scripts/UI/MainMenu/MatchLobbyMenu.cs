@@ -30,7 +30,7 @@ public class MatchLobbyMenu : MenuCanvas
 
     private void LeaveSessionAndQuit()
     {
-        throw new NotImplementedException();
+        GameManager.Instance.QuitToMainMenu();
     }
 
     private void StartGame()
