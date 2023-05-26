@@ -226,7 +226,10 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
 
     private void LeaveSession()
     {
-        _matchmakingV2Session.LeaveGameSession(_sessionId, OnLeaveCompleted);
+        if (_sessionId != null)
+        {
+            _matchmakingV2Session.LeaveGameSession(_sessionId, OnLeaveCompleted);
+        }
     }
 
     private void OnLeaveCompleted(Result<SessionV2GameSession> result)

@@ -125,7 +125,7 @@ public class QuickPlayMenuHandler : MenuCanvas
     private void OnEliminationButtonClicked()
     {
         currentView = QuickPlayView.FindingMatch;
-        _matchmakingEssentialsWrapper.StartMatchmaking("elimination", OnMatchmakingCreated);
+        _matchmakingEssentialsWrapper.StartMatchmaking("elimination_unity", OnMatchmakingCreated);
     }
 
     private void OnMatchmakingCreated(Result<SessionV2GameSession> result)
@@ -136,8 +136,13 @@ public class QuickPlayMenuHandler : MenuCanvas
         
             if (result.Value.dsInformation.status == SessionV2DsStatus.AVAILABLE)
             {
+                int port = ConnectionHandler.LocalPort;
+                if (result.Value.dsInformation.server.ports.Count > 0)
+                {
+                     result.Value.dsInformation.server.ports.TryGetValue("unityds", out port);
+                }
                 GameManager.Instance
-                    .StartAsClient(result.Value.dsInformation.server.ip, (ushort)result.Value.dsInformation.server.port, 
+                    .StartAsClient(result.Value.dsInformation.server.ip, (ushort)port, 
                         InGameMode.OnlineEliminationGameMode);
             }
             else
@@ -188,8 +193,13 @@ public class QuickPlayMenuHandler : MenuCanvas
         
             if (result.Value.dsInformation.status == SessionV2DsStatus.AVAILABLE)
             {
+                int port = ConnectionHandler.LocalPort;
+                if (result.Value.dsInformation.server.ports.Count > 0)
+                {
+                    result.Value.dsInformation.server.ports.TryGetValue("unityds", out port);
+                }
                 GameManager.Instance
-                    .StartAsClient(result.Value.dsInformation.server.ip, (ushort)result.Value.dsInformation.server.ports["unityds"], 
+                    .StartAsClient(result.Value.dsInformation.server.ip, (ushort)port, 
                         InGameMode.OnlineDeathMatchGameMode);
             }
             else
