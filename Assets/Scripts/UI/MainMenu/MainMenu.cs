@@ -5,6 +5,7 @@ public class MainMenu : MenuCanvas
 {
     [SerializeField] private Button playButton;
     [SerializeField] private Button playOnlineBtn;
+    [SerializeField] private Button profileButton;
     [SerializeField] private Button helpAndOptionsButton;
     [SerializeField] private Button quitButton;
 
@@ -17,6 +18,7 @@ public class MainMenu : MenuCanvas
         playOnlineBtn.gameObject.SetActive(isOnlineBtnActive);
         #endif
         playOnlineBtn.onClick.AddListener(OnPlayOnlineButtonPressed);
+        profileButton.onClick.AddListener(OnProfileButtonPressed);
         helpAndOptionsButton.onClick.AddListener(OnHelpAndOptionsButtonPressed);
         quitButton.onClick.AddListener(OnQuitButtonPressed);
     }
@@ -29,6 +31,11 @@ public class MainMenu : MenuCanvas
     public void OnPlayOnlineButtonPressed()
     {
         MenuManager.Instance.ChangeToMenu(AssetEnum.PlayOnlineMenuCanvas);
+    }
+    
+    public void OnProfileButtonPressed()
+    {
+        MenuManager.Instance.ChangeToMenu(AssetEnum.ProfileMenuCanvas);
     }
 
     public void OnHelpAndOptionsButtonPressed()
