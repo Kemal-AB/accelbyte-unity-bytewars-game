@@ -12,8 +12,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c946b292dbcfa2418ef1a2b2e60b8b7, type: 3}
   m_Name: MatchmakingEssentialsAssetConfig
   m_EditorClassIdentifier: 
-  prefab: {fileID: -4880654269033223669, guid: 0044bfe5ec17a4545870d4b878881821, type: 3}
+  defaultMenuUIprefab: {fileID: -4880654269033223669, guid: 0044bfe5ec17a4545870d4b878881821,
+    type: 3}
+  defaultModuleScript: {fileID: 11500000, guid: df60724338be5e943a6abf73dba9a54f,
+    type: 3}
   type: 1
-  isActive: 1
+  isActive: 0
+  starterScript: {fileID: 11500000, guid: 591a27256e57400db50116f3763c0ab2, type: 3}
+  starterMenuUIPrefab: {fileID: 6285418709719393043, guid: f675cd16574ea2045a4f1ca7c86a7b01,
+    type: 3}
+  isStarterActive: 1
   moduleDependencies:
   - {fileID: 11400000, guid: b4c868ff7e72cc840963d5a37178f14d, type: 2}

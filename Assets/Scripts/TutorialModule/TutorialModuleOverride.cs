@@ -5,6 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+#if UNITY_EDITOR
 [InitializeOnLoad]
 public static class TutorialModuleOverride
 {
@@ -27,17 +28,22 @@ public static class TutorialModuleOverride
     private static bool _isError;
     private static Dictionary<string, TutorialModuleData> _moduleDictionary = new Dictionary<string, TutorialModuleData>();
 
+#if UNITY_EDITOR
     static TutorialModuleOverride()
     {
         EditorApplication.update += RunOnce;
         EditorApplication.quitting += Quit;
     }
+#endif
 
     private static void Quit()
     {
         EditorPrefs.DeleteKey(FIRST_TIME);
     }
 
+    /// <summary>
+    /// Method to show window at the firs time open editor
+    /// </summary>
     private static void RunOnce()
     {
         var firstTime = EditorPrefs.GetBool(FIRST_TIME, true);
@@ -46,8 +52,8 @@ public static class TutorialModuleOverride
         {
             if (EditorPrefs.GetBool("FIRST_TIME", true))
             {
-                var IsReadJsonConfig = ReadJsonConfig() != null ? ReadJsonConfig() : null;
-                if (IsReadJsonConfig != null)
+                var isReadJsonConfig = ReadJsonConfig() != null ? ReadJsonConfig() : null;
+                if (isReadJsonConfig != null)
                 {
                     Debug.Log($"first time opened");
                     ShowPopupOverride.Init();
@@ -68,27 +74,47 @@ public static class TutorialModuleOverride
 
     public static bool IsDependency(string selectedAssetConfig)
     {
-        Debug.Log($"check if it's a dependency module {selectedAssetConfig}");
-
+        // Check each asset configs registered in _moduleDictionary
+        // Debug.Log($"check if it's a dependency module {selectedAssetConfig}");
         _moduleDictionary.TryGetValue(selectedAssetConfig, out _overrideModule);
         if (_overrideModule != null)
         {
-            Debug.Log($"{_overrideModule.name} it's a dependency module ");
+            // Debug.Log($"{_overrideModule.name} it's a dependency module ");
             return true;
         }
 
         return false;
     }
 
-    private static string[] ReadJsonConfig()
+    /// <summary>
+    /// Read Json config related to the override modules
+    /// </summary>
+    /// <param name="readFromInspector"></param>
+    /// <param name="startOrChangeConfig"></param>
+    /// <returns></returns>
+    private static string[] ReadJsonConfig(bool readFromInspector = false)
     {
         var tutorialModuleConfig = (TextAsset)Resources.Load("Modules/TutorialModuleConfig");
         var json = JsonUtility.FromJson<TutorialModuleConfig>(tutorialModuleConfig.text);
-        Debug.Log($"override module {String.Join(" ",json.modulesName)}");
-        Debug.Log($"override status {json.moduleOverrideStatus}");
-        if (!json.moduleOverrideStatus)
+        
+        // Check if open asset config from inspector
+        if (!readFromInspector)
         {
-            return null;
+            Debug.Log($"override module {String.Join(" ",json.modulesName)}");
+            Debug.Log($"override status {json.enableModulesOverride}");
+        }
+        if (json.modulesName.Length <= 0)
+        {
+            Debug.Log($"there are no modules override, check length module {json.modulesName.Length}");
+            _forcedModules = null;
+            _isError = true;
+            return _forcedModules;
+        }
+        if (!json.enableModulesOverride)
+        {
+            Debug.Log($"enableModulesOverride status {json.enableModulesOverride}");
+            _forcedModules = null;
+            return _forcedModules;
         }
 
         _forcedModules = json.modulesName;
@@ -97,8 +123,14 @@ public static class TutorialModuleOverride
 
     public static bool OverrideModules(string moduleName)
     {
+        if (_forcedModules == null)
+        {
+            return false;
+        }
+        
+        //TODO: Null checcking on moduleName
         var overrideStatus = false;
-        var overridesModules = ReadJsonConfig();
+        var overridesModules = ReadJsonConfig(readFromInspector:true);
         var modulesDictionary = new Dictionary<string, bool>();
         overridesModules.ToList().ForEach(x =>
         {
@@ -113,6 +145,7 @@ public static class TutorialModuleOverride
             if (IsTargetModuleCurrentSelectedModule())
             {
                 _overrideModule.isActive = true;
+                _overrideModule.isStarterActive = false;
                 overrideStatus = SetDependenciesToActive();
             }
             else
@@ -122,7 +155,7 @@ public static class TutorialModuleOverride
             
             modulesDictionary.Add(_overrideModule.name, overrideStatus);
             _moduleDictionary.TryAdd(_overrideModule.name, _overrideModule);
-
+    
             CheckDependency(_overrideModule);
         });
         modulesDictionary.TryGetValue(moduleName, out overrideStatus);
@@ -161,6 +194,7 @@ public static class TutorialModuleOverride
 
                     Debug.Log($"element {dependency.index} {dependency.value.name}");
                     dependency.value.isActive = true;
+                    dependency.value.isStarterActive = false;
                 }
 
                 return true;
@@ -188,10 +222,12 @@ public static class TutorialModuleOverride
         return AssetDatabase.LoadAssetAtPath<TutorialModuleData>(asset);
     }
 }
+#endif
+
 
 public class TutorialModuleConfig
 {
-    public bool moduleOverrideStatus;
+    public bool enableModulesOverride;
     public string[] modulesName;
 
 }

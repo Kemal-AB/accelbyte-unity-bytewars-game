@@ -255,7 +255,7 @@ public class MenuManager : MonoBehaviour
         InitCoreMenu();
         
         // Check If auth essential active
-        if (allActiveModule.TryGetValue(TutorialType.AuthEssentials, out TutorialModuleData authEssential))
+        if (allActiveModule.TryGetValue(TutorialType.AuthEssentials, out ModuleModel authEssential))
         {
             AssetEnum prefabname = (AssetEnum)System.Enum.Parse(typeof(AssetEnum), authEssential.prefab.name);
             _currentMainMenu = _menusDictionary[prefabname];
@@ -323,7 +323,7 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    private void InitMenuByModules(TutorialModuleData moduleData)
+    private void InitMenuByModules(ModuleModel moduleData)
     {
         var modulePrefab = moduleData.prefab;
         var menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);

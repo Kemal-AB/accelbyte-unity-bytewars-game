@@ -12,7 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c946b292dbcfa2418ef1a2b2e60b8b7, type: 3}
   m_Name: CobaEssentialsAssetConfig
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
-  type: 3
-  isActive: 1
+  defaultMenuUIprefab: {fileID: 0}
+  defaultModuleScript: {fileID: 0}
+  type: 4
+  isActive: 0
+  starterScript: {fileID: 0}
+  starterMenuUIPrefab: {fileID: 0}
+  isStarterActive: 0
   moduleDependencies: []

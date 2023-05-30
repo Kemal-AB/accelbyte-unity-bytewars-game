@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
 public class ShowPopupOverride : EditorWindow
 {
     
@@ -19,7 +20,7 @@ public class ShowPopupOverride : EditorWindow
     void OnGUI()
     {
         var modulesName = TutorialModuleOverride.ForcedModules;
-        var modules = String.Join(' ', modulesName);
+        var modules = modulesName != null ? String.Join(' ', modulesName) : "Test";
         if (TutorialModuleOverride.IsError)
         {
             EditorGUILayout.LabelField($"Check your {modules} module, the Asset Config cannot be found ", EditorStyles.wordWrappedLabel);
@@ -33,3 +34,4 @@ public class ShowPopupOverride : EditorWindow
         if (GUILayout.Button("Ok!")) this.Close();
     }
 }
+#endif

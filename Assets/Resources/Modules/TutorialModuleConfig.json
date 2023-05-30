@@ -1,4 +1,4 @@
 ﻿{
-  "moduleOverrideStatus": true,
-  "modulesName": ["StatEssentials", "CobaEssentials", "TestEssentials"]
+  "enableModulesOverride": true,
+  "modulesName": ["MatchmakingEssentials"]
 }

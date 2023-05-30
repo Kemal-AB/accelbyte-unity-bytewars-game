@@ -12,9 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c946b292dbcfa2418ef1a2b2e60b8b7, type: 3}
   m_Name: StatEssentialsAssetConfig
   m_EditorClassIdentifier: 
-  prefab: {fileID: 0}
-  type: 3
-  isActive: 1
+  defaultMenuUIprefab: {fileID: 0}
+  defaultModuleScript: {fileID: 0}
+  type: 2
+  isActive: 0
+  starterScript: {fileID: 0}
+  starterMenuUIPrefab: {fileID: 0}
+  isStarterActive: 0
   moduleDependencies:
   - {fileID: 11400000, guid: 1dc066d616db09145bf7a108bd065296, type: 2}
   - {fileID: 11400000, guid: 1d5cecf3f35150545ad2ba42c0be2e9d, type: 2}

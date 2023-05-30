@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
+using AccelByte.Core;
+using UnityEditor;
+using UnityEditor.Rendering;
 using UnityEngine;
 using Directory = System.IO.Directory;
 using Object = UnityEngine.Object;
@@ -35,7 +38,8 @@ public class TutorialModuleManager : MonoBehaviour
             DontDestroyOnLoad(this.gameObject);
         }
         
-        PrepareScriptAssets();
+        // PrepareScriptAssets();
+        PrepareScriptFromAssetConfig();
     }
 
     private void Start()
@@ -76,9 +80,9 @@ public class TutorialModuleManager : MonoBehaviour
         }
     }
 
-    private readonly Dictionary<TutorialType, TutorialModuleData> activeModules =
-        new Dictionary<TutorialType, TutorialModuleData>();
-    public Dictionary<TutorialType, TutorialModuleData> GetAllActiveModule() 
+    private readonly Dictionary<TutorialType, ModuleModel> activeModules =
+        new Dictionary<TutorialType, ModuleModel>();
+    public Dictionary<TutorialType, ModuleModel> GetAllActiveModule() 
     {
         if (AssetManager.Singleton)
         {
@@ -87,7 +91,8 @@ public class TutorialModuleManager : MonoBehaviour
             {
                 if (tModule.Value.isActive)
                 {
-                    activeModules.TryAdd(tModule.Key, tModule.Value);
+                    var module = IsStarterActive(tModule.Value);
+                    activeModules.TryAdd(module.type, module);
                 }
             }
         }
@@ -104,32 +109,32 @@ public class TutorialModuleManager : MonoBehaviour
     }
 
 
-    private void InstantiateTutorialUI()
-    {
-        var tutorialModules = AssetManager.Singleton.GetTutorialModules();
-        foreach (var tModule in tutorialModules)
-        {
-            if (tModule.Value.isActive)
-            {
-                var instantiatedPrefab =
-                    Instantiate(tModule.Value.prefab, Vector3.zero, Quaternion.identity, transform);
-                instantiatedPrefab.gameObject.SetActive(false);
-                if (_instantiatedTutorialPrefabs.TryGetValue(tModule.Key, out var existingGameObject))
-                {
-                    Debug.Log($"tutorial {tModule.Value.prefab.name} has been added");
-                }
-                else
-                {
-                    _instantiatedTutorialPrefabs.Add(tModule.Key, instantiatedPrefab.gameObject);
-                }
-            }
-            else
-            {
-                Debug.Log($"module {tModule.Value.type} is exists but inactive");
-            }
-        }
-        _isInstantiated = true;
-    }
+    // private void InstantiateTutorialUI()
+    // {
+    //     var tutorialModules = AssetManager.Singleton.GetTutorialModules();
+    //     foreach (var tModule in tutorialModules)
+    //     {
+    //         if (tModule.Value.isActive)
+    //         {
+    //             var instantiatedPrefab =
+    //                 Instantiate(tModule.Value.prefab, Vector3.zero, Quaternion.identity, transform);
+    //             instantiatedPrefab.gameObject.SetActive(false);
+    //             if (_instantiatedTutorialPrefabs.TryGetValue(tModule.Key, out var existingGameObject))
+    //             {
+    //                 Debug.Log($"tutorial {tModule.Value.prefab.name} has been added");
+    //             }
+    //             else
+    //             {
+    //                 _instantiatedTutorialPrefabs.Add(tModule.Key, instantiatedPrefab.gameObject);
+    //             }
+    //         }
+    //         else
+    //         {
+    //             Debug.Log($"module {tModule.Value.type} is exists but inactive");
+    //         }
+    //     }
+    //     _isInstantiated = true;
+    // }
 
     public T GetTutorialUIHandler<T>(TutorialType tutorialType)
     {
@@ -188,6 +193,94 @@ public class TutorialModuleManager : MonoBehaviour
             }
         }
     }
+    
+    private void PrepareScriptFromAssetConfig()
+    {
+        // temporary added, expected result from AssetManager (need to be added in AssetManager instead)
+        if (AssetManager.Singleton == null)
+            return;
+        
+        // loop through result from GetWrapperClassFromActiveStarterFile
+        foreach (var starterData in GetWrapperClassFromActiveStarterFile())
+        {
+            Debug.Log(starterData.Value);
+            Type scriptClassType = TypeBuilder.GetType(starterData.Key);
+            
+            List<string> fullPath = starterData.Value.Split(new char[] {'\\', '/'}).ToList();
+            var assetIndex = fullPath.IndexOf("Assets");
+            var pathCategories = fullPath.Skip(assetIndex).ToArray();
+            _moduleClassTypes.Add(starterData.Key, new ModuleData(scriptClassType, pathCategories));
+        }
+    }
+    
+    private ModuleModel IsStarterActive(TutorialModuleData moduleData)
+    {
+        var moduleModel = new ModuleModel();
+
+        if (moduleData.isStarterActive)
+        {
+            moduleModel.prefab = moduleData.starterMenuUIPrefab;
+            moduleModel.type = moduleData.type;
+            moduleModel.isActive = moduleData.isActive;
+        }
+        else
+        {
+            moduleModel.prefab = moduleData.defaultMenuUIprefab;
+            moduleModel.type = moduleData.type;
+            moduleModel.isActive = moduleData.isActive;
+        }
+
+        return moduleModel;
+    }
+
+    private Dictionary<string, string> GetWrapperClassFromActiveStarterFile()
+    {
+        var result = new Dictionary<string, string>();
+        var tutorialModules = AssetManager.Singleton.GetTutorialModules();
+
+        foreach (var moduleData in tutorialModules.Values.Where(moduleData => moduleData.isActive))
+        {
+            // make sure that ui and wrapper are not empty
+            if (!moduleData.defaultModuleScript
+                || !moduleData.starterScript || !moduleData.defaultMenuUIprefab ||
+                !moduleData.starterMenuUIPrefab)
+            {
+                Debug.Log($"{moduleData.type.ToString()} contain null");
+                continue;
+            }
+            
+            if (moduleData.isStarterActive)
+            {
+                //Get starter wrapper from asset config
+                var assetScript = $"{moduleData.starterScript.name}.cs";
+                var scriptPath = assetScript;
+                
+#if UNITY_EDITOR
+                var asset = AssetDatabase.FindAssets($"{moduleData.starterScript.name}").FirstOrDefault();
+                scriptPath = AssetDatabase.GUIDToAssetPath(asset);
+#endif
+
+                Debug.Log(scriptPath);
+                result.Add(moduleData.starterScript.name, scriptPath);
+            }
+            else
+            {
+                //Get default wrapper from asset config
+                var assetScript = $"{moduleData.defaultModuleScript.name}.cs";
+                var scriptPath = assetScript;
+#if UNITY_EDITOR
+                var asset = AssetDatabase.FindAssets($"{moduleData.defaultModuleScript.name}").FirstOrDefault();
+                scriptPath = AssetDatabase.GUIDToAssetPath(asset);
+#endif
+                Debug.Log(scriptPath);
+
+                result.Add(moduleData.defaultModuleScript.name, scriptPath);
+            }
+        }
+
+        return result;
+    }
+    
     
     /// <summary>
     /// Add all modules loaded as TutorialModuleManager GameObject's components
