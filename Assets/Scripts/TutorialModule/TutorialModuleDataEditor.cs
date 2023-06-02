@@ -16,6 +16,10 @@ public class TutorialModuleDataEditor : Editor
     private SerializedProperty _starterMenuUIPrefab;
     private SerializedProperty _isStarterActive;
 
+    private SerializedProperty _hasAdditionalScripts;
+    private SerializedProperty _defaultHelperFiles;
+    private SerializedProperty _starterHelperFiles;
+    
     private SerializedProperty _moduleDependencies;
     private bool _overrideStatus;
     private TutorialModuleData _overrideModule;
@@ -25,9 +29,12 @@ public class TutorialModuleDataEditor : Editor
     private bool _defaultFold = true;
     private bool _starterFold = true;
     
+    int toolbarInt = 0;
+    string[] toolbarStrings = {"Default", "Starter"};
+
     private void OnEnable() 
     {
-        _defaultMenuUIPrefab = serializedObject.FindProperty("defaultMenuUIprefab");
+        _defaultMenuUIPrefab = serializedObject.FindProperty("defaultMenuUIPrefab");
         _defaultModuleScript = serializedObject.FindProperty("defaultModuleScript");
         _type = serializedObject.FindProperty("type");
         _isActive = serializedObject.FindProperty("isActive");
@@ -37,11 +44,17 @@ public class TutorialModuleDataEditor : Editor
         _isStarterActive = serializedObject.FindProperty("isStarterActive");
         _overrideStatus = TutorialModuleOverride.OverrideModules(Selection.activeObject.name);
         _isDependencyModule = TutorialModuleOverride.IsDependency(Selection.activeObject.name);
+
+        _hasAdditionalScripts = serializedObject.FindProperty("additionalScripts");
+        _defaultHelperFiles = serializedObject.FindProperty("defaultHelperScripts");
+        _starterHelperFiles = serializedObject.FindProperty("starterHelperScripts");
+
     }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
+
         _defaultFold = EditorGUILayout.BeginFoldoutHeaderGroup(_defaultFold, "Tutorial Module");
         if (_defaultFold)
         {
@@ -62,9 +75,7 @@ public class TutorialModuleDataEditor : Editor
         {
             EditorGUILayout.PropertyField(_starterMenuUIPrefab);
             EditorGUILayout.PropertyField(_starterScript);
-            EditorGUI.BeginDisabledGroup(_overrideStatus || _isDependencyModule);
             EditorGUILayout.PropertyField(_isStarterActive);
-            EditorGUI.EndDisabledGroup();
             EditorGUILayout.Space();
 
         }
@@ -76,8 +87,44 @@ public class TutorialModuleDataEditor : Editor
 
         EditorGUILayout.Space();
 
+        EditorGUILayout.PropertyField(_hasAdditionalScripts);
+        toolbarInt = GUILayout.Toolbar(toolbarInt, toolbarStrings);
+
+        if (toolbarInt >= 0)
+        {
+            switch (toolbarStrings[toolbarInt])
+            {
+                case "Default":
+                    DefaultHelperScripts();
+                    break;
+                case "Starter":
+                    StarterHelperScripts();
+                    break;
+            }
+        }
+
         serializedObject.ApplyModifiedProperties();
 
+    }
+
+    private void DefaultHelperScripts()
+    {
+        if (_hasAdditionalScripts.boolValue)
+        {
+            EditorGUI.BeginDisabledGroup(_isStarterActive.boolValue);
+            EditorGUILayout.PropertyField(_defaultHelperFiles);
+            EditorGUI.EndDisabledGroup();
+        }
+    }
+
+    private void StarterHelperScripts()
+    {
+        if (_hasAdditionalScripts.boolValue)
+        {
+            EditorGUI.BeginDisabledGroup(!_isStarterActive.boolValue);
+            EditorGUILayout.PropertyField(_starterHelperFiles);
+            EditorGUI.EndDisabledGroup();
+        }
     }
 }
 #endif

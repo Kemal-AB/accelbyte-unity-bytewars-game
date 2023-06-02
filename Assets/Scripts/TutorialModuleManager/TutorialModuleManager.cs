@@ -199,9 +199,10 @@ public class TutorialModuleManager : MonoBehaviour
         // temporary added, expected result from AssetManager (need to be added in AssetManager instead)
         if (AssetManager.Singleton == null)
             return;
-        
+        var tutorialModules = AssetManager.Singleton.GetTutorialModules();
+
         // loop through result from GetWrapperClassFromActiveStarterFile
-        foreach (var starterData in GetWrapperClassFromActiveStarterFile())
+        foreach (var starterData in GetWrapperClassFromAssetConfig(tutorialModules))
         {
             Debug.Log(starterData.Value);
             Type scriptClassType = TypeBuilder.GetType(starterData.Key);
@@ -211,6 +212,19 @@ public class TutorialModuleManager : MonoBehaviour
             var pathCategories = fullPath.Skip(assetIndex).ToArray();
             _moduleClassTypes.Add(starterData.Key, new ModuleData(scriptClassType, pathCategories));
         }
+
+        foreach (var helperScript in CheckHelperScripts(tutorialModules))
+        {
+            Debug.Log(helperScript.Value);
+            Type scriptClassType = TypeBuilder.GetType(helperScript.Key);
+            List<string> fullPath = helperScript.Value.Split(new char[] {'\\', '/'}).ToList();
+            var assetIndex = fullPath.IndexOf("Assets");
+            var pathCategories = fullPath.Skip(assetIndex).ToArray();
+            _moduleClassTypes.Add(helperScript.Key, new ModuleData(scriptClassType, pathCategories));
+
+        }
+
+        
     }
     
     private ModuleModel IsStarterActive(TutorialModuleData moduleData)
@@ -225,7 +239,7 @@ public class TutorialModuleManager : MonoBehaviour
         }
         else
         {
-            moduleModel.prefab = moduleData.defaultMenuUIprefab;
+            moduleModel.prefab = moduleData.defaultMenuUIPrefab;
             moduleModel.type = moduleData.type;
             moduleModel.isActive = moduleData.isActive;
         }
@@ -233,16 +247,15 @@ public class TutorialModuleManager : MonoBehaviour
         return moduleModel;
     }
 
-    private Dictionary<string, string> GetWrapperClassFromActiveStarterFile()
+    private Dictionary<string, string> GetWrapperClassFromAssetConfig(Dictionary<TutorialType, TutorialModuleData> tutorialModules)
     {
         var result = new Dictionary<string, string>();
-        var tutorialModules = AssetManager.Singleton.GetTutorialModules();
 
         foreach (var moduleData in tutorialModules.Values.Where(moduleData => moduleData.isActive))
         {
             // make sure that ui and wrapper are not empty
             if (!moduleData.defaultModuleScript
-                || !moduleData.starterScript || !moduleData.defaultMenuUIprefab ||
+                || !moduleData.starterScript || !moduleData.defaultMenuUIPrefab ||
                 !moduleData.starterMenuUIPrefab)
             {
                 Debug.Log($"{moduleData.type.ToString()} contain null");
@@ -280,7 +293,42 @@ public class TutorialModuleManager : MonoBehaviour
 
         return result;
     }
-    
+
+    private static Dictionary<string, string> CheckHelperScripts(Dictionary<TutorialType, TutorialModuleData> tutorialModules)
+    {
+        var result = new Dictionary<string, string>();
+        foreach (var module in tutorialModules.Values.Where(module => module.additionalScripts && module.isActive))
+        {
+            if (module.isStarterActive)
+            {
+                module.starterHelperScripts.ToList().ForEach(x =>
+                {
+                    var assetScript = $"{x.name}.cs";
+                    var assetPath = assetScript;
+#if UNITY_EDITOR
+                    var asset = AssetDatabase.FindAssets($"{x.name}").FirstOrDefault();
+                    assetPath = AssetDatabase.GUIDToAssetPath(asset);
+#endif
+                    result.TryAdd(x.name, assetPath);
+                });
+            }
+            else
+            {
+                module.defaultHelperScripts.ToList().ForEach(x =>
+                {
+                    var assetScript = $"{x.name}.cs";
+                    var assetPath = assetScript;
+#if UNITY_EDITOR
+                    var asset = AssetDatabase.FindAssets($"{x.name}").FirstOrDefault();
+                    assetPath = AssetDatabase.GUIDToAssetPath(asset);
+#endif
+                    result.TryAdd(x.name, assetPath);
+                });
+            }
+        }
+
+        return result;
+    }
     
     /// <summary>
     /// Add all modules loaded as TutorialModuleManager GameObject's components

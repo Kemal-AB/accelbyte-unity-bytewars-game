@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -123,19 +124,26 @@ public static class TutorialModuleOverride
 
     public static bool OverrideModules(string moduleName)
     {
-        if (_forcedModules == null)
+        if (!moduleName.ToLower().Contains("assetconfig"))
+        {
+            return false;
+        }
+        
+        var isReadJsonConfig = ReadJsonConfig(readFromInspector:true) != null ? _forcedModules : null;
+
+        if (isReadJsonConfig == null)
         {
             return false;
         }
         
         //TODO: Null checcking on moduleName
         var overrideStatus = false;
-        var overridesModules = ReadJsonConfig(readFromInspector:true);
+        var overridesModules = isReadJsonConfig;
         var modulesDictionary = new Dictionary<string, bool>();
-        overridesModules.ToList().ForEach(x =>
+        overridesModules?.ToList().ForEach(x =>
         {
             var module = GetTutorialModuleDataObject(x);
-            if ( module == null)
+            if (module == null)
             {
                 overrideStatus = false;
                 return;
@@ -152,10 +160,10 @@ public static class TutorialModuleOverride
             {
                 overrideStatus = false;
             }
-            
+
             modulesDictionary.Add(_overrideModule.name, overrideStatus);
             _moduleDictionary.TryAdd(_overrideModule.name, _overrideModule);
-    
+
             CheckDependency(_overrideModule);
         });
         modulesDictionary.TryGetValue(moduleName, out overrideStatus);
@@ -220,6 +228,28 @@ public static class TutorialModuleOverride
             : null;
         Debug.Log(asset);
         return AssetDatabase.LoadAssetAtPath<TutorialModuleData>(asset);
+    }
+
+    private static void GetAllHelperFiles(Object selectedGameObject, bool isStaterActive = false)
+    {
+        var assetConfig = (TutorialModuleData)selectedGameObject;
+        var fileName = selectedGameObject.name;
+        var allModuleFiles = Directory.GetFiles($"{Application.dataPath}/Resources", 
+            fileName, SearchOption.AllDirectories ).Where(x => !x.Contains("UI"));
+
+        var moduleFiles = allModuleFiles as string[] ?? allModuleFiles.ToArray();
+        
+        if (isStaterActive)
+        {
+            //return all starter helper files
+            var starterHelperScripts = moduleFiles.Where(x => x.Contains("starter")).Select(AssetDatabase.LoadAssetAtPath<TextAsset>).ToArray();
+            assetConfig.starterHelperScripts = starterHelperScripts;
+
+        }
+        //return default helper files
+        var defaultHelperScripts = moduleFiles.Where(x => !x.Contains("starter")).Select(AssetDatabase.LoadAssetAtPath<TextAsset>).ToArray();
+        assetConfig.defaultHelperScripts = defaultHelperScripts;
+
     }
 }
 #endif
