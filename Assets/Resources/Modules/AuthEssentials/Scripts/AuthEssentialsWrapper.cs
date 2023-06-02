@@ -38,6 +38,11 @@ public class AuthEssentialsWrapper : MonoBehaviour
         
         user.LoginWithOtherPlatform(_platformType, _platformToken, result => OnLoginCompleted(result, resultCallback));
     }
+    
+    public void LoginWithUsername(string username, string password, ResultCallback<TokenData, OAuthError> resultCallback)
+    {
+        user.LoginWithUsernameV3(username, password, result => OnLoginCompleted(result, resultCallback), false);
+    }
 
     #endregion
     
