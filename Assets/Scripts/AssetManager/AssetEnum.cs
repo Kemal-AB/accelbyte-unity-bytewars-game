@@ -1,6 +1,7 @@
 //auto generated from AssetNameEnumGenerator
 public enum AssetEnum 
 {
+      CloudSaveEssentialsAssetConfig,
       AuthEssentialsAssetConfig,
       InfoMenuCanvas,
       MainMenuCanvas,
