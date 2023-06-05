@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.Netcode;
 using UnityEngine;
 
 ///timer is not compatible with Unity's NetCode for gameobject
@@ -53,7 +52,8 @@ public class ServerHelper
             playerName = playerName,
             teamIndex = teamIndex,
             lives = gameMode.playerStartLives,
-            sessionId = Guid.NewGuid().ToString()
+            sessionId = Guid.NewGuid().ToString(),
+            playerId = ""
         };
         Debug.Log($"added player {playerName} teamIndex: {teamIndex}");
         if (!_connectedPlayerState.TryGetValue(clientNetworkId, out PlayerState oPState))
@@ -86,11 +86,12 @@ public class ServerHelper
     }
 
     private readonly Dictionary<string, PlayerState> disconnectedPlayerState = new Dictionary<string, PlayerState>();
-    public void DisconnectPlayerState(ulong clientNetworkId)
+    public void DisconnectPlayerState(ulong clientNetworkId, Player player)
     {
         if (_connectedPlayerState.TryGetValue(clientNetworkId, out var pstate))
         {
             disconnectedPlayerState.TryAdd(pstate.sessionId, pstate);
+            disconnectedPlayers.TryAdd(pstate.sessionId, player);
             _connectedPlayerState.Remove(clientNetworkId);
         }
     }
@@ -175,16 +176,7 @@ public class ServerHelper
             _monoBehaviour.StartCoroutine(_countdownCoroutine);
         }
     }
-
-    public InGameStateResult GetTeamAndPlayerState()
-    {
-        var result = new InGameStateResult()
-        {
-            m_playerStates = _connectedPlayerState.Values.ToArray(),
-            m_teamStates = _connectedTeamState.Values.ToArray()
-        };
-        return result;
-    }
+    
 
     public TeamState[] GetTeamStates()
     {
@@ -193,10 +185,8 @@ public class ServerHelper
 
     public void SetTeamAndPlayerState(InGameStateResult states)
     {
-        _connectedPlayerState = states.m_playerStates
-            .ToDictionary(x => x.clientNetworkId, x => x);
-        _connectedTeamState = states.m_teamStates
-            .ToDictionary(x => x.teamIndex, x => x);
+        _connectedPlayerState = states.m_playerStates;
+        _connectedTeamState = states.m_teamStates;
     }
     public bool IsGameOver()
     {
@@ -218,9 +208,11 @@ public class ServerHelper
         return teamInGameIndexLive.Count <= 1;
     }
 
-    public bool AddReconnectPlayerState(string sessionId, ulong clientNetworkId, GameModeSO gameMode)
+    public Player AddReconnectPlayerState(string sessionId, 
+        ulong clientNetworkId, GameModeSO gameMode)
     {
-        if (disconnectedPlayerState.TryGetValue(sessionId, out var playerState))
+        PlayerState playerState;
+        if (disconnectedPlayerState.TryGetValue(sessionId, out playerState))
         {
             playerState.clientNetworkId = clientNetworkId;
             if (_connectedPlayerState.TryAdd(clientNetworkId, playerState))
@@ -230,15 +222,26 @@ public class ServerHelper
             else
             {
                 Debug.LogError("unable to reconnect player state");
-                return false;
+                return null;
             }
         }
         else
         {
             Debug.Log("unable to reconnect existing player state, create new player state instead");
-            CreateNewPlayerState(clientNetworkId, gameMode);
+            playerState = CreateNewPlayerState(clientNetworkId, gameMode);
         }
-        return true;
+
+        Player player = null;
+        if (disconnectedPlayers.Remove(sessionId, out player))
+        {
+            var teamColor = _connectedTeamState[playerState.teamIndex].teamColour;
+            player.SetPlayerState(playerState, gameMode.maxInFlightMissilesPerPlayer, teamColor);
+        }
+        else
+        {
+            Debug.LogError("cant reconnect player, maybe already reconnect?");
+        }
+        return player;
     }
     
     public int GetTeamLive(int teamIndex)
@@ -254,4 +257,6 @@ public class ServerHelper
         }
         return result;
     }
+
+    private Dictionary<string, Player> disconnectedPlayers = new Dictionary<string, Player>();
 }

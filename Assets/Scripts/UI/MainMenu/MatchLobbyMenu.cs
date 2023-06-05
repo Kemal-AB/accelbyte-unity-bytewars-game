@@ -4,24 +4,33 @@ using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 
 public class MatchLobbyMenu : MenuCanvas
 {
-    [SerializeField] private PlayerLobby[] _playersLobby;
-    public Button backButton;
-    public Button inviteFriendsButton;
-    public Button startButton;
+    [SerializeField] private PlayerEntry[] _playersEntries;
+    [SerializeField] private Button quitButton;
+    [SerializeField] private Button inviteFriendsButton;
+    [SerializeField] private Button startButton;
     private ulong _clientNetworkId;
     private Dictionary<int, TeamState> _teamStates;
     private Dictionary<ulong, PlayerState> _playerStates;
     [SerializeField]
-    private TextMeshProUGUI countdownLabel;
+    private TextMeshProUGUI statusLabel;
+    [SerializeField]
+    private GameObject statusContainer;
 
     private void Start()
     {
         startButton.onClick.AddListener(StartGame);
+        quitButton.onClick.AddListener(LeaveSessionAndQuit);
+    }
+
+    private void LeaveSessionAndQuit()
+    {
+        GameManager.Instance.QuitToMainMenu();
     }
 
     private void StartGame()
@@ -39,19 +48,19 @@ public class MatchLobbyMenu : MenuCanvas
 
     private void Init()
     {
-        foreach (var playerLobby in _playersLobby)
+        foreach (var playerEntry in _playersEntries)
         {
-            playerLobby.gameObject.SetActive(false);
+            playerEntry.gameObject.SetActive(false);
         }
     }
     public void SpawnPlayer(TeamState teamState, PlayerState playerState, bool isCurrentPlayer)
     {
-        foreach (var playerLobby in _playersLobby)
+        foreach (var playerEntry in _playersEntries)
         {
-            if (!playerLobby.gameObject.activeSelf)
+            if (!playerEntry.gameObject.activeSelf)
             {
-                playerLobby.Set(teamState, playerState, isCurrentPlayer);
-                playerLobby.gameObject.SetActive(true);
+                playerEntry.Set(teamState, playerState, isCurrentPlayer);
+                playerEntry.gameObject.SetActive(true);
                 break;
             }
         }
@@ -81,9 +90,17 @@ public class MatchLobbyMenu : MenuCanvas
         }
     }
 
+    private const string CountDownPrefix = "MATCH START IN: ";
     public void Countdown(int second)
     {
-        countdownLabel.text = second.ToString();
+        ShowStatus(CountDownPrefix+second);
+    }
+
+    public void ShowStatus(string status)
+    {
+        if(!statusContainer.activeSelf)
+            statusContainer.SetActive(true);
+        statusLabel.text = status;
     }
 
     public override AssetEnum GetAssetEnum()

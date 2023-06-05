@@ -7,12 +7,6 @@ using UnityEngine;
 
 public class AuthEssentialsWrapper_Starter : MonoBehaviour
 {
-    
-    private void OnEnable()
-    {
-        Debug.Log("TestFiring AuthEssentialsWrapper_Starter");
-    }
-
     //Copy AccelByte's Multi Registry references from "Use the AccelByte SDK to Login" unit here (step number 2)
     
 

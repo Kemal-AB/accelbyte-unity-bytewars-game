@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -13,7 +14,8 @@ public class InGameFactory
         List<GameEntityAbs> instantiatedGEs,
         Dictionary<ulong, Player> instantiatedShips,
         ObjectPooling objectPooling,
-        InGameStateResult states)
+        Dictionary<int, TeamState> teamStates,
+        Dictionary<ulong, PlayerState> playerStates)
     {
         CreateLevelResult result = null;
         List<LevelObject> levelObjects = new List<LevelObject>();
@@ -54,7 +56,8 @@ public class InGameFactory
         }
         var availablePosition= CreateAvailablePositions(gameModeSo, instantiatedGEs);
         var players = SpawnLocalPlayers(gameModeSo, instantiatedGEs, 
-            instantiatedShips, objectPooling, states, levelObjects, availablePosition);
+            instantiatedShips, objectPooling, levelObjects, availablePosition,
+            teamStates, playerStates);
         result = new CreateLevelResult()
         {
             LevelObjects = levelObjects.ToArray(),
@@ -95,13 +98,14 @@ public class InGameFactory
     }
     private static List<Player> SpawnLocalPlayers(GameModeSO gameModeSo, List<GameEntityAbs> instantiatedGEs, 
         Dictionary<ulong, Player> instantiatedShips, ObjectPooling objectPooling, 
-        InGameStateResult states, List<LevelObject> levelObjects, List<Vector3> availablePos)
+        List<LevelObject> levelObjects, List<Vector3> availablePos,
+        Dictionary<int, TeamState> teamStates, Dictionary<ulong, PlayerState> playerStates)
     {
         List<Player> ships = new List<Player>();
         int levelObjectCount = levelObjects.Count;
         int playerIndex = 0;
-        int playerPerTeamCount = states.m_playerStates.Length/states.m_teamStates.Length;
-        for (int a = 0; a < states.m_teamStates.Length; a++)
+        int playerPerTeamCount = playerStates.Count/teamStates.Count;
+        for (int a = 0; a < teamStates.Count; a++)
         {
             for (int i = 0; i < playerPerTeamCount; i++)
             {
@@ -113,9 +117,10 @@ public class InGameFactory
                     if (!GameUtility.HasLineOfSightToOtherShip(instantiatedGEs, randomPosition, instantiatedShips))
                     {
                         Debug.Log($"player-{playerIndex} team-{a} placed in {j} attempts");
-                        var playerState = states.m_playerStates[playerIndex];
-                        var newShip = SpawnLocalPlayer(gameModeSo, randomPosition, objectPooling, 
-                            states.m_teamStates[a], playerState);
+                        var playerState = playerStates.ElementAt(playerIndex).Value;
+                        playerState.position = randomPosition;
+                        var newShip = SpawnLocalPlayer(gameModeSo, objectPooling, 
+                            teamStates.ElementAt(a).Value.teamColour, playerState);
                         if (newShip != null)
                         {
                             ships.Add(newShip);
@@ -139,52 +144,66 @@ public class InGameFactory
         return ships;
     }
 
-    private static Player SpawnLocalPlayer(GameModeSO gameModeSo, 
-        Vector3 position, ObjectPooling objectPooling,
-        TeamState teamState, PlayerState playerState)
+    public static Player SpawnLocalPlayer(GameModeSO gameModeSo, ObjectPooling objectPooling,
+        Vector4 color, PlayerState playerState)
     {
         var newShip = objectPooling.Get(gameModeSo.playerPrefab);
         Player player = newShip as Player;
         player.SetPlayerState(playerState, gameModeSo.maxInFlightMissilesPerPlayer, 
-            teamState.teamColour, position);
+            color);
         return player;
     }
 
     public static InGameStateResult CreateLocalGameState(GameModeSO gameModeSo)
     {   
         var result = new InGameStateResult();
-        result.m_teamStates = new TeamState[gameModeSo.teamCount];
-        result.m_playerStates = new PlayerState[gameModeSo.teamCount * gameModeSo.playerPerTeamCount];
+        result.m_teamStates = new Dictionary<int, TeamState>();
+        result.m_playerStates = new Dictionary<ulong, PlayerState>();
         int playerIndex = 0;
         for (int a = 0; a < gameModeSo.teamCount; a++)
         {
-            result.m_teamStates[a] = new TeamState()
+            result.m_teamStates.Add(a, new TeamState()
             {
                 teamIndex = a,
                 teamColour = gameModeSo.teamColours[a]
-            };
+            });
             for (int b = 0; b < gameModeSo.playerPerTeamCount; b++)
             {
                 string playerName = "Player " + (playerIndex+1);
-                result.m_playerStates[playerIndex] = new PlayerState()
+                result.m_playerStates.Add((ulong)playerIndex, new PlayerState()
                 {
                     playerIndex = playerIndex,
                     playerName = playerName,
                     teamIndex = a,
                     lives = gameModeSo.playerStartLives,
-                    clientNetworkId = (ulong)playerIndex
-                };
+                    clientNetworkId = (ulong)playerIndex,
+                    playerId = ""
+                });
                 playerIndex++;
             }
         }
         return result;
     }
+    
+    public static Player SpawnReconnectedShip(ulong clientNetworkId, ServerHelper serverHelper, ObjectPooling objectPooling)
+    {
+        if (serverHelper.ConnectedPlayerStates.TryGetValue(clientNetworkId, out var playerState))
+        {
+            var teamColour = serverHelper.ConnectedTeamStates[playerState.teamIndex].teamColour;
+            var newShip = objectPooling.Get(GameData.GameModeSo.playerPrefab);
+            Player player = newShip as Player;
+            player.SetPlayerState(playerState, GameData.GameModeSo.maxInFlightMissilesPerPlayer, 
+                teamColour);
+            return player;
+        }
+        return null;
+    }
 }
 
 public class InGameStateResult
 {
-    public TeamState[] m_teamStates;
-    public PlayerState[] m_playerStates;
+    public Dictionary<int, TeamState> m_teamStates;
+    public Dictionary<ulong, PlayerState> m_playerStates;
 }
 
 public class CreateLevelResult

@@ -54,4 +54,4 @@ This AccelByte Unity SDK package are required to follow along the Byte Wars Tuto
 2. Build Client run: `build_client.bat`
 
 ### Debug Mode
-1. to enable debug mode add `DEBUG` in Edit -> Project Settings -> Player -> Script Compilation -> Scripting Define Symbols. please remove `DEBUG` scripting define symbols before publish/release it 
+1. to enable debug mode add `BYTEWARS_DEBUG` in Edit -> Project Settings -> Player -> Script Compilation -> Scripting Define Symbols. please remove `BYTEWARS_DEBUG` scripting define symbols before publish/release it 

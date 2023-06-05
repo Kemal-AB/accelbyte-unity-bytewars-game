@@ -1,3 +1,4 @@
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -163,7 +164,30 @@ public class GameClientController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         playerInput.enabled = IsOwner;
+        if (IsClient)
+        {
+            //client send user data to server
+            if (GameData.CachedPlayerState != null)
+            {
+                UpdatePlayerStateServerRpc(OwnerClientId, GameData.CachedPlayerState);
+            }
+        }
+        // Debug.Log($"GameClientController.OnNetworkSpawn IsServer:{IsServer} IsOwner:{IsOwner} OwnerClientId:{OwnerClientId}");
     }
+
+    [ServerRpc]
+    private void UpdatePlayerStateServerRpc(ulong clientNetworkId, PlayerState clientPlayerState)
+    {
+        if (GameManager.Instance.ConnectedPlayerStates.TryGetValue(clientNetworkId, out var playerState))
+        {
+            playerState.playerId = clientPlayerState.playerId;
+            var g = GameManager.Instance;
+            g.UpdatePlayerStatesClientRpc(g.ConnectedTeamStates.Values.ToArray(),
+                g.ConnectedPlayerStates.Values.ToArray());
+        }
+    }
+    
+    
 
     private bool IsAlive()
     {

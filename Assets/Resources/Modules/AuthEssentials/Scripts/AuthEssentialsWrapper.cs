@@ -21,11 +21,6 @@ public class AuthEssentialsWrapper : MonoBehaviour
         apiClient = MultiRegistry.GetApiClient();
         user = apiClient.GetApi<User, UserApi>();
     }
-    
-    private void OnEnable()
-    {
-        Debug.Log("TestFiring handler");
-    }
 
     #region AB Service Functions
 

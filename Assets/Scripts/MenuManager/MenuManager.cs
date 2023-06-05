@@ -272,15 +272,6 @@ public class MenuManager : MonoBehaviour
                 _currentMainMenu.gameObject.SetActive(true);
             }
         }
-        else
-        {
-            _currentMainMenu = _menusDictionary[AssetEnum.MainMenuCanvas];
-            if (!_currentMainMenu.gameObject.activeInHierarchy)
-            {            
-                _currentMainMenu.gameObject.SetActive(true);
-                _mainMenusStack.Push(_currentMainMenu);
-            }
-        }
     }
 
     private bool CheckAGSDKReady()
@@ -465,5 +456,10 @@ public class MenuManager : MonoBehaviour
     public Dictionary<AssetEnum, MenuCanvas> AllMenu
     {
         get { return _menusDictionary; }
+    }
+
+    public MenuCanvas GetCurrentMenu()
+    {
+        return _currentMainMenu;
     }
 }

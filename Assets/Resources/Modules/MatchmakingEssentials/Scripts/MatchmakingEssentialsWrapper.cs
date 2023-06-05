@@ -17,9 +17,10 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
     private static string _sessionId;
     private static bool _matchCanceled = false;
     private Session _matchmakingV2Session;
-    private static DedicatedServerManager _dedicatedServerManager;
+    private DedicatedServerManager _dedicatedServerManager;
     private ServerDSHub _serverDSHub;
     private ServerMatchmakingV2 _matchmakingV2Server;
+    private ServerOauthLoginSession _serverOauthLoginSession;
     private bool _isGameStarted = false;
 
     public event Action<Result<MatchmakingV2MatchTicketStatus>> OnMatchFound;
@@ -93,7 +94,6 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
         IsMatchCanceled();
         Debug.Log($"Start to join the session {result.Value.matchFound}");
         _matchmakingV2Session.JoinGameSession(_sessionId, OnJoinGameSession);
-
     }
 
     public void CheckMatchmakingV2Status()
@@ -145,7 +145,7 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
             Debug.Log(JsonUtility.ToJson(result.Value.dsInformation.status.ToString()));
             if (result.Value.dsInformation.status != SessionV2DsStatus.AVAILABLE)
             {
-                Invoke(nameof(CheckGameSessionDetail),1);
+                CheckGameSessionDetail();
             }
             else
             {
@@ -226,7 +226,10 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
 
     private void LeaveSession()
     {
-        _matchmakingV2Session.LeaveGameSession(_sessionId, OnLeaveCompleted);
+        if (_sessionId != null)
+        {
+            _matchmakingV2Session.LeaveGameSession(_sessionId, OnLeaveCompleted);
+        }
     }
 
     private void OnLeaveCompleted(Result<SessionV2GameSession> result)
@@ -256,7 +259,6 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
         {
             if (result.IsError)
             {
-                // If we error, grab the Error Code and Message to print in the Log
                 Debug.Log($"Server login failed : {result.Error.Code}: {result.Error.Message}");
                 Application.Quit();
             }
@@ -318,7 +320,6 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
                 else
                 {
                     Debug.Log("Successfully Deregister Local Server");
-
                     Application.Quit();
                 }
             });
@@ -335,7 +336,6 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
                 else
                 {
                     Debug.Log("Successfully Shutdown Server");
-
                     Application.Quit();
                 }
             });

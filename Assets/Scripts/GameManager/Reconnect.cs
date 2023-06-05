@@ -27,20 +27,19 @@ public class Reconnect : MonoBehaviour
     }
 
     private IEnumerator reconnectCoroutine;
+    private bool reconnectionInProgress = false;
 
     public void TryReconnect(InitialConnectionData initialConnectionData)
     {
-        if (reconnectCoroutine == null)
+        if (!reconnectionInProgress)
         {
-            if (reconnectCoroutine == null)
-            {
-                reconnectCoroutine = ReconnectWait(initialConnectionData);
-                StartCoroutine((reconnectCoroutine));
-            }
+            reconnectCoroutine = ReconnectWait(initialConnectionData);
+            reconnectionInProgress = true;
+            StartCoroutine((reconnectCoroutine));
         }
     }
 
-    private WaitForSeconds waitOneSecond = new WaitForSeconds(1);
+    private readonly WaitForSeconds wait3Seconds = new WaitForSeconds(3);
     private IEnumerator ReconnectWait(InitialConnectionData initialConnectionData)
     {
         if (NetworkManager.Singleton.IsListening && 
@@ -51,9 +50,11 @@ public class Reconnect : MonoBehaviour
             yield return new WaitUntil(() => !NetworkManager.Singleton.ShutdownInProgress);
         }
 
-        yield return waitOneSecond;
+        yield return wait3Seconds;
         var connectionData = GameUtility.ToByteArray(initialConnectionData);
         NetworkManager.Singleton.NetworkConfig.ConnectionData = connectionData;
+        Debug.Log("reconnect start client");
         NetworkManager.Singleton.StartClient();
+        reconnectionInProgress = false;
     }
 }
