@@ -5,6 +5,4 @@ public enum TutorialType
     MatchmakingEssentials,
     StatsEssentials,
     CloudSaveEssentials,
-    CobaEssentials,
-    TestEssentials
 }
