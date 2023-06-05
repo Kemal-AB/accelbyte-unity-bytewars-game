@@ -66,13 +66,14 @@ public class TutorialModuleManager : MonoBehaviour
 
     #region Module Config Functions
     
-    public TutorialModuleData GetModule(TutorialType tutorialType)
+    public ModuleModel GetModule(TutorialType tutorialType)
     {
         var tutorialModules = AssetManager.Singleton.GetTutorialModules();
         
         if (tutorialModules.TryGetValue(tutorialType, out TutorialModuleData moduleData))
         {
-            return moduleData;
+            var moduleModel = IsStarterActive(moduleData);
+            return moduleModel;
         }
         else
         {

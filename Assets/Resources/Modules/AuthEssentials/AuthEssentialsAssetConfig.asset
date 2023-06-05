@@ -18,7 +18,7 @@ MonoBehaviour:
     type: 3}
   type: 0
   isActive: 1
-  additionalScripts: 1
+  additionalScripts: 0
   defaultHelperScripts: []
   starterHelperScripts: []
   starterScript: {fileID: 11500000, guid: 801e9f607ef6e40499a6d5306d3437a9, type: 3}

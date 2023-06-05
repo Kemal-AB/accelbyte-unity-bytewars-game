@@ -17,7 +17,7 @@ public class ProfileMenu : MenuCanvas
 
     private void OnStatsButtonClicked()
     {
-        TutorialModuleData statsEssentials = TutorialModuleManager.Instance.GetModule(TutorialType.StatsEssentials);
+        var statsEssentials = TutorialModuleManager.Instance.GetModule(TutorialType.StatsEssentials);
         if (statsEssentials != null)
         {
             MenuManager.Instance.ChangeToMenu(statsEssentials.prefab.GetAssetEnum());
