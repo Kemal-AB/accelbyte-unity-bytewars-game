@@ -2,7 +2,7 @@
 public enum TutorialType
 {
     AuthEssentials,
-    OnlineMultiplayer,
+    MatchmakingEssentials,
     StatsEssentials,
-    CloudSaveEssentials
+    CloudSaveEssentials,
 }
