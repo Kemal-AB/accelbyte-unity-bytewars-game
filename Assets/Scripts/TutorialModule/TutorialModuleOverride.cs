@@ -12,6 +12,11 @@ public static class TutorialModuleOverride
 {
     internal const string FIRST_TIME = "FIRST_TIME"; // the key
 
+    public static string[] ListAllModules
+    {
+        get => _moduleDependencies;
+        set => _moduleDependencies = value;
+    }
     public static string[] ForcedModules
     {
         get => _forcedModules;
@@ -28,6 +33,7 @@ public static class TutorialModuleOverride
     private static string[] _forcedModules;
     private static bool _isError;
     private static Dictionary<string, TutorialModuleData> _moduleDictionary = new Dictionary<string, TutorialModuleData>();
+    private static string[] _moduleDependencies;
 
 #if UNITY_EDITOR
     static TutorialModuleOverride()
@@ -56,6 +62,9 @@ public static class TutorialModuleOverride
                 var isReadJsonConfig = ReadJsonConfig() != null ? ReadJsonConfig() : null;
                 if (isReadJsonConfig != null)
                 {
+                    // GetAllDependencies(isReadJsonConfig);
+                    isReadJsonConfig.ToList().ForEach(x => OverrideModules($"{x}AssetConfig", true));
+                    _moduleDependencies = _moduleDictionary.Select(x => x.Key.Replace("AssetConfig", "")).ToArray();
                     Debug.Log($"first time opened");
                     ShowPopupOverride.Init();
                 }
@@ -67,6 +76,31 @@ public static class TutorialModuleOverride
         EditorApplication.update -= RunOnce;
     }
 
+
+    // private static void GetAllDependencies(string[] isReadJsonConfig)
+    // {
+    //     var overridesModules = isReadJsonConfig;
+    //     var modulesDictionary = new Dictionary<string, bool>();
+    //     overridesModules?.ToList().ForEach(x =>
+    //     {
+    //         var module = GetTutorialModuleDataObject(x);
+    //         if (module == null)
+    //         {
+    //             return;
+    //         }
+    //         
+    //         modulesDictionary.TryAdd(module.name, true);
+    //         if (module.moduleDependencies.Length > 0)
+    //         {
+    //             modulesDictionary.TryAdd(module.name, true);
+    //             foreach (var dependency in module.moduleDependencies)
+    //             {
+    //                 dependency.moduleDependencies
+    //             }
+    //         }
+    //     });
+    //     _moduleDependencies = modulesDictionary.Select(x => x.Key).ToArray();
+    // }
 
     private static bool IsTargetModuleCurrentSelectedModule()
     {
@@ -122,7 +156,7 @@ public static class TutorialModuleOverride
         return _forcedModules;
     }
 
-    public static bool OverrideModules(string moduleName)
+    public static bool OverrideModules(string moduleName, bool isFirstTime = false)
     {
         if (!moduleName.ToLower().Contains("assetconfig"))
         {
@@ -150,15 +184,23 @@ public static class TutorialModuleOverride
             }
 
             _overrideModule = module;
-            if (IsTargetModuleCurrentSelectedModule())
+
+            if (!isFirstTime)
             {
-                _overrideModule.isActive = true;
-                _overrideModule.isStarterActive = false;
-                overrideStatus = SetDependenciesToActive();
+                if (IsTargetModuleCurrentSelectedModule())
+                {
+                    _overrideModule.isActive = true;
+                    // _overrideModule.isStarterActive = false;
+                    overrideStatus = SetDependenciesToActive();
+                }
+                else
+                {
+                    overrideStatus = false;
+                }
             }
             else
             {
-                overrideStatus = false;
+                overrideStatus = true;
             }
 
             modulesDictionary.Add(_overrideModule.name, overrideStatus);
