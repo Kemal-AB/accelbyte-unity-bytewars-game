@@ -1,9 +1,8 @@
-using System;
-using AccelByte.Api;
 using AccelByte.Core;
 using AccelByte.Models;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 public class LoginHandler : MenuCanvas
@@ -15,10 +14,13 @@ public class LoginHandler : MenuCanvas
     [SerializeField] private Button retryLoginButton;
     [SerializeField] private Button quitGameButton;
     [SerializeField] private TMP_Text failedMessageText;
+    [SerializeField] private Button loginWithSteamButton;
 
     public delegate void LoginHandlerDelegate(TokenData tokenData);
     public static event LoginHandlerDelegate onLoginCompleted = delegate {};
-    
+
+    public UnityAction onRetryLoginClicked;
+
     private AuthEssentialsWrapper _authWrapper;
     private LoginType _lastLoginMethod;
         
@@ -70,7 +72,7 @@ public class LoginHandler : MenuCanvas
     {
         // UI initialization
         loginWithDeviceIdButton.onClick.AddListener(OnLoginWithDeviceIdButtonClicked);
-        retryLoginButton.onClick.AddListener(OnRetryLoginButtonClicked);
+        retryLoginButton.onClick.AddListener(onRetryLoginClicked);
         quitGameButton.onClick.AddListener(OnQuitGameButtonClicked);
 
         CurrentView = LoginView.LoginState;
@@ -80,10 +82,11 @@ public class LoginHandler : MenuCanvas
     {
         CurrentView = LoginView.LoginLoading;
         _lastLoginMethod = loginMethod;
+        onRetryLoginClicked = OnRetryLoginButtonClicked;
         _authWrapper.Login(loginMethod, OnLoginCompleted);
     }
 
-    private void OnLoginCompleted(Result<TokenData, OAuthError> result)
+    public void OnLoginCompleted(Result<TokenData, OAuthError> result)
     {
         if (!result.IsError)
         {
@@ -121,5 +124,21 @@ public class LoginHandler : MenuCanvas
     public override AssetEnum GetAssetEnum()
     {
         return AssetEnum.LoginMenuCanvas;
+    }
+    public Button GetLoginButton(LoginType loginType)
+    {
+        switch (loginType)
+        {
+            case LoginType.Steam:
+                return loginWithSteamButton;
+            case LoginType.DeviceId:
+                return loginWithDeviceIdButton;
+        }
+        return null;
+    }
+
+    public void SetView(LoginView loginView)
+    {
+        CurrentView = loginView;
     }
 }

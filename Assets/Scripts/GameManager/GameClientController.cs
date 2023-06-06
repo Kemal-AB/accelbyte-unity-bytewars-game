@@ -181,6 +181,8 @@ public class GameClientController : NetworkBehaviour
         if (GameManager.Instance.ConnectedPlayerStates.TryGetValue(clientNetworkId, out var playerState))
         {
             playerState.playerId = clientPlayerState.playerId;
+            playerState.avatarUrl = clientPlayerState.avatarUrl;
+            playerState.playerName = clientPlayerState.playerName;
             var g = GameManager.Instance;
             g.UpdatePlayerStatesClientRpc(g.ConnectedTeamStates.Values.ToArray(),
                 g.ConnectedPlayerStates.Values.ToArray());

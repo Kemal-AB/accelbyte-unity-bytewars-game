@@ -126,10 +126,9 @@ public class GameManager : NetworkBehaviour
             _unityTransport = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
         #if UNITY_SERVER
         StartServer();
-        #else
+        #endif
         if (debug == null)
             debug = new DebugImplementation();
-        #endif
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
         _hud.Reset();
         StartWait();

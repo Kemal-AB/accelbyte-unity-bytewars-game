@@ -22,6 +22,11 @@ public static class ConnectionHandler
             
             return true;
         }
+        #if UNITY_EDITOR
+                LocalServerName = SystemInfo.deviceName;
+                LocalServerIP = GetLocalIPAddress();
+                return true;
+        #endif
 
         return false;
     }

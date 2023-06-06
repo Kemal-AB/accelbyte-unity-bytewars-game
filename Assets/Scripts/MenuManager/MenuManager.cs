@@ -318,7 +318,7 @@ public class MenuManager : MonoBehaviour
     {
         var modulePrefab = moduleData.prefab;
         var menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
-        menubyModule.name = modulePrefab.name; ;
+        menubyModule.name = modulePrefab.name;
         _menusDictionary.Add(menubyModule.GetAssetEnum(), menubyModule);
         _menusDictionary[menubyModule.GetAssetEnum()].gameObject.SetActive(false);
     }
@@ -461,5 +461,14 @@ public class MenuManager : MonoBehaviour
     public MenuCanvas GetCurrentMenu()
     {
         return _currentMainMenu;
+    }
+
+    public MenuCanvas GetMenu(AssetEnum assetEnum)
+    {
+        if (_menusDictionary.TryGetValue(assetEnum, out var menuCanvas))
+        {
+            return menuCanvas;
+        }
+        return null;
     }
 }
