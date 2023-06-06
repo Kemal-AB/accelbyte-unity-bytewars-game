@@ -23,11 +23,11 @@ public class StatsHelper : MonoBehaviour
 
     #region AB Functions Call
     
-    private void CheckHighestScoreStats(GameModeEnum gameMode, List<PlayerState> playerStates)
+    private void CheckHighestScoreStats(GameModeEnum gameMode, InGameMode inGameMode, List<PlayerState> playerStates)
     {
         string[] statCodes = new[] {SINGLEPLAYER_STATCODE, ELIMINATION_STATCODE, TEAMDEATHMATCH_STATCODE};
         
-        _statsWrapper.GetUserStatsFromClient(statCodes, null, result => OnCheckHighestScoreStatsCompleted(result, gameMode, playerStates));
+        _statsWrapper.GetUserStatsFromClient(statCodes, null, result => OnCheckHighestScoreStatsCompleted(result, gameMode, inGameMode, playerStates));
     }
 
     private void UpdateStatsWithClientSdk(string statCode, PlayerState playerState)
@@ -35,53 +35,66 @@ public class StatsHelper : MonoBehaviour
         _statsWrapper.UpdateUserStatsFromClient(statCode, playerState.score, "", OnUpdateStatsWithClientSdkCompleted);
     }
     
-    private void UpdateStatsWithServerSdk(string statCode, List<PlayerState> playerStates)
+    private void UpdateStatsWithServerSdk(string statCode, PlayerState playerState)
     {
         // update only the current player
         string currentUserId = MultiRegistry.GetApiClient().session.UserId;
-        foreach (PlayerState playerState in playerStates)
+        Dictionary<string, float> statItems = new Dictionary<string, float>()
         {
-            if (playerState.playerId == currentUserId)
-            {
-                Dictionary<string, float> statItems = new Dictionary<string, float>()
-                {
-                    {statCode, playerState.score}
-                };
-                _statsWrapper.UpdateUserStatsFromServer(currentUserId, statItems, "", OnUpdateStatsWithServerSdkCompleted);
-            }
-        }
+            {statCode, playerState.score}
+        };
+        _statsWrapper.UpdateUserStatsFromServer(currentUserId, statItems, "", OnUpdateStatsWithServerSdkCompleted);
     }
     
     #endregion
 
     #region Callback Functions
 
-    private void OnCheckHighestScoreStatsCompleted(Result<PagedStatItems> result, GameModeEnum gameMode, List<PlayerState> playerStates)
+    private void OnCheckHighestScoreStatsCompleted(Result<PagedStatItems> result, GameModeEnum gameMode, InGameMode inGameMode, List<PlayerState> playerStates)
     {
+        Dictionary<string, float> currentHighestScore = new Dictionary<string, float>();
+        string currentUserId = MultiRegistry.GetApiClient().session.UserId;
+        string currentStatCode = "";
+
+        // set stat code based on the current Game Mode
+        if (gameMode is GameModeEnum.SinglePlayer)
+        {
+            currentStatCode = SINGLEPLAYER_STATCODE;
+        }
+        else if (inGameMode is InGameMode.OnlineEliminationGameMode)
+        {
+            currentStatCode = ELIMINATION_STATCODE;
+        }
+        else if (inGameMode is InGameMode.OnlineDeathMatchGameMode)
+        {
+            currentStatCode = TEAMDEATHMATCH_STATCODE;
+        }
+
+        // if query success
         if (!result.IsError)
         {
-            Dictionary<string, float> currentHighestScore = new Dictionary<string, float>();
             foreach (StatItem statItem in result.Value.data)
             {
                 currentHighestScore.Add(statItem.statCode, statItem.value);
             }
-
-            float singlePlayerHighestScore = 0;
-            currentHighestScore.TryGetValue(SINGLEPLAYER_STATCODE, out singlePlayerHighestScore);
-            if (gameMode is GameModeEnum.SinglePlayer && playerStates[0].score > singlePlayerHighestScore)
+            
+            // Only update stats if the score is higher than the current highest score stat
+            foreach (PlayerState playerState in playerStates)
             {
-                UpdateStatsWithClientSdk(SINGLEPLAYER_STATCODE, playerStates[0]);
-            }
-
-            if (gameMode is GameModeEnum.OnlineMultiplayer)
-            {
-                string currentUserId = MultiRegistry.GetApiClient().session.UserId;
-                foreach (PlayerState playerState in playerStates)
+                if (playerState.playerId == currentUserId && playerState.score > currentHighestScore[currentStatCode])
                 {
-                    if (playerState.playerId == currentUserId)
-                    {
-                        UpdateStatsWithServerSdk(ELIMINATION_STATCODE, playerStates);
-                    }
+                    UpdateStatSDKUsageChecker(gameMode, currentStatCode, playerState);
+                }
+            }
+        }
+        else
+        {
+            // Create a new stat item since the stat doesn't exist yet
+            foreach (PlayerState playerState in playerStates)
+            {
+                if (playerState.playerId == currentUserId)
+                {
+                    UpdateStatSDKUsageChecker(gameMode, currentStatCode, playerState);
                 }
             }
         }
@@ -104,4 +117,16 @@ public class StatsHelper : MonoBehaviour
     }
     
     #endregion
+
+    private void UpdateStatSDKUsageChecker(GameModeEnum gameMode, string currentStatCode, PlayerState playerState)
+    {
+        if (gameMode is GameModeEnum.SinglePlayer)
+        {
+            UpdateStatsWithClientSdk(currentStatCode, playerState);
+        }
+        if (gameMode is GameModeEnum.OnlineMultiplayer)
+        {
+            UpdateStatsWithServerSdk(currentStatCode, playerState);
+        }
+    }
 }
