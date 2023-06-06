@@ -698,7 +698,7 @@ public class GameManager : NetworkBehaviour
                 _hud.gameObject.SetActive(false);
                 break;
             case InGameState.GameOver:
-                onGameOver.Invoke(_gameMode, ConnectedPlayerStates.Values.ToList());
+                onGameOver.Invoke(_gameMode, _inGameMode, ConnectedPlayerStates.Values.ToList());
                 
                 _serverHelper.CancelCountdown();
                 if (NetworkManager.Singleton.IsListening)
