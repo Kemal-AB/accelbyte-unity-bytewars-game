@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
 {
-    private const string CLASS_NAME = "SinglePlatformAuthEssentialsWrapper";
+    private const string ClassName = "SinglePlatformAuthEssentialsWrapper";
     private User user;
     private LoginHandler loginHandler = null;
     private SteamHelper steamHelper;
-    private const PlatformType platformType = PlatformType.Steam;
+    private const PlatformType PlatformType = AccelByte.Models.PlatformType.Steam;
     private ResultCallback<TokenData, OAuthError> platformLoginCallback;
 
     private void OnEnable()
@@ -22,9 +22,14 @@ public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
     }
     private void Start()
     {
-        Debug.Log($"{CLASS_NAME} is started");
+        Debug.Log($"{ClassName} is started");
         var apiClient = MultiRegistry.GetApiClient();
         user = apiClient.GetApi<User, UserApi>();
+        SetLoginWithSteamButtonClickCallback();
+    }
+
+    private void SetLoginWithSteamButtonClickCallback()
+    {
         if (loginHandler == null)
         {
             if (MenuManager.Instance != null)
@@ -34,7 +39,8 @@ public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
                 {
                     loginHandler = loginHandlerC;
                     var loginWithSteamButton = loginHandler.GetLoginButton(LoginType.Steam);
-                    bool isSingleAuthModuleActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.SinglePlatformAuthEssentials);
+                    bool isSingleAuthModuleActive =
+                        TutorialModuleManager.Instance.IsModuleActive(TutorialType.SinglePlatformAuthEssentials);
                     bool isLoginWithSteam = isSingleAuthModuleActive && SteamManager.Initialized;
                     if (isLoginWithSteam)
                     {
@@ -52,14 +58,14 @@ public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
             }
         }
     }
-    
+
     private void OnLoginWithSteamButtonClicked()
     {
         if (loginHandler != null)
         {
             loginHandler.onRetryLoginClicked = OnLoginWithSteamButtonClicked;
             loginHandler.SetView(LoginHandler.LoginView.LoginLoading);
-            GetSteamToken();
+            LoginWithSteam();
         }
     }
     
@@ -74,7 +80,7 @@ public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
     {
         if (result.IsError)
         {
-            Debug.Log($"[{CLASS_NAME}] error OnGetUserCompleted:{result.Error.Message}");
+            Debug.Log($"[{ClassName}] error OnGetUserCompleted:{result.Error.Message}");
         }
         else
         {
@@ -84,10 +90,11 @@ public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
         }
     }
     
-    private void GetSteamToken()
+    private void LoginWithSteam()
     {
         if (steamHelper == null)
             steamHelper = new SteamHelper();
+        //get steam token to be used as platform token later
         steamHelper.GetToken(OnGetSteamTokenFinished);
     }
 
@@ -95,7 +102,8 @@ public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
     {
         if (loginHandler != null)
         {
-            user.LoginWithOtherPlatform(platformType, steamSessionTicket, loginHandler.OnLoginCompleted);
+            //login with platform token
+            user.LoginWithOtherPlatform(PlatformType, steamSessionTicket, loginHandler.OnLoginCompleted);
         }
     }
 }
