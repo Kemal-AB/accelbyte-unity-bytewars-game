@@ -6,9 +6,19 @@ using UnityEditor;
 using UnityEngine;
 
 
-public class EditorUtility
+public static class EditorUtility
 {
     private const string GameModeFolder = @"Assets\GameMode";
+
+    // static EditorUtility()
+    // {
+    //     EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+    // }
+    //
+    // private static void OnPlayModeStateChanged(PlayModeStateChange state)
+    // {
+    //     Debug.Log($"editor play state: {state}");
+    // }
 
     [MenuItem("AssetDatabase/Force Save Game Mode")]
     static void ForceReserializeAsset()
@@ -28,7 +38,7 @@ public class EditorUtility
     }
     
     [InitializeOnLoadMethod]
-    static void CheckSteamConfiguration()
+    static async void CheckSteamConfiguration()
     {
         DefaultEngineIniReader.ReadConfiguration();
         var strVal = DefaultEngineIniReader.Get("SteamWorks", "appId");
@@ -36,15 +46,25 @@ public class EditorUtility
         {
             if (uint.TryParse(strVal, out var uintVal))
             {
-                string strCWDPath = Directory.GetCurrentDirectory();
-                string strSteamAppIdPath = Path.Combine(strCWDPath, "steam_appid.txt");
+                string strCwdPath = Directory.GetCurrentDirectory();
+                string strSteamAppIdPath = Path.Combine(strCwdPath, "steam_appid.txt");
                 if (File.Exists(strSteamAppIdPath)) {
                     using var sr = new StreamReader(strSteamAppIdPath);
-                    var content = sr.ReadLine();
+                    var content = await sr.ReadLineAsync();
+                    sr.Close();
                     if (!strVal.Equals(content))
                     {
-                        File.WriteAllText(strSteamAppIdPath, strVal);
-                        Debug.Log("update steam_appid to "+strVal);
+                        try
+                        {
+                            await File.WriteAllTextAsync(strSteamAppIdPath, strVal);
+                            Debug.Log("update steam_appid to "+strVal);
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.Log("failed to automatically update steam_appid.txt, " +
+                                      "please close the file or update it manually " +
+                                      $"error: {e.Message}");
+                        }
                     }
                 }
             }

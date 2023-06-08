@@ -44,7 +44,7 @@ public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
                     bool isLoginWithSteam = isSingleAuthModuleActive && SteamManager.Initialized;
                     if (isLoginWithSteam)
                     {
-                        if (GConfig.GetBool(GConfigType.AutoLoginSteam))
+                        if (GConfig.GetBool("Steamworks", "bAutoLogin", true))
                         {
                             OnLoginWithSteamButtonClicked();
                         }
