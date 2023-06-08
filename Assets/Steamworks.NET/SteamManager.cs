@@ -11,6 +11,7 @@
 
 using UnityEngine;
 #if !DISABLESTEAMWORKS
+using System;
 using System.Collections;
 using Steamworks;
 using UnityEngine.SceneManagement;
@@ -94,7 +95,13 @@ public class SteamManager : MonoBehaviour {
 			// Once you get a Steam AppID assigned by Valve, you need to replace AppId_t.Invalid with it and
 			// remove steam_appid.txt from the game depot. eg: "(AppId_t)480" or "new AppId_t(480)".
 			// See the Valve documentation for more information: https://partner.steamgames.com/doc/sdk/api#initialization_and_shutdown
-			if (SteamAPI.RestartAppIfNecessary(new AppId_t(2396170))) {
+			uint appId = 480;
+			var strAppId = GConfig.GetString("SteamWorks", "appId", "");
+			if (!String.IsNullOrEmpty(strAppId))
+			{
+				uint.TryParse(strAppId, out appId);
+			}
+			if (SteamAPI.RestartAppIfNecessary(new AppId_t(appId))) {
 				Application.Quit();
 				return;
 			}

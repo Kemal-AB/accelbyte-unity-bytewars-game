@@ -58,6 +58,7 @@ public class CacheHelper
         onLoadFinished?.Invoke(result);
     }
 
+    private static string _baseCachePath;
     private static void LoadCachePath()
     {
         if (!_isCachePathLoaded)
@@ -85,8 +86,12 @@ public class CacheHelper
 
     private static string GetBaseCachePath()
     {
-        var s = Path.DirectorySeparatorChar;
-        return Application.persistentDataPath + s + CachePath + s;
+        if (String.IsNullOrEmpty(_baseCachePath))
+        {
+            var s = Path.DirectorySeparatorChar;
+            _baseCachePath = Application.persistentDataPath + s + CachePath + s;
+        }
+        return _baseCachePath;
     }
 
     private static string GetUriLastElementFilename(Uri uri)

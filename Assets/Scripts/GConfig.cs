@@ -1,15 +1,29 @@
+using System;
 using System.Collections.Generic;
 
 public class GConfig
 {
-    private static Dictionary<GConfigType, bool> _bools = new Dictionary<GConfigType, bool>()
+    public static bool GetBool(string section, string key, bool defaultValue)
     {
-        { GConfigType.AutoLoginSteam, true }
-    };
+        var strVal = DefaultEngineIniReader.Get(section, key);
+        if (!String.IsNullOrEmpty(strVal))
+        {
+            if (bool.TryParse(strVal, out var boolVal))
+            {
+                return boolVal;
+            }
+        }
+        return defaultValue;
+    }
 
-    public static bool GetBool(GConfigType configType)
+    public static string GetString(string section, string key, string defaultValue)
     {
-        return _bools.TryGetValue(configType, out var value) && value;
+        var strVal = DefaultEngineIniReader.Get(section, key);
+        if (!String.IsNullOrEmpty(strVal))
+        {
+            return strVal;
+        }
+        return defaultValue;
     }
 }
 
