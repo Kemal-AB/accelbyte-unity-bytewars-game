@@ -20,13 +20,15 @@ public class SteamHelper
     }
 
     private WaitForSeconds halfSeconds = new WaitForSeconds(0.5f);
-    public async void GetToken(Action<string> onFinished)
+    public async void GetAuthSessionTicket(Action<string> onFinished)
     {
         if (isInitialized && String.IsNullOrEmpty(m_SessionTicket))
         {
             m_AuthTicketResponseCallback = Callback<GetAuthSessionTicketResponse_t>.Create(OnAuthCallback);
             var buffer = new byte[1024];
-            m_AuthTicket = SteamUser.GetAuthSessionTicket(buffer, buffer.Length, out var ticketSize);
+            SteamNetworkingIdentity identity = new SteamNetworkingIdentity();
+            identity.SetGenericString("");
+            m_AuthTicket = SteamUser.GetAuthSessionTicket(buffer, buffer.Length, out var ticketSize, ref identity);
 
             Array.Resize(ref buffer, (int)ticketSize);
 

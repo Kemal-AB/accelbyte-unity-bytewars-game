@@ -1,3 +1,4 @@
+using System;
 using AccelByte.Api;
 using AccelByte.Core;
 using AccelByte.Models;
@@ -11,18 +12,11 @@ public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
     private SteamHelper steamHelper;
     private const PlatformType PlatformType = AccelByte.Models.PlatformType.Steam;
     private ResultCallback<TokenData, OAuthError> platformLoginCallback;
-
-    private void OnEnable()
-    {
-        LoginHandler.onLoginCompleted += OnLoginCompleted;
-    }
-    private void OnDisable()
-    {
-        LoginHandler.onLoginCompleted -= OnLoginCompleted;
-    }
+    private TokenData tokenData;
+    
     private void Start()
     {
-        Debug.Log($"{ClassName} is started");
+        steamHelper = new SteamHelper();
         var apiClient = MultiRegistry.GetApiClient();
         user = apiClient.GetApi<User, UserApi>();
         SetLoginWithSteamButtonClickCallback();
@@ -44,7 +38,7 @@ public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
                     bool isLoginWithSteam = isSingleAuthModuleActive && SteamManager.Initialized;
                     if (isLoginWithSteam)
                     {
-                        if (GConfig.GetBool("Steamworks", "bAutoLogin", true))
+                        if (GConfig.GetBool("SteamWorks", "bAutoLogin", true))
                         {
                             OnLoginWithSteamButtonClicked();
                         }
@@ -61,49 +55,72 @@ public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
 
     private void OnLoginWithSteamButtonClicked()
     {
-        if (loginHandler != null)
-        {
-            loginHandler.onRetryLoginClicked = OnLoginWithSteamButtonClicked;
-            loginHandler.SetView(LoginHandler.LoginView.LoginLoading);
-            LoginWithSteam();
-        }
+        if (loginHandler == null) return;
+        loginHandler.onRetryLoginClicked = OnLoginWithSteamButtonClicked;
+        loginHandler.SetView(LoginHandler.LoginView.LoginLoading);
+        //get steam token to be used as platform token later
+        steamHelper.GetAuthSessionTicket(OnGetAuthSessionTicketFinished);
     }
-    
-    private void OnLoginCompleted(TokenData tokenData)
+
+    private void GetUserPublicData(string receivedUserId)
     {
-        var userId = tokenData.user_id;
-        GameData.CachedPlayerState.playerId = userId;
-        user.GetUserByUserId(userId, OnGetUserCompleted);
+        GameData.CachedPlayerState.playerId = receivedUserId;
+        user.GetUserByUserId(receivedUserId, OnGetUserPublicDataFinished);
     }
     
-    private void OnGetUserCompleted(Result<PublicUserData> result)
+    private void OnGetUserPublicDataFinished(Result<PublicUserData> result)
     {
         if (result.IsError)
         {
-            Debug.Log($"[{ClassName}] error OnGetUserCompleted:{result.Error.Message}");
+            Debug.Log($"[{ClassName}] error OnGetUserPublicDataFinished:{result.Error.Message}");
+            loginHandler.onRetryLoginClicked = () => GetUserPublicData(tokenData.user_id);
+            loginHandler.OnLoginCompleted(CreateLoginErrorResult(result.Error.Code, result.Error.Message));
         }
         else
         {
             var publicUserData = result.Value;
             GameData.CachedPlayerState.avatarUrl = publicUserData.avatarUrl;
             GameData.CachedPlayerState.playerName = publicUserData.displayName;
+            loginHandler.OnLoginCompleted(Result<TokenData,OAuthError>.CreateOk(tokenData));
         }
-    }
-    
-    private void LoginWithSteam()
-    {
-        if (steamHelper == null)
-            steamHelper = new SteamHelper();
-        //get steam token to be used as platform token later
-        steamHelper.GetToken(OnGetSteamTokenFinished);
     }
 
-    private void OnGetSteamTokenFinished(string steamSessionTicket)
+    private void OnGetAuthSessionTicketFinished(string steamAuthSessionTicket)
     {
-        if (loginHandler != null)
+        if (loginHandler == null) return;
+        if (String.IsNullOrEmpty(steamAuthSessionTicket))
+        {
+            loginHandler.OnLoginCompleted(
+                CreateLoginErrorResult(ErrorCode.CachedTokenNotFound, 
+                    "Failed to get steam token"));
+        }
+        else
         {
             //login with platform token
-            user.LoginWithOtherPlatform(PlatformType, steamSessionTicket, loginHandler.OnLoginCompleted);
+            user.LoginWithOtherPlatform(PlatformType, 
+                steamAuthSessionTicket, OnLoginWithOtherPlatformCompleted);
         }
+    }
+
+    private void OnLoginWithOtherPlatformCompleted(Result<TokenData, OAuthError> result)
+    {
+        if (result.IsError)
+        {
+            loginHandler.OnLoginCompleted(result);
+        }
+        else
+        {
+            tokenData = result.Value;
+            GetUserPublicData(tokenData.user_id);
+        }
+    }
+
+    private Result<TokenData, OAuthError> CreateLoginErrorResult(ErrorCode errorCode, string errorDescription)
+    {
+        return Result<TokenData, OAuthError>.CreateError(new OAuthError()
+        {
+            error = errorCode.ToString(),
+            error_description = errorDescription
+        });
     }
 }
