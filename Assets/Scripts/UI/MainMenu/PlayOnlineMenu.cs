@@ -22,8 +22,11 @@ public class PlayOnlineMenu : MenuCanvas
     }
 
 
-    public void OnQuickPlayButtonPressed()
+    private void OnQuickPlayButtonPressed()
     {
+        // MenuManager.Instance.ChangeToMenu(AssetEnum.ServerTypeSelection);
+        //TODO delete this and uncomment code above to enable peer to peer server selection
+        GameData.ServerType = ServerType.OnlineDedicatedServer;
         MenuManager.Instance.ChangeToMenu(AssetEnum.QuickPlayMenuCanvas);
     }
 

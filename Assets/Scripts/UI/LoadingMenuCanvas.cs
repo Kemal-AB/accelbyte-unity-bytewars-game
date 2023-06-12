@@ -11,6 +11,8 @@ public class LoadingMenuCanvas : MenuCanvas
     [SerializeField] private Image[] loadingImages;
     [SerializeField] private Button cancelBtn;
     [SerializeField] private TextMeshProUGUI infoText;
+    [SerializeField] private GameObject timeoutContainer;
+    [SerializeField] private TextMeshProUGUI timeoutInfo;
 
     private int _index = 0;
 
@@ -60,7 +62,12 @@ public class LoadingMenuCanvas : MenuCanvas
             return null;
     }
 
-    public void Show(string loadingInfo, UnityAction cancelCallback)
+    private int loadingTimeoutSec = 0;
+    private string timeoutPrefix;
+    private string timeoutReachedInfo;
+    private readonly WaitForSeconds wait1Second = new WaitForSeconds(1);
+    private IEnumerator timeoutRoutine;
+    public void Show(string loadingInfo, LoadingTimeoutInfo loadingTimeoutInfo=null, UnityAction cancelCallback=null)
     {
         infoText.text = loadingInfo;
         if (cancelCallback!=null)
@@ -72,10 +79,56 @@ public class LoadingMenuCanvas : MenuCanvas
         {
             cancelBtn.gameObject.SetActive(false);
         }
+
+        if (loadingTimeoutInfo == null)
+        {
+            timeoutContainer.gameObject.SetActive(false);
+        }
+        else
+        {
+            timeoutContainer.gameObject.SetActive(true);
+            loadingTimeoutSec = loadingTimeoutInfo.timeoutSec;
+            timeoutPrefix = loadingTimeoutInfo.info;
+            timeoutReachedInfo = loadingTimeoutInfo.timeoutReachedError;
+            UpdateTimeoutLabel();
+            timeoutRoutine = UpdateTimeout();
+            StartCoroutine(timeoutRoutine);
+        }
+    }
+
+    private void UpdateTimeoutLabel()
+    {
+        timeoutInfo.text = timeoutPrefix + loadingTimeoutSec;
+    }
+
+    private IEnumerator UpdateTimeout()
+    {
+        while (loadingTimeoutSec>0)
+        {
+            loadingTimeoutSec--;
+            yield return wait1Second;
+            UpdateTimeoutLabel();
+        }
+        MenuManager.Instance.ShowInfo(timeoutReachedInfo, "Timeout");
+        gameObject.SetActive(false);
+    }
+
+
+    private void OnDisable()
+    {
+        if(timeoutRoutine!=null)
+            StopCoroutine(timeoutRoutine);
     }
 
     public override AssetEnum GetAssetEnum()
     {
         return AssetEnum.LoadingMenuCanvas;
     }
+}
+
+public class LoadingTimeoutInfo
+{
+    public string info;
+    public string timeoutReachedError;
+    public int timeoutSec;
 }

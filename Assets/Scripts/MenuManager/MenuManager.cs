@@ -203,7 +203,7 @@ public class MenuManager : MonoBehaviour
     /// Go to main menu from another scene
     /// </summary>
     /// <param name="sceneName"></param>
-    public void ChangeToMainMenu([CanBeNull] string sceneName)
+    public void ChangeToMainMenu(int sceneBuildIndex=-1)
     {
         AudioManager.Instance.PlayMenuBGM();
                 
@@ -211,7 +211,7 @@ public class MenuManager : MonoBehaviour
 
         LeanTween.alpha(_currentMainMenu.gameObject, 0, 0.4f).setOnComplete(() =>
         {
-            OnChangeToMainMenuComplete(sceneName);
+            OnChangeToMainMenuComplete(sceneBuildIndex);
         });
         
     }
@@ -220,11 +220,11 @@ public class MenuManager : MonoBehaviour
     /// Go to main menu callback
     /// </summary>
     /// <param name="sceneName"></param>
-    private void OnChangeToMainMenuComplete([CanBeNull] string sceneName)
+    private void OnChangeToMainMenuComplete(int sceneBuildIndex=-1)
     {
-        if (sceneName != null)
+        if (sceneBuildIndex>-1)
         {
-            SceneManager.LoadScene(sceneName,LoadSceneMode.Single);
+            SceneManager.LoadScene(sceneBuildIndex);
         }
         var mainMenu = _menusDictionary[AssetEnum.MainMenuCanvas];
         _currentMainMenu = mainMenu;
@@ -345,7 +345,7 @@ public class MenuManager : MonoBehaviour
     // Go to Main menu from Login menu
     public void LoginToMainMenu()
     {
-        ChangeToMainMenu(null);
+        ChangeToMainMenu();
     }
 
     #endregion
@@ -386,11 +386,11 @@ public class MenuManager : MonoBehaviour
         return targetMenu;
     }
 
-    public void ShowLoading(string info, UnityAction cancelCallback = null)
+    public void ShowLoading(string info, LoadingTimeoutInfo loadingTimeoutInfo=null, UnityAction cancelCallback = null)
     {
         _currentMainMenu.gameObject.SetActive(false);
         LoadingMenuCanvas l = (LoadingMenuCanvas) _menusDictionary[AssetEnum.LoadingMenuCanvas];
-        l.Show(info, cancelCallback);
+        l.Show(info, loadingTimeoutInfo, cancelCallback);
         l.gameObject.SetActive(true);
     }
 

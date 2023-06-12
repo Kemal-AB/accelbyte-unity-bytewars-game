@@ -31,7 +31,7 @@ MonoBehaviour:
   numLevelObjectsToSpawn: 7
   numRetriesToPlaceLevelObject: 5
   numRetriesToPlacePlayer: 100
-  gameDuration: 600
+  gameDuration: 300
   baseKillScore: 500
   playerStartLives: 2
   teamColours:

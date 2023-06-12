@@ -104,6 +104,7 @@ public class ConnectionHelper
         Debug.Log(reason);
         response.Reason = reason;
     }
+    
 }
 
 public class ConnectionApprovalResult

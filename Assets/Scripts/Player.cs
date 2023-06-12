@@ -11,6 +11,7 @@ public class Player : GameEntityAbs
     public Missile m_missilePrefab;
     public ShipDestroyedEffect m_shipDestroyedEffectPrefab;
     public FxEntity m_missileTrailPrefab;
+    public PlayerInput playerInput;
     public float m_minMissileSpeed = 1.5f;
     public float m_maxMissileSpeed = 9.0f;
     private int _maxMissilesInFlight = 2;
@@ -64,16 +65,13 @@ public class Player : GameEntityAbs
 
     void Update()
     {
-        if (GameManager.Instance.InGameState == InGameState.Playing)
+        if (m_normalisedRotateSpeed != 0)
         {
-            if (m_normalisedRotateSpeed != 0)
-            {
-                transform.Rotate(Vector3.forward, Time.deltaTime * m_normalisedRotateSpeed * -100.0f);
-            }
-            if( m_normalisedPowerChangeSpeed != 0.0f )
-            {
-                ChangePowerLevel(m_normalisedPowerChangeSpeed);
-            }
+            transform.Rotate(Vector3.forward, Time.deltaTime * m_normalisedRotateSpeed * -100.0f);
+        }
+        if( m_normalisedPowerChangeSpeed != 0.0f )
+        {
+            ChangePowerLevel(m_normalisedPowerChangeSpeed);
         }
     }
 
@@ -95,6 +93,7 @@ public class Player : GameEntityAbs
     public void Init(int maxMissilesInFlight, Color color)
     {
         _colour = color;
+        playerInput.enabled = true;
         var t = transform;
         t.position = _playerState.position;
         if (!m_powerBarUI)
@@ -159,10 +158,9 @@ public class Player : GameEntityAbs
         var velocity = t.up * Mathf.Lerp(m_minMissileSpeed, m_maxMissileSpeed, FirePowerLevel);
         missile.Init(_playerState, missileSpawnPosition, rotation, velocity, _colour);
         _firedMissiles.Add(missile.GetId(), missile);
-        if(!NetworkManager.Singleton.IsServer)
-        {
-            AddMissileTrail(missile.gameObject, missileSpawnPosition);
-        }
+        #if !UNITY_SERVER
+        AddMissileTrail(missile.gameObject, missileSpawnPosition);
+        #endif
         return new MissileFireState()
         {
             spawnPosition = missileSpawnPosition,
@@ -287,16 +285,17 @@ public class Player : GameEntityAbs
 
     void OnRotateShip(InputValue amount)
     {
-        if (GameManager.Instance.InGameState == InGameState.Playing)
-        {
-            SetNormalisedRotateSpeed(amount.Get<float>());
-            //Debug.Log($"rotate value: {amount.Get<float>()}");
-        }
+        var gameState = GameManager.Instance.InGameState;
+        if (gameState is InGameState.GameOver or InGameState.LocalPause)
+            return;
+        SetNormalisedRotateSpeed(amount.Get<float>());
     }
     void OnChangePower(InputValue amount)
     {
-        if(GameManager.Instance.InGameState==InGameState.Playing)
-            SetNormalisedPowerChangeSpeed(amount.Get<float>());
+        var gameState = GameManager.Instance.InGameState;
+        if (gameState is InGameState.GameOver or InGameState.LocalPause)
+            return;
+        SetNormalisedPowerChangeSpeed(amount.Get<float>());
     }
 
     void OnOpenPauseMenu()

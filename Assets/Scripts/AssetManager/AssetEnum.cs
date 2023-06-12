@@ -19,6 +19,7 @@ public enum AssetEnum
       PlayMenuCanvas,
       PlayOnlineMenuCanvas,
       QuickPlayMenuCanvas,
+      ServerTypeSelection,
       MatchPanel,
       CreditsMenuCanvas,
       HelpMenuCanvas,

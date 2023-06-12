@@ -1,4 +1,5 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,45 +13,60 @@ public class QuickPlayMenu : MenuCanvas
     void Start()
     {
         eliminationButton.onClick.AddListener(OnEliminationButtonPressed);
-        teamDeadmatchButton.onClick.AddListener(OnTeamDeadmatchButtonPressed);
+        teamDeadmatchButton.onClick.AddListener(OnTeamDeathMatchButtonPressed);
         backButton.onClick.AddListener(MenuManager.Instance.OnBackPressed);
     }
 
     public void OnEliminationButtonPressed()
     {
-        MenuManager.Instance.ShowLoading("Finding Match...", ClickCancelMatchmakingElimination);
+        MenuManager.Instance.ShowLoading("Finding Elimination Match...", null, ClickCancelMatchmakingElimination);
         //call dummy Accelbyte Game Services for matchmaking to get server ip address and port
-        matchmaking.StartMatchmaking(OnMatchmakingFinished);
+        matchmaking.StartMatchmaking(InGameMode.OnlineEliminationGameMode, OnMatchmakingFinished);
         
     }
 
+    private readonly LoadingTimeoutInfo loadingTimeoutInfo = new LoadingTimeoutInfo()
+    {
+        info = "Joining match will timeout in: ",
+        timeoutReachedError = "Timeout in joining match",
+        timeoutSec = GameConstant.MaxConnectAttemptsSec
+    };
     private void OnMatchmakingFinished(MatchmakingResult result)
     {
         if (result.m_isSuccess)
         {
-            MenuManager.Instance.ShowLoading("JOINING MATCH");
-            GameManager.Instance
-                .StartAsClient(result.m_serverIpAddress, result.m_serverPort, 
-                    InGameMode.OnlineEliminationGameMode);
+            MenuManager.Instance.ShowLoading("JOINING MATCH", loadingTimeoutInfo);
+            if (GameData.ServerType == ServerType.OnlineDedicatedServer)
+            {
+                Debug.Log("joining dedicated server...");
+                GameManager.Instance
+                    .StartAsClient(result.m_serverIpAddress, result.m_serverPort, 
+                        result.InGameMode);
+            } 
+            else if (GameData.ServerType == ServerType.OnlinePeer2Peer)
+            {
+                if (result.isStartAsHostP2P)
+                {
+                    Debug.Log($"starting as p2p host ip{result.m_serverIpAddress} port:{result.m_serverPort} InGameMode:{result.InGameMode}");
+                    GameManager.Instance
+                        .StartAsHost("127.0.0.1", result.m_serverPort, 
+                            result.InGameMode);
+                }
+                else
+                {
+                    Debug.Log($"joining p2p server ip{result.m_serverIpAddress} port:{result.m_serverPort} InGameMode:{result.InGameMode}");
+                    GameManager.Instance
+                        .StartAsClient(result.m_serverIpAddress, result.m_serverPort, 
+                            result.InGameMode); 
+                }
+            }
+                
         }
         else
         {
             MenuManager.Instance.HideLoading();
+            MenuManager.Instance.ShowInfo(result.m_errorMessage, "Error");
             Debug.Log("failed to matchmaking, please try again, error: "+result.m_errorMessage);
-        }
-    }
-
-    private void OnJoinedDedicatedServer(string errorMessage)
-    {
-        MenuManager.Instance.HideLoading();
-        if (String.IsNullOrEmpty(errorMessage))
-        {
-            //show lobby and set its data in MatchLobbyMenu
-            MenuManager.Instance.ChangeToMenu(AssetEnum.MatchLobbyMenuCanvas);
-        }
-        else
-        {
-            Debug.Log("failed to join dedicated server (DS) reason: "+errorMessage);
         }
     }
 
@@ -62,28 +78,12 @@ public class QuickPlayMenu : MenuCanvas
         MenuManager.Instance.HideLoading();
     }
 
-    public void OnTeamDeadmatchButtonPressed()
+    private void OnTeamDeathMatchButtonPressed()
     {
-        MenuManager.Instance.ShowLoading("Finding Match...", ClickCancelMatchmakingElimination);
+        MenuManager.Instance.ShowLoading("Finding Team Death-match ...", null, ClickCancelMatchmakingElimination);
         //call dummy Accelbyte Game Services for matchmaking to get server ip address and port
-        matchmaking.StartMatchmaking(OnTeamDeathMatchMatchmakingFinished);
-    }
-
-    private void OnTeamDeathMatchMatchmakingFinished(MatchmakingResult result)
-    {
-        if (result.m_isSuccess)
-        {
-            MenuManager.Instance.ShowLoading("JOINING MATCH");
-            GameManager.Instance
-                .StartAsClient(result.m_serverIpAddress, result.m_serverPort, 
-                    InGameMode.OnlineDeathMatchGameMode);
-        }
-        else
-        {
-            MenuManager.Instance.HideLoading();
-            MenuManager.Instance.ShowInfo(result.m_errorMessage, "Error");
-            Debug.Log("failed to matchmaking, please try again, error: "+result.m_errorMessage);
-        }
+        matchmaking.StartMatchmaking(InGameMode.OnlineDeathMatchGameMode, 
+            OnMatchmakingFinished);
     }
 
     public override GameObject GetFirstButton()

@@ -55,7 +55,7 @@ public class ServerHelper
             sessionId = Guid.NewGuid().ToString(),
             playerId = ""
         };
-        Debug.Log($"added player {playerName} teamIndex: {teamIndex}");
+        Debug.Log($"added player {playerName} teamIndex:{teamIndex} clientNetworkId:{clientNetworkId}");
         if (!_connectedPlayerState.TryGetValue(clientNetworkId, out PlayerState oPState))
         {
             _connectedPlayerState.Add(clientNetworkId, pState);
@@ -81,7 +81,7 @@ public class ServerHelper
     {
         if (_connectedPlayerState.Remove(clientNetworkId, out var playerState))
         {
-            RemovePlayerStateDirectly(clientNetworkId);
+            RemovePlayerStateDirectly(clientNetworkId, playerState.teamIndex);
         }
     }
 
@@ -91,14 +91,16 @@ public class ServerHelper
         if (_connectedPlayerState.TryGetValue(clientNetworkId, out var pstate))
         {
             disconnectedPlayerState.TryAdd(pstate.sessionId, pstate);
-            disconnectedPlayers.TryAdd(pstate.sessionId, player);
+            if (player)
+            {
+                disconnectedPlayers.TryAdd(pstate.sessionId, player);
+            }
             _connectedPlayerState.Remove(clientNetworkId);
         }
     }
 
-    private void RemovePlayerStateDirectly(ulong clientNetworkId)
+    private void RemovePlayerStateDirectly(ulong clientNetworkId, int teamIndex)
     {
-        int teamIndex = _connectedPlayerState[clientNetworkId].teamIndex;
         int otherTeamMemberCount = 0;
         foreach (var keyValuePair in _connectedPlayerState)
         {
@@ -108,12 +110,10 @@ public class ServerHelper
                 otherTeamMemberCount++;
             }
         }
-
         if (otherTeamMemberCount == 0)
         {
             _connectedTeamState.Remove(teamIndex);
         }
-
         _connectedPlayerState.Remove(clientNetworkId);
     }
 

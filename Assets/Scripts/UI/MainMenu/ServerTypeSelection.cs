@@ -1,0 +1,38 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ServerTypeSelection : MenuCanvas
+{
+    [SerializeField] private Button dsButton;
+    [SerializeField] private Button p2pButton;
+    [SerializeField] private Button backButton;
+    void Start()
+    {
+        dsButton.onClick.AddListener(ClickDsButton);
+        p2pButton.onClick.AddListener(ClickP2PButton);
+        backButton.onClick.AddListener(MenuManager.Instance.OnBackPressed);
+    }
+
+    private void ClickDsButton()
+    {
+        GameData.ServerType = ServerType.OnlineDedicatedServer;
+        MenuManager.Instance.ChangeToMenu(AssetEnum.QuickPlayMenuCanvas);
+    }
+
+    private void ClickP2PButton()
+    {
+        GameData.ServerType = ServerType.OnlinePeer2Peer;
+        MenuManager.Instance.ChangeToMenu(AssetEnum.QuickPlayMenuCanvas);
+    }
+    public override GameObject GetFirstButton()
+    {
+        return dsButton.gameObject;
+    }
+
+    public override AssetEnum GetAssetEnum()
+    {
+        return AssetEnum.ServerTypeSelection;
+    }
+}
