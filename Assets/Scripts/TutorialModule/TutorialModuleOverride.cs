@@ -35,13 +35,11 @@ public static class TutorialModuleOverride
     private static Dictionary<string, TutorialModuleData> _moduleDictionary = new Dictionary<string, TutorialModuleData>();
     private static string[] _moduleDependencies;
 
-#if UNITY_EDITOR
     static TutorialModuleOverride()
     {
         EditorApplication.update += RunOnce;
         EditorApplication.quitting += Quit;
     }
-#endif
 
     private static void Quit()
     {
@@ -131,7 +129,6 @@ public static class TutorialModuleOverride
     {
         var tutorialModuleConfig = (TextAsset)Resources.Load("Modules/TutorialModuleConfig");
         var json = JsonUtility.FromJson<TutorialModuleConfig>(tutorialModuleConfig.text);
-        
         // Check if open asset config from inspector
         if (!readFromInspector)
         {
@@ -301,5 +298,12 @@ public class TutorialModuleConfig
 {
     public bool enableModulesOverride;
     public string[] modulesName;
+    public SteamConfiguration steamConfiguration;
+}
 
+[Serializable]
+public class SteamConfiguration
+{
+    public string steamAppId;
+    public bool autoLogin;
 }

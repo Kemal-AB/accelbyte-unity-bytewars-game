@@ -96,7 +96,7 @@ public class SteamManager : MonoBehaviour {
 			// remove steam_appid.txt from the game depot. eg: "(AppId_t)480" or "new AppId_t(480)".
 			// See the Valve documentation for more information: https://partner.steamgames.com/doc/sdk/api#initialization_and_shutdown
 			uint appId = 480;
-			var strAppId = GConfig.GetString("SteamWorks", "appId", "");
+			var strAppId = GConfig.GetSteamAppId();
 			if (!String.IsNullOrEmpty(strAppId))
 			{
 				uint.TryParse(strAppId, out appId);

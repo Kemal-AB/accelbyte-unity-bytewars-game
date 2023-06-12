@@ -1,4 +1,9 @@
 ﻿{
   "enableModulesOverride": true,
-  "modulesName": ["MatchmakingEssentials"]
+  "modulesName": ["SinglePlatformAuthEssentials"],
+  "steamConfiguration":
+  {
+    "steamAppId": "replace with your steam app id",
+    "autoLogin": true
+  }
 }

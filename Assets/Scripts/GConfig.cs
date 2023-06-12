@@ -3,31 +3,32 @@ using System.Collections.Generic;
 
 public class GConfig
 {
-    public static bool GetBool(string section, string key, bool defaultValue)
+    public const string ConfigurationPath = "Modules/TutorialModuleConfig";
+    public static string GetSteamAppId()
     {
-        var strVal = DefaultEngineIniReader.Get(section, key);
-        if (!String.IsNullOrEmpty(strVal))
+        var steamConfig = GetSteamConfiguration();
+        if (steamConfig != null)
         {
-            if (bool.TryParse(strVal, out var boolVal))
-            {
-                return boolVal;
-            }
+            return steamConfig.steamAppId;
         }
-        return defaultValue;
+        return "";
     }
 
-    public static string GetString(string section, string key, string defaultValue)
+    public static bool GetSteamAutoLogin()
     {
-        var strVal = DefaultEngineIniReader.Get(section, key);
-        if (!String.IsNullOrEmpty(strVal))
+        var steamConfig = GetSteamConfiguration();
+        if (steamConfig != null)
         {
-            return strVal;
+            return steamConfig.autoLogin;
         }
-        return defaultValue;
+        return true;
     }
-}
-
-public enum GConfigType
-{
-    AutoLoginSteam
+    private static SteamConfiguration GetSteamConfiguration()
+    {
+        if (ConfigurationReader.Config != null)
+        {
+            return ConfigurationReader.Config.steamConfiguration;
+        }
+        return null;
+    }
 }

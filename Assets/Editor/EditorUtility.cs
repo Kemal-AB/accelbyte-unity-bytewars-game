@@ -36,40 +36,6 @@ public static class EditorUtility
         }
         AssetDatabase.ForceReserializeAssets(gameModePaths);
     }
-    
-    [InitializeOnLoadMethod]
-    static async void CheckSteamConfiguration()
-    {
-        DefaultEngineIniReader.ReadConfiguration();
-        var strVal = DefaultEngineIniReader.Get("SteamWorks", "appId");
-        if (!String.IsNullOrEmpty(strVal))
-        {
-            if (uint.TryParse(strVal, out var uintVal))
-            {
-                string strCwdPath = Directory.GetCurrentDirectory();
-                string strSteamAppIdPath = Path.Combine(strCwdPath, "steam_appid.txt");
-                if (File.Exists(strSteamAppIdPath)) {
-                    using var sr = new StreamReader(strSteamAppIdPath);
-                    var content = await sr.ReadLineAsync();
-                    sr.Close();
-                    if (!strVal.Equals(content))
-                    {
-                        try
-                        {
-                            await File.WriteAllTextAsync(strSteamAppIdPath, strVal);
-                            Debug.Log("update steam_appid to "+strVal);
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.Log("failed to automatically update steam_appid.txt, " +
-                                      "please close the file or update it manually " +
-                                      $"error: {e.Message}");
-                        }
-                    }
-                }
-            }
-        }
-    }
 
 
 }
