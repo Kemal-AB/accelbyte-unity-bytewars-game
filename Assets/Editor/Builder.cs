@@ -18,7 +18,7 @@ public class Builder
         var options = new BuildPlayerOptions
         {
             scenes = scenes,
-            locationPathName = "Build/Client/ByteWars.exe",
+            locationPathName = "../Build/Client/ByteWars.exe",
             target = BuildTarget.StandaloneWindows64,
             options = BuildOptions.None
         };
@@ -42,7 +42,7 @@ public class Builder
         var options = new BuildPlayerOptions
         {
             scenes = scenes,
-            locationPathName = "Build/Server/ByteWarsServer.x86_64",
+            locationPathName = "../Build/Server/ByteWarsServer.x86_64",
             target = BuildTarget.StandaloneLinux64,
             subtarget = (int)StandaloneBuildSubtarget.Server,
             options = BuildOptions.None
