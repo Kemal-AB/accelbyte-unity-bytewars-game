@@ -64,6 +64,7 @@ public static class TutorialModuleOverride
                 {
                     // GetAllDependencies(isReadJsonConfig);
                     isReadJsonConfig.ToList().ForEach(x => OverrideModules($"{x}AssetConfig", true));
+                    DisableRestOfModules(isReadJsonConfig);
                     _moduleDependencies = _moduleDictionary.Select(x => x.Key.Replace("AssetConfig", "")).ToArray();
                     Debug.Log($"first time opened");
                     ShowPopupOverride.Init();
@@ -75,33 +76,7 @@ public static class TutorialModuleOverride
 
         EditorApplication.update -= RunOnce;
     }
-
-
-    // private static void GetAllDependencies(string[] isReadJsonConfig)
-    // {
-    //     var overridesModules = isReadJsonConfig;
-    //     var modulesDictionary = new Dictionary<string, bool>();
-    //     overridesModules?.ToList().ForEach(x =>
-    //     {
-    //         var module = GetTutorialModuleDataObject(x);
-    //         if (module == null)
-    //         {
-    //             return;
-    //         }
-    //         
-    //         modulesDictionary.TryAdd(module.name, true);
-    //         if (module.moduleDependencies.Length > 0)
-    //         {
-    //             modulesDictionary.TryAdd(module.name, true);
-    //             foreach (var dependency in module.moduleDependencies)
-    //             {
-    //                 dependency.moduleDependencies
-    //             }
-    //         }
-    //     });
-    //     _moduleDependencies = modulesDictionary.Select(x => x.Key).ToArray();
-    // }
-
+    
     private static bool IsTargetModuleCurrentSelectedModule()
     {
         return _overrideModule.name == Selection.activeObject.name ? true : false;
@@ -190,7 +165,6 @@ public static class TutorialModuleOverride
                 if (IsTargetModuleCurrentSelectedModule())
                 {
                     _overrideModule.isActive = true;
-                    // _overrideModule.isStarterActive = false;
                     overrideStatus = SetDependenciesToActive();
                 }
                 else
@@ -210,6 +184,22 @@ public static class TutorialModuleOverride
         });
         modulesDictionary.TryGetValue(moduleName, out overrideStatus);
         return overrideStatus;
+    }
+
+    private static void DisableRestOfModules(string[] modules)
+    {
+
+        var tutorialModules = AssetDatabase.FindAssets("AssetConfig");
+        
+        tutorialModules.ToList().ForEach(x =>
+        {
+            Debug.Log(x);
+            var asset = x != null
+                ? AssetDatabase.GUIDToAssetPath(x)
+                : null;
+            var tutorialModuleData = AssetDatabase.LoadAssetAtPath<TutorialModuleData>(asset);
+            tutorialModuleData.isActive = false;
+        });
     }
 
     private static void CheckDependency(TutorialModuleData moduleData)
@@ -257,16 +247,16 @@ public static class TutorialModuleOverride
     private static TutorialModuleData GetTutorialModuleDataObject(string moduleName)
     {
         var fileName = $"{moduleName}AssetConfig";
-        var assets = AssetDatabase.FindAssets(fileName);
-        if (assets.Length == 0)
+        var assets = AssetDatabase.FindAssets(fileName).FirstOrDefault();
+        if (assets != null && assets.Length == 0)
         {
             Debug.Log($"check your module name, the Asset Config cannot be found");
             _isError = true;
             ShowPopupOverride.Init();
             return null;
         }
-        var asset = assets[0] != null
-            ? AssetDatabase.GUIDToAssetPath(assets[0])
+        var asset = assets != null
+            ? AssetDatabase.GUIDToAssetPath(assets)
             : null;
         Debug.Log(asset);
         return AssetDatabase.LoadAssetAtPath<TutorialModuleData>(asset);
