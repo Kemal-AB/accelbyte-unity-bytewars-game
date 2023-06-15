@@ -10,6 +10,8 @@ public static class SteamEditorUtility
     private static async void CheckSteamConfiguration()
     {
         var tutorialModuleConfig = (TextAsset)Resources.Load(GConfig.ConfigurationPath);
+        if (tutorialModuleConfig == null)
+            return;
         var json = JsonUtility.FromJson<TutorialModuleConfig>(tutorialModuleConfig.text);
         if (json.steamConfiguration == null)
             return;
