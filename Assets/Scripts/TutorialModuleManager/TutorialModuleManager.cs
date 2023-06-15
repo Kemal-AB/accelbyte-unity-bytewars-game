@@ -205,7 +205,7 @@ public class TutorialModuleManager : MonoBehaviour
         // loop through result from GetWrapperClassFromActiveStarterFile
         foreach (var starterData in GetWrapperClassFromAssetConfig(tutorialModules))
         {
-            Debug.Log(starterData.Value);
+            //Debug.Log(starterData.Value);
             Type scriptClassType = TypeBuilder.GetType(starterData.Key);
             
             List<string> fullPath = starterData.Value.Split(new char[] {'\\', '/'}).ToList();
@@ -216,7 +216,7 @@ public class TutorialModuleManager : MonoBehaviour
 
         foreach (var helperScript in CheckHelperScripts(tutorialModules))
         {
-            Debug.Log(helperScript.Value);
+            //Debug.Log(helperScript.Value);
             Type scriptClassType = TypeBuilder.GetType(helperScript.Key);
             List<string> fullPath = helperScript.Value.Split(new char[] {'\\', '/'}).ToList();
             var assetIndex = fullPath.IndexOf("Assets");

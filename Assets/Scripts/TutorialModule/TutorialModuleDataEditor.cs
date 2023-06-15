@@ -21,7 +21,8 @@ public class TutorialModuleDataEditor : Editor
     private SerializedProperty _starterHelperFiles;
     
     private SerializedProperty _moduleDependencies;
-    private bool _overrideStatus;
+    private bool _forceEnableStatus;
+    private bool _forceDisableStatus;
     private TutorialModuleData _overrideModule;
     private List<string> _entrypointOptions = new List<string>();
     private bool _isDependencyModule;
@@ -42,8 +43,9 @@ public class TutorialModuleDataEditor : Editor
         _moduleDependencies = serializedObject.FindProperty("moduleDependencies");
         _starterMenuUIPrefab = serializedObject.FindProperty("starterMenuUIPrefab");
         _isStarterActive = serializedObject.FindProperty("isStarterActive");
-        _overrideStatus = TutorialModuleOverride.OverrideModules(Selection.activeObject.name);
-        _isDependencyModule = TutorialModuleOverride.IsDependency(Selection.activeObject.name);
+        _forceEnableStatus = TutorialModuleForceEnable.ForceEnableModules(Selection.activeObject.name);
+        _forceDisableStatus = TutorialModuleForceEnable.IsForceDisable;
+        _isDependencyModule = TutorialModuleForceEnable.IsDependency(Selection.activeObject.name);
 
         _hasAdditionalScripts = serializedObject.FindProperty("additionalScripts");
         _defaultHelperFiles = serializedObject.FindProperty("defaultHelperScripts");
@@ -62,7 +64,7 @@ public class TutorialModuleDataEditor : Editor
             EditorGUILayout.PropertyField(_defaultMenuUIPrefab);
             EditorGUILayout.PropertyField(_defaultModuleScript);
             EditorGUILayout.PropertyField(_type);
-            EditorGUI.BeginDisabledGroup(_overrideStatus || _isDependencyModule);
+            EditorGUI.BeginDisabledGroup(_forceEnableStatus || _isDependencyModule || _forceDisableStatus);
             EditorGUILayout.PropertyField(_isActive);
             EditorGUI.EndDisabledGroup();
             EditorGUILayout.Space();
@@ -81,7 +83,7 @@ public class TutorialModuleDataEditor : Editor
         }
         EditorGUILayout.EndFoldoutHeaderGroup();
         
-        EditorGUI.BeginDisabledGroup(_overrideStatus || _isDependencyModule);
+        EditorGUI.BeginDisabledGroup(_forceEnableStatus || _isDependencyModule);
         EditorGUILayout.PropertyField(_moduleDependencies, true);
         EditorGUI.EndDisabledGroup();
 

@@ -6,13 +6,13 @@ using UnityEditor;
 using UnityEngine;
 
 #if UNITY_EDITOR
-public class ShowPopupOverride : EditorWindow
+public class ShowPopupForceEnable : EditorWindow
 {
     private Vector2 _scrollPos;
 
     public static void Init()
     {
-        ShowPopupOverride window = ScriptableObject.CreateInstance<ShowPopupOverride>();
+        ShowPopupForceEnable window = ScriptableObject.CreateInstance<ShowPopupForceEnable>();
         window.position = new Rect(Screen.width / 2, Screen.height / 2, 300, 150);
         window.titleContent = new GUIContent("Override found on TutorialModuleConfig.json");
         window.ShowPopup();
@@ -22,10 +22,10 @@ public class ShowPopupOverride : EditorWindow
     void OnGUI()
     {
         // var modulesName = TutorialModuleOverride.ForcedModules;
-        var moduleDependencies = TutorialModuleOverride.ListAllModules;
+        var moduleDependencies = TutorialModuleForceEnable.ListAllModules;
         // var modules = modulesName != null ? String.Join(' ', modulesName) : "Null";
         var modules = moduleDependencies != null ? String.Join(' ', moduleDependencies) : "Null";
-        if (TutorialModuleOverride.IsError)
+        if (TutorialModuleForceEnable.IsError)
         {
             EditorGUILayout.LabelField($"Check your {modules} module, the Asset Config cannot be found ", EditorStyles.wordWrappedLabel);
 

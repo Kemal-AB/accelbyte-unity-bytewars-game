@@ -1,4 +1,5 @@
 ﻿{
   "enableModulesOverride": true,
-  "modulesName": ["MatchmakingEssentials"]
+  "forceEnabledModules": ["MatchmakingEssentials"],
+  "forceDisabledOtherModules" : true
 }
