@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 
-public class QuickPlayMenu : MenuCanvas
+public class QuickPlayGameMenu : MenuCanvas
 {
     public Button backButton;
     public Button eliminationButton;
