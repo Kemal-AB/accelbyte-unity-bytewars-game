@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using AccelByte.Api;
 using AccelByte.Core;
 using AccelByte.Models;
@@ -98,9 +99,42 @@ public class LoginHandler : MenuCanvas
         }
     }
 
+    private void AutoLoginCmd()
+    {
+        string[] cmdArgs = Environment.GetCommandLineArgs();
+        string username = "";
+        string password = "";
+
+        foreach (string cmdArg in cmdArgs)
+        {
+            if (cmdArg.Contains("-AUTH_LOGIN="))
+            {
+                username = cmdArg.Replace("-AUTH_LOGIN=", "");
+            }
+
+            if (cmdArg.Contains("-AUTH_PASSWORD="))
+            {
+                password = cmdArg.Replace("-AUTH_PASSWORD=", "");
+            }
+        }
+
+        // try login with the username and password specified with command-line arguments
+        if (username != "" && password != "")
+        {
+            _authWrapper.LoginWithUsername(username, password, OnLoginCompleted);
+        }
+    }
+    
     private void OnLoginWithDeviceIdButtonClicked()
     {
-        Login(LoginType.DeviceId);
+        if (Environment.GetCommandLineArgs().Contains("-AUTH_TYPE=ACCELBYTE"))
+        {
+            AutoLoginCmd();
+        }
+        else
+        {
+            Login(LoginType.DeviceId);
+        }
     }
 
     private void OnRetryLoginButtonClicked()
