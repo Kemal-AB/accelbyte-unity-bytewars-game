@@ -302,7 +302,6 @@ public class TutorialModuleConfig
     public string[] forceEnabledModules;
     public bool forceDisabledOtherModules;
     public SteamConfiguration steamConfiguration;
-    
 }
 
 [Serializable]
