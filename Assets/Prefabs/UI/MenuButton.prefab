@@ -273,3 +273,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 940215663889083257}
   button: {fileID: 940215664547834098}
+  selectable: {fileID: 940215664547834098}
