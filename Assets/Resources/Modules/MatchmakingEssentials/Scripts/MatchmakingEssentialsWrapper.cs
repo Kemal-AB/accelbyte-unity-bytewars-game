@@ -84,6 +84,7 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
         }
         else
         {
+            resultCallback?.Invoke(Result<SessionV2GameSession>.CreateError(result.Error));
             Debug.Log($"Failed to create matchmaking : {result.Error.Message}");
         }
         
