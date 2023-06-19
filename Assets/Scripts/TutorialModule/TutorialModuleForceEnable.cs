@@ -71,13 +71,14 @@ public static class TutorialModuleForceEnable
                 {
                     // GetAllDependencies(isReadJsonConfig);
                     isReadJsonConfig.ToList().ForEach(x => ForceEnableModules($"{x}AssetConfig", true));
-                    if (_isForceDisableOtherModules)
-                    {
-                        DisableRestOfModules(isReadJsonConfig);
-                    }
+
 
                     _moduleDependencies = _moduleDictionary.Select(x => x.Key.Replace("AssetConfig", "")).ToArray();
-                    Debug.Log($"first time opened");
+                    _moduleDependencies.ToList().ForEach(ForceEnable);
+                    if (_isForceDisableOtherModules)
+                    {
+                        DisableRestOfModules(_moduleDependencies);
+                    }                    Debug.Log($"first time opened");
                     ShowPopupForceEnable.Init();
                 }
             }
@@ -143,6 +144,17 @@ public static class TutorialModuleForceEnable
         return _forcedModules;
     }
 
+    private static void ForceEnable(string moduleName)
+    {
+        var module = GetTutorialModuleDataObject(moduleName);
+        if (module == null)
+        {
+            return;
+        }
+
+        module.isActive = true;
+    }
+
     public static bool ForceEnableModules(string moduleName, bool isFirstTime = false)
     {
         if (!moduleName.ToLower().Contains("assetconfig"))
@@ -200,18 +212,15 @@ public static class TutorialModuleForceEnable
 
     private static void DisableRestOfModules(string[] modules)
     {
-
-        var tutorialModules = AssetDatabase.FindAssets("AssetConfig");
-        
-        tutorialModules.ToList().ForEach(x =>
+        var tutorialModules = AssetDatabase.FindAssets("AssetConfig").Select(AssetDatabase.GUIDToAssetPath);
+        var forceEnableModule = modules.Select(module => AssetDatabase.FindAssets($"{module}AssetConfig").FirstOrDefault()).Select(AssetDatabase.GUIDToAssetPath).ToArray();
+        var tutorialModule = tutorialModules.Except(forceEnableModule);
+        Debug.Log(tutorialModule.Count());
+        foreach (var tutorialModulePath in tutorialModule)
         {
-            Debug.Log(x);
-            var asset = x != null
-                ? AssetDatabase.GUIDToAssetPath(x)
-                : null;
-            var tutorialModuleData = AssetDatabase.LoadAssetAtPath<TutorialModuleData>(asset);
+            var tutorialModuleData = AssetDatabase.LoadAssetAtPath<TutorialModuleData>(tutorialModulePath);
             tutorialModuleData.isActive = false;
-        });
+        }
     }
 
     private static void CheckDependency(TutorialModuleData moduleData)
