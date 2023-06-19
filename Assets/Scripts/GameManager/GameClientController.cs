@@ -25,6 +25,8 @@ public class GameClientController : NetworkBehaviour
 
     void OnRotateShip(InputValue amount)
     {
+        if (GameManager.Instance.InGameState == InGameState.GameOver)
+            return;
         float rotateValue = amount.Get<float>();
         if (IsOwner && IsAlive())
         {
@@ -35,6 +37,7 @@ public class GameClientController : NetworkBehaviour
 
     void OnFire(InputValue amount)
     {
+        
         if (IsOwner && IsAlive())
         {
             FireMissileServerRpc(OwnerClientId);
@@ -43,6 +46,8 @@ public class GameClientController : NetworkBehaviour
 
     void OnChangePower(InputValue amount)
     {
+        if (GameManager.Instance.InGameState == InGameState.GameOver)
+            return;
         if (IsOwner && IsAlive())
         {
             var power = amount.Get<float>();
@@ -50,18 +55,16 @@ public class GameClientController : NetworkBehaviour
             ChangePower(OwnerClientId, power);
         }
     }
-    
-    public void ChangePower(ulong clientNetworkId, float amount)
+
+    private void ChangePower(ulong clientNetworkId, float amount)
     {
-        if (GameManager.Instance.InGameState == InGameState.Playing)
+        var game = GameManager.Instance;
+        if (game.Players.TryGetValue(clientNetworkId, out var player))
         {
-            if (GameManager.Instance.Players.TryGetValue(clientNetworkId, out var player))
+            player.SetNormalisedPowerChangeSpeed(amount);
+            if (amount == 0 && IsServer)
             {
-                player.SetNormalisedPowerChangeSpeed(amount);
-                if (amount == 0 && IsServer)
-                {
-                    SyncPowerClientRpc(clientNetworkId, player.FirePowerLevel);
-                }
+                SyncPowerClientRpc(clientNetworkId, player.FirePowerLevel);
             }
         }
     }
@@ -69,6 +72,8 @@ public class GameClientController : NetworkBehaviour
     [ClientRpc]
     private void SyncPowerClientRpc(ulong clientNetworkId, float amount)
     {
+        if (IsHost)
+            return;
         if (GameManager.Instance.Players.TryGetValue(clientNetworkId, out var player))
         {
             player.ChangePowerLevelDirectly(amount);
@@ -77,9 +82,21 @@ public class GameClientController : NetworkBehaviour
     
     void OnOpenPauseMenu()
     {
-        if (IsOwner && GameManager.Instance.InGameState==InGameState.Playing)
-            MenuManager.Instance.ShowInGameMenu(AssetEnum.PauseMenuCanvas);
-        
+        var gameState = GameManager.Instance.InGameState;
+        if (IsOwner && 
+            gameState is InGameState.Playing or InGameState.ShuttingDown)
+        {
+            var menuCanvas = MenuManager.Instance.ShowInGameMenu(AssetEnum.PauseMenuCanvas);
+            if (menuCanvas is PauseMenuCanvas pauseMenuCanvas)
+            {
+                pauseMenuCanvas.DisableRestartBtn();
+            }
+        }
+    }
+
+    private bool IsPaused()
+    {
+        return MenuManager.Instance.GetCurrentMenu().GetAssetEnum() == AssetEnum.PauseMenuCanvas;
     }
 
     [ServerRpc]
@@ -95,18 +112,16 @@ public class GameClientController : NetworkBehaviour
     }
     private void RotateShip(ulong clientNetworkId, float amount)
     {
-        if (GameManager.Instance.InGameState == InGameState.Playing )
+        var game = GameManager.Instance;
+        if (game.Players.TryGetValue(clientNetworkId, out var player))
         {
-            if (GameManager.Instance.Players.TryGetValue(clientNetworkId, out var player))
+            player.SetNormalisedRotateSpeed(amount);
+            if (IsServer)
             {
-                player.SetNormalisedRotateSpeed(amount);
-                if (IsServer)
+                RotateShipClientRpc(clientNetworkId, amount);
+                if (amount == 0)
                 {
-                    RotateShipClientRpc(clientNetworkId, amount);
-                    if (amount == 0)
-                    {
-                        SyncShipRotationClientRpc(clientNetworkId, player.transform.rotation);
-                    }
+                    SyncShipRotationClientRpc(clientNetworkId, player.transform.rotation);
                 }
             }
         }
@@ -115,12 +130,16 @@ public class GameClientController : NetworkBehaviour
     [ClientRpc]
     private void RotateShipClientRpc(ulong clientNetworkId, float amount)
     {
+        if (IsHost)
+            return;
         RotateShip(clientNetworkId, amount);
     }
     
     [ClientRpc]
     private void SyncShipRotationClientRpc(ulong clientNetworkId, Quaternion rotation)
     {
+        if (IsHost)
+            return;
         if (GameManager.Instance.Players.TryGetValue(clientNetworkId, out var player))
         {
             player.transform.rotation = rotation;
@@ -135,9 +154,10 @@ public class GameClientController : NetworkBehaviour
     
     private void FireMissile(ulong clientNetworkId)
     {
-        if (GameManager.Instance.InGameState == InGameState.Playing)
+        var game = GameManager.Instance;
+        if (game.InGameState == InGameState.Playing)
         {
-            if (GameManager.Instance.Players.TryGetValue(clientNetworkId, out var player))
+            if (game.Players.TryGetValue(clientNetworkId, out var player))
             {
                 if (player.PlayerState.lives > 0)
                 {
@@ -154,6 +174,8 @@ public class GameClientController : NetworkBehaviour
     [ClientRpc]
     private void FireMissileClientRpc(ulong clientNetworkId, MissileFireState missileFireState)
     {
+        if (IsHost)
+            return;
         if (GameManager.Instance.Players.TryGetValue(clientNetworkId, out var player)
             && GameManager.Instance.ConnectedPlayerStates.TryGetValue(clientNetworkId, out var playerState))
         {
@@ -191,7 +213,8 @@ public class GameClientController : NetworkBehaviour
 
     private bool IsAlive()
     {
-        if (GameManager.Instance.ConnectedPlayerStates.TryGetValue(OwnerClientId, out var playerState))
+        if (!IsPaused() &&
+            GameManager.Instance.ConnectedPlayerStates.TryGetValue(OwnerClientId, out var playerState))
         {
             return playerState.lives > 0;
         }

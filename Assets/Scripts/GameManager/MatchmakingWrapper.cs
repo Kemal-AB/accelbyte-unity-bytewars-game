@@ -28,18 +28,23 @@ public class MatchmakingWrapper : IMatchmaking
 
     private static int _resultIndex = 0;
     private static bool _isCanceled;
-    public void StartMatchmaking(Action<MatchmakingResult> onMatchmakingFinished)
+    public void StartMatchmaking(InGameMode inGameMode, Action<MatchmakingResult> onMatchmakingFinished)
     {
-        StartMatchmakingInternal(onMatchmakingFinished);
+        StartMatchmakingInternal(inGameMode, onMatchmakingFinished);
     }
 
-    private async void StartMatchmakingInternal(Action<MatchmakingResult> onMatchmakingFinished)
+    private async void StartMatchmakingInternal(InGameMode inGameMode, Action<MatchmakingResult> onMatchmakingFinished)
     {
         _isCanceled = false;
         await Task.Delay(TimeSpan.FromSeconds(1));
         if(_isCanceled)
             return;
-        onMatchmakingFinished(dummyResults[_resultIndex]);
+        var result = dummyResults[_resultIndex];
+        result.InGameMode = inGameMode;
+        #if BYTEWARS_P2P_HOST
+        result.isStartAsHostP2P = true;
+        #endif
+        onMatchmakingFinished(result);
         _resultIndex++;
         if (_resultIndex > dummyResults.Length - 1)
         {
@@ -62,8 +67,9 @@ public class MatchmakingWrapper : IMatchmaking
                 return ip.ToString();
             }
         }
-
+        
         return "0.0.0.0";
+        // return "127.0.0.1";
     }
     
 }

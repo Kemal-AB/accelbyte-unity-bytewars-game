@@ -55,3 +55,7 @@ This AccelByte Unity SDK package are required to follow along the Byte Wars Tuto
 
 ### Debug Mode
 1. to enable debug mode add `BYTEWARS_DEBUG` in Edit -> Project Settings -> Player -> Script Compilation -> Scripting Define Symbols. please remove `BYTEWARS_DEBUG` scripting define symbols before publish/release it 
+2. to test peer to peer server and act as host on branch `Main` or `Master`, add `BYTEWARS_P2P_HOST` in Scripting Define symbols
+
+### Peer to Peer server
+Peer to Peer server is currently disabled, to enable it check `Assets\Scripts\UI\MainMenu\PlayOnlineMenu.cs` line `28`. 

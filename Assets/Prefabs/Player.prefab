@@ -107,6 +107,7 @@ MonoBehaviour:
     type: 3}
   m_missileTrailPrefab: {fileID: 4799660512040940187, guid: f6d7e8949bfe280469c9e2c815cb66d7,
     type: 3}
+  playerInput: {fileID: 2807402129045789727}
   m_minMissileSpeed: 1.5
   m_maxMissileSpeed: 9
   _renderer: {fileID: 7993289826749942192}

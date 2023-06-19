@@ -104,6 +104,8 @@ public class InGameFactory
         List<Player> ships = new List<Player>();
         int levelObjectCount = levelObjects.Count;
         int playerIndex = 0;
+        if (teamStates.Count < 1)
+            return ships;
         int playerPerTeamCount = playerStates.Count/teamStates.Count;
         for (int a = 0; a < teamStates.Count; a++)
         {

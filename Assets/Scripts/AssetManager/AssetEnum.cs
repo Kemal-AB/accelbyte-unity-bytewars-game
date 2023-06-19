@@ -31,6 +31,7 @@ public enum AssetEnum
       LoginFailedPanel,
       LoginLoadingPanel,
       LoginStatePanel,
+      ServerTypeSelection,
       MatchPanel,
       CreditsMenuCanvas,
       HelpMenuCanvas,

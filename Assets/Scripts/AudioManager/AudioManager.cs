@@ -1,8 +1,6 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class AudioManager : MonoBehaviour
 {
@@ -19,6 +17,8 @@ public class AudioManager : MonoBehaviour
 
     [Header("Music Audio")]
     [SerializeField] private AudioSource musicSource;
+
+    [SerializeField] private AudioMixer musicMixer;
     [SerializeField] private AudioClip[] musicAudioClips;
 
     [Header("Sfx Audio")]
@@ -27,6 +27,7 @@ public class AudioManager : MonoBehaviour
 
     private float currentMusicVolume = 1;
     private float currentSfxVolume = 1;
+    private const string MusicVolume = "vol1";
     
     private void Awake()
     {
@@ -59,12 +60,21 @@ public class AudioManager : MonoBehaviour
         {
             if (clip.name == clipName)
             {
-                musicSource.clip = clip;
-                musicSource.Play();
+                StartCoroutine(PlayMusicFade(clip));
+                // musicSource.clip = clip;
+                // musicSource.Play();
                 break;
             }
         }
 #endif        
+    }
+
+    IEnumerator PlayMusicFade(AudioClip nextAudioClip)
+    {
+        yield return StartFade(musicMixer, MusicVolume, 0.85f, 0);
+        musicSource.clip = nextAudioClip;
+        musicSource.Play();
+        yield return StartFade(musicMixer, MusicVolume, 0.85f, 1);
     }
 
     public void PlayMenuBGM()
@@ -132,4 +142,20 @@ public class AudioManager : MonoBehaviour
 
     #endregion
     
+    public static IEnumerator StartFade(AudioMixer audioMixer, string exposedParam, float duration, float targetVolume)
+    {
+        float currentTime = 0;
+        float currentVol;
+        audioMixer.GetFloat(exposedParam, out currentVol);
+        currentVol = Mathf.Pow(10, currentVol / 20);
+        float targetValue = Mathf.Clamp(targetVolume, 0.0001f, 1);
+        while (currentTime < duration)
+        {
+            currentTime += Time.deltaTime;
+            float newVol = Mathf.Lerp(currentVol, targetValue, currentTime / duration);
+            audioMixer.SetFloat(exposedParam, Mathf.Log10(newVol) * 20);
+            yield return null;
+        }
+        yield break;
+    }
 }
