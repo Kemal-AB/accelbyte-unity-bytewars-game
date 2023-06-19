@@ -8,7 +8,7 @@ using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 [InitializeOnLoad]
-public static class TutorialModuleOverride
+public static class TutorialModuleForceEnable
 {
     internal const string FIRST_TIME = "FIRST_TIME"; // the key
 
@@ -28,14 +28,21 @@ public static class TutorialModuleOverride
         get => _isError;
         set => _isError = value;
     }
+
+    public static bool IsForceDisable
+    {
+        get => _isForceDisableOtherModules;
+        set => _isForceDisableOtherModules = value;
+    }
     
     private static TutorialModuleData _overrideModule;
     private static string[] _forcedModules;
     private static bool _isError;
     private static Dictionary<string, TutorialModuleData> _moduleDictionary = new Dictionary<string, TutorialModuleData>();
     private static string[] _moduleDependencies;
+    private static bool _isForceDisableOtherModules;
 
-    static TutorialModuleOverride()
+    static TutorialModuleForceEnable()
     {
         EditorApplication.update += RunOnce;
         EditorApplication.quitting += Quit;
@@ -61,10 +68,15 @@ public static class TutorialModuleOverride
                 if (isReadJsonConfig != null)
                 {
                     // GetAllDependencies(isReadJsonConfig);
-                    isReadJsonConfig.ToList().ForEach(x => OverrideModules($"{x}AssetConfig", true));
+                    isReadJsonConfig.ToList().ForEach(x => ForceEnableModules($"{x}AssetConfig", true));
+                    if (_isForceDisableOtherModules)
+                    {
+                        DisableRestOfModules(isReadJsonConfig);
+                    }
+
                     _moduleDependencies = _moduleDictionary.Select(x => x.Key.Replace("AssetConfig", "")).ToArray();
                     Debug.Log($"first time opened");
-                    ShowPopupOverride.Init();
+                    ShowPopupForceEnable.Init();
                 }
             }
 
@@ -73,33 +85,7 @@ public static class TutorialModuleOverride
 
         EditorApplication.update -= RunOnce;
     }
-
-
-    // private static void GetAllDependencies(string[] isReadJsonConfig)
-    // {
-    //     var overridesModules = isReadJsonConfig;
-    //     var modulesDictionary = new Dictionary<string, bool>();
-    //     overridesModules?.ToList().ForEach(x =>
-    //     {
-    //         var module = GetTutorialModuleDataObject(x);
-    //         if (module == null)
-    //         {
-    //             return;
-    //         }
-    //         
-    //         modulesDictionary.TryAdd(module.name, true);
-    //         if (module.moduleDependencies.Length > 0)
-    //         {
-    //             modulesDictionary.TryAdd(module.name, true);
-    //             foreach (var dependency in module.moduleDependencies)
-    //             {
-    //                 dependency.moduleDependencies
-    //             }
-    //         }
-    //     });
-    //     _moduleDependencies = modulesDictionary.Select(x => x.Key).ToArray();
-    // }
-
+    
     private static bool IsTargetModuleCurrentSelectedModule()
     {
         return _overrideModule.name == Selection.activeObject.name ? true : false;
@@ -132,12 +118,12 @@ public static class TutorialModuleOverride
         // Check if open asset config from inspector
         if (!readFromInspector)
         {
-            Debug.Log($"override module {String.Join(" ",json.modulesName)}");
+            Debug.Log($"override module {String.Join(" ",json.forceEnabledModules)}");
             Debug.Log($"override status {json.enableModulesOverride}");
         }
-        if (json.modulesName.Length <= 0)
+        if (json.forceEnabledModules.Length <= 0)
         {
-            Debug.Log($"there are no modules override, check length module {json.modulesName.Length}");
+            Debug.Log($"there are no modules override, check length module {json.forceEnabledModules.Length}");
             _forcedModules = null;
             _isError = true;
             return _forcedModules;
@@ -149,11 +135,12 @@ public static class TutorialModuleOverride
             return _forcedModules;
         }
 
-        _forcedModules = json.modulesName;
+        _forcedModules = json.forceEnabledModules;
+        _isForceDisableOtherModules = json.forceDisabledOtherModules;
         return _forcedModules;
     }
 
-    public static bool OverrideModules(string moduleName, bool isFirstTime = false)
+    public static bool ForceEnableModules(string moduleName, bool isFirstTime = false)
     {
         if (!moduleName.ToLower().Contains("assetconfig"))
         {
@@ -187,7 +174,6 @@ public static class TutorialModuleOverride
                 if (IsTargetModuleCurrentSelectedModule())
                 {
                     _overrideModule.isActive = true;
-                    // _overrideModule.isStarterActive = false;
                     overrideStatus = SetDependenciesToActive();
                 }
                 else
@@ -207,6 +193,22 @@ public static class TutorialModuleOverride
         });
         modulesDictionary.TryGetValue(moduleName, out overrideStatus);
         return overrideStatus;
+    }
+
+    private static void DisableRestOfModules(string[] modules)
+    {
+
+        var tutorialModules = AssetDatabase.FindAssets("AssetConfig");
+        
+        tutorialModules.ToList().ForEach(x =>
+        {
+            Debug.Log(x);
+            var asset = x != null
+                ? AssetDatabase.GUIDToAssetPath(x)
+                : null;
+            var tutorialModuleData = AssetDatabase.LoadAssetAtPath<TutorialModuleData>(asset);
+            tutorialModuleData.isActive = false;
+        });
     }
 
     private static void CheckDependency(TutorialModuleData moduleData)
@@ -254,16 +256,16 @@ public static class TutorialModuleOverride
     private static TutorialModuleData GetTutorialModuleDataObject(string moduleName)
     {
         var fileName = $"{moduleName}AssetConfig";
-        var assets = AssetDatabase.FindAssets(fileName);
-        if (assets.Length == 0)
+        var assets = AssetDatabase.FindAssets(fileName).FirstOrDefault();
+        if (assets != null && assets.Length == 0)
         {
             Debug.Log($"check your module name, the Asset Config cannot be found");
             _isError = true;
-            ShowPopupOverride.Init();
+            ShowPopupForceEnable.Init();
             return null;
         }
-        var asset = assets[0] != null
-            ? AssetDatabase.GUIDToAssetPath(assets[0])
+        var asset = assets != null
+            ? AssetDatabase.GUIDToAssetPath(assets)
             : null;
         Debug.Log(asset);
         return AssetDatabase.LoadAssetAtPath<TutorialModuleData>(asset);
@@ -297,8 +299,10 @@ public static class TutorialModuleOverride
 public class TutorialModuleConfig
 {
     public bool enableModulesOverride;
-    public string[] modulesName;
+    public string[] forceEnabledModules;
+    public bool forceDisabledOtherModules;
     public SteamConfiguration steamConfiguration;
+    
 }
 
 [Serializable]

@@ -1,6 +1,7 @@
 ﻿{
   "enableModulesOverride": true,
-  "modulesName": ["SinglePlatformAuthEssentials"],
+  "forceEnabledModules": ["SinglePlatformAuthEssentials"],
+  "forceDisabledOtherModules" : true,
   "steamConfiguration":
   {
     "steamAppId": "replace with your steam app id",
