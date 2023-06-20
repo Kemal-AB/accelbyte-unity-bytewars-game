@@ -65,8 +65,10 @@ public class StatsHelper : MonoBehaviour
             {
                 currentHighestScore.Add(statItem.statCode, statItem.value);
             }
-            
-            if (gameMode is GameModeEnum.SinglePlayer && playerStates[0].score > currentHighestScore[SINGLEPLAYER_STATCODE])
+
+            float singlePlayerHighestScore = 0;
+            currentHighestScore.TryGetValue(SINGLEPLAYER_STATCODE, out singlePlayerHighestScore);
+            if (gameMode is GameModeEnum.SinglePlayer && playerStates[0].score > singlePlayerHighestScore)
             {
                 UpdateStatsWithClientSdk(SINGLEPLAYER_STATCODE, playerStates[0]);
             }

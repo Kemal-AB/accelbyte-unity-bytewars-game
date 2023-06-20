@@ -4,9 +4,9 @@ using AccelByte.Core;
 using AccelByte.Models;
 using UnityEngine;
 
-public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
+public class SinglePlatformAuthWrapper : MonoBehaviour
 {
-    private const string ClassName = "SinglePlatformAuthEssentialsWrapper";
+    private const string ClassName = "SinglePlatformAuthWrapper";
     private User user;
     private LoginHandler loginHandler = null;
     private SteamHelper steamHelper;
@@ -34,7 +34,7 @@ public class SinglePlatformAuthEssentialsWrapper : MonoBehaviour
                     loginHandler = loginHandlerC;
                     var loginWithSteamButton = loginHandler.GetLoginButton(LoginType.Steam);
                     bool isSingleAuthModuleActive =
-                        TutorialModuleManager.Instance.IsModuleActive(TutorialType.SinglePlatformAuthEssentials);
+                        TutorialModuleManager.Instance.IsModuleActive(TutorialType.SinglePlatformAuth);
                     bool isLoginWithSteam = isSingleAuthModuleActive && SteamManager.Initialized;
                     if (isLoginWithSteam)
                     {

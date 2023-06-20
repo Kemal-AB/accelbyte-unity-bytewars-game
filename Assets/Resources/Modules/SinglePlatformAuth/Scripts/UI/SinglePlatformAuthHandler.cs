@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class SinglePlatformAuthEssentialsHandler : MenuCanvas
+public class SinglePlatformAuthHandler : MenuCanvas
 {
     public override GameObject GetFirstButton()
     {
@@ -9,6 +9,6 @@ public class SinglePlatformAuthEssentialsHandler : MenuCanvas
 
     public override AssetEnum GetAssetEnum()
     {
-        return AssetEnum.SinglePlatformAuthEssentials;
+        return AssetEnum.SinglePlatformAuth;
     }
 }
