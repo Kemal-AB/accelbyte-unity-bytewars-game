@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AccelByte.Core;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -179,7 +180,7 @@ public class InGameFactory
                     teamIndex = a,
                     lives = gameModeSo.playerStartLives,
                     clientNetworkId = (ulong)playerIndex,
-                    playerId = ""
+                    playerId = TutorialModuleUtil.IsAccelbyteSDKInstalled()? MultiRegistry.GetApiClient().session.UserId : ""
                 });
                 playerIndex++;
             }

@@ -1,4 +1,5 @@
 using System.Linq;
+using AccelByte.Core;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -189,20 +190,20 @@ public class GameClientController : NetworkBehaviour
         if (IsClient)
         {
             //client send user data to server
-            if (GameData.CachedPlayerState != null)
+            if (TutorialModuleUtil.IsAccelbyteSDKInstalled())
             {
-                UpdatePlayerStateServerRpc(OwnerClientId, GameData.CachedPlayerState);
+                UpdatePlayerStateServerRpc(NetworkManager.Singleton.LocalClientId, MultiRegistry.GetApiClient().session.UserId);
             }
         }
         // Debug.Log($"GameClientController.OnNetworkSpawn IsServer:{IsServer} IsOwner:{IsOwner} OwnerClientId:{OwnerClientId}");
     }
 
-    [ServerRpc]
-    private void UpdatePlayerStateServerRpc(ulong clientNetworkId, PlayerState clientPlayerState)
+    [ServerRpc(RequireOwnership = false)]
+    private void UpdatePlayerStateServerRpc(ulong clientNetworkId, string clientUserId)
     {
         if (GameManager.Instance.ConnectedPlayerStates.TryGetValue(clientNetworkId, out var playerState))
         {
-            playerState.playerId = clientPlayerState.playerId;
+            playerState.playerId = clientUserId;
             var g = GameManager.Instance;
             g.UpdatePlayerStatesClientRpc(g.ConnectedTeamStates.Values.ToArray(),
                 g.ConnectedPlayerStates.Values.ToArray());
