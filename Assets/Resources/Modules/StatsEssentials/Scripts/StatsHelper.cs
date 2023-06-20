@@ -52,7 +52,6 @@ public class StatsHelper : MonoBehaviour
 
     private void OnCheckHighestScoreStatsCompleted(Result<PagedStatItems> result, GameModeEnum gameMode, InGameMode inGameMode, List<PlayerState> playerStates)
     {
-        Dictionary<string, float> currentHighestScore = new Dictionary<string, float>();
         string currentUserId = MultiRegistry.GetApiClient().session.UserId;
         string currentStatCode = "";
 
@@ -73,17 +72,24 @@ public class StatsHelper : MonoBehaviour
         // if query success
         if (!result.IsError)
         {
+            // store the query result's stat value if exists
+            float currentStatValue = 0;
             foreach (StatItem statItem in result.Value.data)
             {
-                currentHighestScore.Add(statItem.statCode, statItem.value);
+                if (statItem.statCode == currentStatCode)
+                {
+                    currentStatValue = statItem.value;
+                    break;
+                }
             }
             
             // Only update stats if the score is higher than the current highest score stat
             foreach (PlayerState playerState in playerStates)
             {
-                if (playerState.playerId == currentUserId && playerState.score > currentHighestScore[currentStatCode])
+                if (playerState.playerId == currentUserId && playerState.score > currentStatValue)
                 {
                     UpdateStatSDKUsageChecker(gameMode, currentStatCode, playerState);
+                    break;
                 }
             }
         }
