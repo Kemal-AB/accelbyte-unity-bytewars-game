@@ -1,5 +1,9 @@
 fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scripts/GameManager/CacheHelper.cs.meta
 guid: 67431a627a977644a850e30e5489e30d
+========
+guid: adfd17ef04ad55d4981c22719d117e80
+>>>>>>>> tutorialmodules:Assets/Scripts/GameManager/GameConstant.cs.meta
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
