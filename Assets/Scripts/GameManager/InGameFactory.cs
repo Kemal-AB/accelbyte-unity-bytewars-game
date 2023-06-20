@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AccelByte.Core;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -104,6 +105,8 @@ public class InGameFactory
         List<Player> ships = new List<Player>();
         int levelObjectCount = levelObjects.Count;
         int playerIndex = 0;
+        if (teamStates.Count < 1)
+            return ships;
         int playerPerTeamCount = playerStates.Count/teamStates.Count;
         for (int a = 0; a < teamStates.Count; a++)
         {
@@ -177,7 +180,7 @@ public class InGameFactory
                     teamIndex = a,
                     lives = gameModeSo.playerStartLives,
                     clientNetworkId = (ulong)playerIndex,
-                    playerId = ""
+                    playerId = TutorialModuleUtil.IsAccelbyteSDKInstalled()? MultiRegistry.GetApiClient().session.UserId : ""
                 });
                 playerIndex++;
             }

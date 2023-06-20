@@ -117,9 +117,9 @@ GameObject:
   - component: {fileID: 2169716256886031664}
   - component: {fileID: 2169716256886031671}
   - component: {fileID: 2169716256886031670}
-  - component: {fileID: -7705329249203222611}
+  - component: {fileID: 3928039373822526465}
   m_Layer: 5
-  m_Name: QuickPlayMenuCanvas
+  m_Name: ServerTypeSelection
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -207,7 +207,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &-7705329249203222611
+--- !u!114 &3928039373822526465
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -216,12 +216,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 2169716256886031669}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c95f199ee05dbab478d777c2de04f190, type: 3}
+  m_Script: {fileID: 11500000, guid: 18bbfc8f9ef752940b98d1b835c3ac35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dsButton: {fileID: 7614937716666002539}
+  p2pButton: {fileID: 8382228949925598942}
   backButton: {fileID: 5406751274186335520}
-  eliminationButton: {fileID: 7614937716666002539}
-  teamDeadmatchButton: {fileID: 8382228949925598942}
 --- !u!1 &2169716257961203028
 GameObject:
   m_ObjectHideFlags: 0
@@ -289,7 +289,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Quick Play
+  m_text: Server Type
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: cc2cdddc6538ade4a9a5643ed0c02386, type: 2}
   m_sharedMaterial: {fileID: 8976965251182608923, guid: cc2cdddc6538ade4a9a5643ed0c02386,
@@ -949,12 +949,12 @@ PrefabInstance:
     - target: {fileID: 940215663889083257, guid: 0f3d27981f003474aba828ef0603b723,
         type: 3}
       propertyPath: m_text
-      value: Elimination
+      value: Dedicated Server
       objectReference: {fileID: 0}
     - target: {fileID: 940215664547834096, guid: 0f3d27981f003474aba828ef0603b723,
         type: 3}
       propertyPath: m_Name
-      value: EliminationButton
+      value: DedicatedServerButton
       objectReference: {fileID: 0}
     - target: {fileID: 940215664547834099, guid: 0f3d27981f003474aba828ef0603b723,
         type: 3}
@@ -1091,12 +1091,12 @@ PrefabInstance:
     - target: {fileID: 940215663889083257, guid: 0f3d27981f003474aba828ef0603b723,
         type: 3}
       propertyPath: m_text
-      value: Team Deathmatch
+      value: Peer-to-Peer
       objectReference: {fileID: 0}
     - target: {fileID: 940215664547834096, guid: 0f3d27981f003474aba828ef0603b723,
         type: 3}
       propertyPath: m_Name
-      value: TeamDeathmatchButton
+      value: P2PButton
       objectReference: {fileID: 0}
     - target: {fileID: 940215664547834099, guid: 0f3d27981f003474aba828ef0603b723,
         type: 3}

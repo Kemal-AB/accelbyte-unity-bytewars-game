@@ -1,12 +1,13 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class ButtonAnimation : MonoBehaviour
+public class ButtonAnimation : MonoBehaviour, IPointerEnterHandler, IDeselectHandler
 {
     public TMP_Text text;
     public Button button;
+    [SerializeField] private Selectable selectable;
 
     // Start is called before the first frame update
     void Start()
@@ -34,4 +35,14 @@ public class ButtonAnimation : MonoBehaviour
         text.color = Color.white;
     }
 
+    public void OnPointerEnter(PointerEventData eventData)
+    {
+        if (!EventSystem.current.alreadySelecting)
+            EventSystem.current.SetSelectedGameObject(gameObject);
+    }
+
+    public void OnDeselect(BaseEventData eventData)
+    {
+        selectable.OnPointerExit(null);
+    }
 }

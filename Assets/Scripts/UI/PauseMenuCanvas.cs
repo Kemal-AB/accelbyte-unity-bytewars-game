@@ -1,3 +1,4 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -34,5 +35,21 @@ public class PauseMenuCanvas : MenuCanvas
     public override AssetEnum GetAssetEnum()
     {
         return AssetEnum.PauseMenuCanvas;
+    }
+
+    private bool isRestartBtnShown=true;
+    private void OnEnable()
+    {
+        restartBtn.gameObject.SetActive(isRestartBtnShown);
+    }
+
+    private void OnDisable()
+    {
+        isRestartBtnShown = true;
+    }
+
+    public void DisableRestartBtn()
+    {
+        isRestartBtnShown = false;
     }
 }

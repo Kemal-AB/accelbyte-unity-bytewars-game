@@ -175,6 +175,7 @@ public class QuickPlayMenuHandler : MenuCanvas
         else
         {
             Debug.Log($"Cannot cancel matchmaking, error = {result.IsError}, {result.Error.Message}");
+            currentView = QuickPlayView.Default;
         }
     }
 
