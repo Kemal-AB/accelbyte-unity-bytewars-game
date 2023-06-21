@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.accelbyte.unitysdk": "https://github.com/AccelByte/accelbyte-unity-sdk.git#16.0.0",
-    "com.rlabrecque.steamworks.net": "https://github.com/rlabrecque/Steamworks.NET.git?path=/com.rlabrecque.steamworks.net#20.2.0",
+    "com.rlabrecque.steamworks.net": "file:../local-packages/com.rlabrecque.steamworks.net",
     "com.unity.ide.rider": "3.0.21",
     "com.unity.ide.visualstudio": "2.0.17",
     "com.unity.ide.vscode": "1.2.5",
