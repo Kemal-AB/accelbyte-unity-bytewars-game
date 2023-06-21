@@ -20,7 +20,22 @@ public static class SteamEditorUtility
         {
             string strCwdPath = Directory.GetCurrentDirectory();
             string strSteamAppIdPath = Path.Combine(strCwdPath, "steam_appid.txt");
-            if (File.Exists(strSteamAppIdPath)) {
+            if(!File.Exists(strSteamAppIdPath))
+            {
+                try {
+                    var appIdFile = File.CreateText(strSteamAppIdPath);
+                    await appIdFile.WriteAsync(newSteamAppId);
+                    appIdFile.Close();
+                    Debug.Log("[SteamEditorUtility] Successfully copied 'steam_appid.txt' into the project root.");
+                    return;
+                }
+                catch (System.Exception e) {
+                    Debug.LogWarning("[SteamEditorUtility] Could not copy 'steam_appid.txt' into the project root. Please place 'steam_appid.txt' into the project root manually.");
+                    Debug.LogException(e);
+                }
+            }
+            else
+            {
                 using var sr = new StreamReader(strSteamAppIdPath);
                 var content = await sr.ReadLineAsync();
                 sr.Close();
