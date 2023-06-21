@@ -1,10 +1,10 @@
 ﻿{
   "enableModulesOverride": true,
-  "forceEnabledModules": ["SinglePlatformAuthEssentials"],
+  "forceEnabledModules": ["AuthEssentials"],
   "forceDisabledOtherModules" : false,
   "steamConfiguration":
   {
     "steamAppId": "replace with your steam app id",
-    "autoLogin": true
+    "autoLogin": false
   }
 }
