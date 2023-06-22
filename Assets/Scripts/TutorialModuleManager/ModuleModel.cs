@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class ModuleModel
 {
-    public MenuCanvas prefab;
+    public MenuCanvas mainPrefab;
+    public MenuCanvas[] additionalPrefab;
+    public bool hasAdditionalPrefab;
     public TutorialType type;
     public bool isActive;
 }

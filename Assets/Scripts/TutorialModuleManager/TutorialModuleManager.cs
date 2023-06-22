@@ -234,13 +234,17 @@ public class TutorialModuleManager : MonoBehaviour
 
         if (moduleData.isStarterActive)
         {
-            moduleModel.prefab = moduleData.starterMenuUIPrefab;
+            moduleModel.mainPrefab = moduleData.starterMenuUIPrefab;
+            moduleModel.hasAdditionalPrefab = moduleData.additionalPrefab;
+            moduleModel.additionalPrefab = moduleData.starterAdditionalMenuUIPrefabs;
             moduleModel.type = moduleData.type;
             moduleModel.isActive = moduleData.isActive;
         }
         else
         {
-            moduleModel.prefab = moduleData.defaultMenuUIPrefab;
+            moduleModel.mainPrefab = moduleData.defaultMenuUIPrefab;
+            moduleModel.hasAdditionalPrefab = moduleData.additionalPrefab;
+            moduleModel.additionalPrefab = moduleData.defaultAdditionalMenuUIPrefabs;
             moduleModel.type = moduleData.type;
             moduleModel.isActive = moduleData.isActive;
         }
@@ -255,9 +259,11 @@ public class TutorialModuleManager : MonoBehaviour
         foreach (var moduleData in tutorialModules.Values.Where(moduleData => moduleData.isActive))
         {
             // make sure that ui and wrapper are not empty
-            if (!moduleData.defaultModuleScript
-                || !moduleData.starterScript || !moduleData.defaultMenuUIPrefab ||
-                !moduleData.starterMenuUIPrefab)
+            if (!moduleData.defaultModuleScript 
+                || !moduleData.starterScript 
+                || !moduleData.defaultMenuUIPrefab 
+                || !moduleData.starterMenuUIPrefab
+                )
             {
                 Debug.Log($"{moduleData.type.ToString()} contain null");
                 continue;

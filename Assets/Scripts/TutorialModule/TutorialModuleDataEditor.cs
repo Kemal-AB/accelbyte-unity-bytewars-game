@@ -27,6 +27,11 @@ public class TutorialModuleDataEditor : Editor
     private List<string> _entrypointOptions = new List<string>();
     private bool _isDependencyModule;
 
+    private SerializedProperty _hasAdditionalPrefab;
+    private SerializedProperty _defaultAdditionalMenuUIPrefabs;
+    private SerializedProperty _starterAdditionalMenuUIPrefabs;
+    
+
     private bool _defaultFold = true;
     private bool _starterFold = true;
     
@@ -50,7 +55,12 @@ public class TutorialModuleDataEditor : Editor
         _hasAdditionalScripts = serializedObject.FindProperty("additionalScripts");
         _defaultHelperFiles = serializedObject.FindProperty("defaultHelperScripts");
         _starterHelperFiles = serializedObject.FindProperty("starterHelperScripts");
-
+        
+        _hasAdditionalPrefab = serializedObject.FindProperty("additionalPrefab");
+        _defaultAdditionalMenuUIPrefabs = serializedObject.FindProperty("defaultAdditionalMenuUIPrefabs");
+        _starterAdditionalMenuUIPrefabs = serializedObject.FindProperty("starterAdditionalMenuUIPrefabs");
+        
+        
     }
 
     public override void OnInspectorGUI()
@@ -63,6 +73,7 @@ public class TutorialModuleDataEditor : Editor
 
             EditorGUILayout.PropertyField(_defaultMenuUIPrefab);
             EditorGUILayout.PropertyField(_defaultModuleScript);
+            
             EditorGUILayout.PropertyField(_type);
             EditorGUI.BeginDisabledGroup(_forceEnableStatus || _isDependencyModule || _forceDisableStatus);
             EditorGUILayout.PropertyField(_isActive);
@@ -90,6 +101,7 @@ public class TutorialModuleDataEditor : Editor
         EditorGUILayout.Space();
 
         EditorGUILayout.PropertyField(_hasAdditionalScripts);
+        EditorGUILayout.PropertyField(_hasAdditionalPrefab);
         toolbarInt = GUILayout.Toolbar(toolbarInt, toolbarStrings);
 
         if (toolbarInt >= 0)
@@ -117,6 +129,13 @@ public class TutorialModuleDataEditor : Editor
             EditorGUILayout.PropertyField(_defaultHelperFiles);
             EditorGUI.EndDisabledGroup();
         }
+        
+        if (_hasAdditionalPrefab.boolValue)
+        {
+            EditorGUI.BeginDisabledGroup(_isStarterActive.boolValue);
+            EditorGUILayout.PropertyField(_defaultAdditionalMenuUIPrefabs);
+            EditorGUI.EndDisabledGroup();
+        }
     }
 
     private void StarterHelperScripts()
@@ -125,6 +144,13 @@ public class TutorialModuleDataEditor : Editor
         {
             EditorGUI.BeginDisabledGroup(!_isStarterActive.boolValue);
             EditorGUILayout.PropertyField(_starterHelperFiles);
+            EditorGUI.EndDisabledGroup();
+        }
+        
+        if (_hasAdditionalPrefab.boolValue)
+        {
+            EditorGUI.BeginDisabledGroup(!_isStarterActive.boolValue);
+            EditorGUILayout.PropertyField(_starterAdditionalMenuUIPrefabs);
             EditorGUI.EndDisabledGroup();
         }
     }
