@@ -12,6 +12,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c946b292dbcfa2418ef1a2b2e60b8b7, type: 3}
   m_Name: LeaderboardEssentialsAssetConfig
   m_EditorClassIdentifier: 
-  prefab: {fileID: 814906144202775787, guid: ae127d03757add948a9aa57a3b465a91, type: 3}
+  defaultMenuUIPrefab: {fileID: 814906144202775787, guid: ae127d03757add948a9aa57a3b465a91,
+    type: 3}
+  defaultModuleScript: {fileID: 11500000, guid: 86875dce433f19a4691bd028edf278d7,
+    type: 3}
   type: 4
-  isActive: 1
+  isActive: 0
+  additionalScripts: 0
+  defaultHelperScripts: []
+  starterHelperScripts: []
+  starterScript: {fileID: 0}
+  starterMenuUIPrefab: {fileID: 0}
+  isStarterActive: 0
+  moduleDependencies:
+  - {fileID: 11400000, guid: afddc5af388227e4f9769266d5369f44, type: 2}
