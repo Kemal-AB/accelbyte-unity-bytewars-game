@@ -257,7 +257,7 @@ public class MenuManager : MonoBehaviour
         // Check If auth essential active
         if (allActiveModule.TryGetValue(TutorialType.AuthEssentials, out ModuleModel authEssential))
         {
-            AssetEnum prefabname = (AssetEnum)System.Enum.Parse(typeof(AssetEnum), authEssential.prefab.name);
+            AssetEnum prefabname = (AssetEnum)System.Enum.Parse(typeof(AssetEnum), authEssential.mainPrefab.name);
             _currentMainMenu = _menusDictionary[prefabname];
             _currentMainMenu.gameObject.SetActive(true);
             _mainMenusStack.Push(_currentMainMenu);
@@ -316,11 +316,27 @@ public class MenuManager : MonoBehaviour
 
     private void InitMenuByModules(ModuleModel moduleData)
     {
-        var modulePrefab = moduleData.prefab;
+        var modulePrefab = moduleData.mainPrefab;
         var menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
         menubyModule.name = modulePrefab.name;
         _menusDictionary.Add(menubyModule.GetAssetEnum(), menubyModule);
         _menusDictionary[menubyModule.GetAssetEnum()].gameObject.SetActive(false);
+        
+        if (moduleData.hasAdditionalPrefab)
+        {
+            if (moduleData.additionalPrefab.Length == 0)
+            {
+                return;
+            }
+            
+            foreach (var additionalPrefab in moduleData.additionalPrefab)
+            {
+                var additionalMenu = Instantiate(additionalPrefab, Vector3.zero, Quaternion.identity, _instance.transform);
+                additionalMenu.name = additionalPrefab.name;
+                _menusDictionary.Add(additionalMenu.GetAssetEnum(), additionalMenu);
+                _menusDictionary[additionalMenu.GetAssetEnum()].gameObject.SetActive(false);
+            }
+        }
     }
     
     

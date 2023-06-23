@@ -20,7 +20,7 @@ public class ProfileMenu : MenuCanvas
         var statsEssentials = TutorialModuleManager.Instance.GetModule(TutorialType.StatsEssentials);
         if (statsEssentials != null)
         {
-            MenuManager.Instance.ChangeToMenu(statsEssentials.prefab.GetAssetEnum());
+            MenuManager.Instance.ChangeToMenu(statsEssentials.mainPrefab.GetAssetEnum());
         }
     }
 
