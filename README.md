@@ -8,13 +8,13 @@ Byte Wars is the official tutorial game for AccelByte Gaming Services (AGS). It 
 
 * Use **Unity Editor** 2021 LTS with minimum version 2021.3.16f1.
 
+## Branches
+
+Byte Wars published the source code in two branches:
+* **main branch** is the vanila version game source code without AccelByte's plugin and will in use for [Tutorial Module 1: Initial Setup](https://docs-preview.accelbyte.io/gaming-services/tutorials/unity/module-1/).
+* **tutorialmodules branch** is the branch that has the AccelByte's Plugins and all the Byte Wars tutorial modules with feature flag.
 
 ## Clone Byte Wars
-
-This repository has three main branches, master, online, and tutorial module 2.
-* **Main branch** is the vanila version game source code without any submodule.
-* **Online branch** is the branch that has the AccelByte's Plugins, which are used by the Byte Wars Tutorial Module 1.
-* **tutorial/online-module.2** is the branch based on `online` branch and also has the required resources for user to learn Byte Wars Tutorial Module 2.
 
 ### Main Branch
 
@@ -22,12 +22,18 @@ Just run the following git command to clone the game.
 ```batch
 git clone git@github.com:AccelByte/accelbyte-unity-bytewars-game.git
 ```
-### Online and Tutorial Module Branches
+### Tutorial Modules Branch
 
-The online branch and the tutorial module 2 branch has a package of AccelByte Unity SDK setup in package manager from the following GitHub link:
+The `tutorialmodules` branch has a package of AccelByte Unity SDK setup in package manager from the following GitHub link:
 * [AccelByte Unity SDK](https://github.com/AccelByte/accelbyte-unity-sdk).
 
-This AccelByte Unity SDK package are required to follow along the Byte Wars Tutorial and it will be automatically downloaded when the project opened for the first time. 
+This AccelByte Unity SDK package are required to follow along the Byte Wars Tutorial and it will be automatically downloaded when the project opened for the first time.
+
+To clone the repository and checkout the tutorial branch, run the following command:
+
+```batch
+    git clone --branch <branch-name> git@github.com:AccelByte/accelbyte-unity-bytewars-game.git
+```
 
 ## Open Byte Wars in Unity
 
@@ -35,7 +41,7 @@ This AccelByte Unity SDK package are required to follow along the Byte Wars Tuto
 2. A file browser will appear, then select Byte Wars project folder and click open. 
 3. The Byte Wars project will be added into the project panel with the editor version. Click on the project to open it in the Unity Editor.
 
-## Run Byte Wars (from Main branch)
+## Run Byte Wars Offline (Main Branch)
 
 ### Run via Editor
 
@@ -54,8 +60,12 @@ This AccelByte Unity SDK package are required to follow along the Byte Wars Tuto
 2. Build Client run: `build_client.bat`
 
 ### Debug Mode
-1. to enable debug mode add `BYTEWARS_DEBUG` in Edit -> Project Settings -> Player -> Script Compilation -> Scripting Define Symbols. please remove `BYTEWARS_DEBUG` scripting define symbols before publish/release it 
-2. to test peer to peer server and act as host on branch `Main` or `Master`, add `BYTEWARS_P2P_HOST` in Scripting Define symbols
+1. To enable debug mode add `BYTEWARS_DEBUG` in Edit -> Project Settings -> Player -> Script Compilation -> Scripting Define Symbols. please remove `BYTEWARS_DEBUG` scripting define symbols before publish/release it 
+2. To test peer to peer server and act as host on branch `Main` or `Master`, add `BYTEWARS_P2P_HOST` in Scripting Define symbols
 
-### Peer to Peer server
-Peer to Peer server is currently disabled, to enable it check `Assets\Scripts\UI\MainMenu\PlayOnlineMenu.cs` line `28`. 
+### Peer to Peer Mode
+Peer to Peer mode is currently disabled, to enable it check `Assets\Scripts\UI\MainMenu\PlayOnlineMenu.cs` line `28`.
+
+## Run Byte Wars Online (Tutorial Modules Branch)
+
+Follow along Byte Wars [Tutorial Module 2: Getting Online](https://docs-preview.accelbyte.io/gaming-services/tutorials/unity/module-2/).
