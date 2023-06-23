@@ -41,10 +41,10 @@ public class MatchmakingEssentialsWrapper_Starter : MonoBehaviour
         
         //Copy 3a connecting-game-mode-selection-ui-with-matchmaking here
         
-        //3b predefined code
-        _dedicatedServerManager = MultiRegistry.GetServerApiClient().GetDedicatedServerManager();
-        _matchmakingV2Server = MultiRegistry.GetServerApiClient().GetMatchmakingV2();
-        _serverDSHub = MultiRegistry.GetServerApiClient().GetDsHub();
+        //3b predefined code - uncomment three lines below.
+        // _dedicatedServerManager = MultiRegistry.GetServerApiClient().GetDedicatedServerManager();
+        // _matchmakingV2Server = MultiRegistry.GetServerApiClient().GetMatchmakingV2();
+        // _serverDSHub = MultiRegistry.GetServerApiClient().GetDsHub();
         
         //Copy 3b Wrap it up here
         

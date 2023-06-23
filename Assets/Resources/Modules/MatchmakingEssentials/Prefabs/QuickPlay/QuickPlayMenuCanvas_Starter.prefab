@@ -117,7 +117,7 @@ GameObject:
   - component: {fileID: 2169716256886031664}
   - component: {fileID: 2169716256886031671}
   - component: {fileID: 2169716256886031670}
-  - component: {fileID: 6285418709719393043}
+  - component: {fileID: 5489141427889668945}
   m_Layer: 5
   m_Name: QuickPlayMenuCanvas_Starter
   m_TagString: Untagged
@@ -207,7 +207,7 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &6285418709719393043
+--- !u!114 &5489141427889668945
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -216,12 +216,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 2169716256886031669}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df6c30b763fd5042bec993468750877, type: 3}
+  m_Script: {fileID: 11500000, guid: f6bebafd66586dd4bbde23683d2d45f3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   backButton: {fileID: 5406751274186335520}
   eliminationButton: {fileID: 7614937716666002539}
-  teamDeadmatchButton: {fileID: 8382228949925598942}
+  teamDeathmatchButton: {fileID: 8382228949925598942}
   cancelButton: {fileID: 6853579227091426329}
   okButton: {fileID: 5011818249006759226}
   contentPanel: {fileID: 85849768249186688}

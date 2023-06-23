@@ -12,7 +12,7 @@ public class QuickPlayMenuHandler_Starter : MenuCanvas
 {
     [SerializeField] private Button backButton;
     [SerializeField] private Button eliminationButton;
-    [SerializeField] private Button teamDeadmatchButton;
+    [SerializeField] private Button teamDeathmatchButton;
     [SerializeField] private Button cancelButton;
     [SerializeField] private Button okButton;
     
