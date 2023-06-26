@@ -12,9 +12,13 @@ public class PauseMenuCanvas : MenuCanvas
     {
         resumeBtn.onClick.AddListener(OnClickResumeBtn);
         restartBtn.onClick.AddListener(GameManager.Instance.RestartLocalGame);
-        quitBtn.onClick.AddListener(GameManager.Instance.QuitToMainMenu);
+        quitBtn.onClick.AddListener(OnQuitBtnClick);
     }
 
+    private void OnQuitBtnClick()
+    {
+        StartCoroutine(GameManager.Instance.QuitToMainMenu());
+    }
     private void OnClickResumeBtn()
     {
         if (NetworkManager.Singleton.IsListening)

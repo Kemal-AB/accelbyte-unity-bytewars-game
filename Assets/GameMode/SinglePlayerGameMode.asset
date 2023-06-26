@@ -47,3 +47,4 @@ MonoBehaviour:
   beforeGameCountdownSecond: 5
   beforeShutDownCountdownSecond: 30
   gameOverShutdownCountdown: 30
+  lobbyShutdownCountdown: -1
