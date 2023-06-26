@@ -12,8 +12,9 @@ GameObject:
   - component: {fileID: 5281127268370065646}
   - component: {fileID: 8449343592311133661}
   - component: {fileID: 4196365987127987689}
+  - component: {fileID: 2592882641898194579}
   m_Layer: 5
-  m_Name: LeaderboardItemPanel
+  m_Name: RankingItemPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -105,6 +106,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &2592882641898194579
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2054452976233160274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b76e1a0f1c4fdcb4b81d9d083de1bb80, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerNameText: {fileID: 1867827909745167622}
+  highestScoreText: {fileID: 728778624695576622}
 --- !u!1 &5399816088453283272
 GameObject:
   m_ObjectHideFlags: 0
@@ -118,7 +133,7 @@ GameObject:
   - component: {fileID: 728778624695576622}
   - component: {fileID: 1099010791797598604}
   m_Layer: 5
-  m_Name: HighScoreText
+  m_Name: HighestScoreText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -172,7 +187,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: <HighScore>
+  m_text: <Score>
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ac880de93cb4d4943b7d8bbce1c1644b, type: 2}
   m_sharedMaterial: {fileID: -689041902876210438, guid: ac880de93cb4d4943b7d8bbce1c1644b,
@@ -200,7 +215,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28
+  m_fontSize: 18
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -357,7 +372,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 28
+  m_fontSize: 18
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1

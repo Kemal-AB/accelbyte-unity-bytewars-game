@@ -9,6 +9,12 @@ public class LeaderboardsPeriodMenu : MenuCanvas
     [SerializeField] private Button allTimeButton;
     [SerializeField] private Button backButton;
 
+    public LeaderboardPeriodType chosenPeriod;
+    public enum LeaderboardPeriodType
+    {
+        AllTime
+    }
+
     void Start()
     {
         allTimeButton.onClick.AddListener(ChangeToIndividualLeaderboardMenu);
@@ -17,6 +23,7 @@ public class LeaderboardsPeriodMenu : MenuCanvas
 
     private void ChangeToIndividualLeaderboardMenu()
     {
+        chosenPeriod = LeaderboardPeriodType.AllTime;
         MenuManager.Instance.ChangeToMenu(AssetEnum.IndividualLeaderboardMenuCanvas);
     }
     

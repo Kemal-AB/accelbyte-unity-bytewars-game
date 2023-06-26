@@ -22,7 +22,7 @@ public class LeaderboardEssentialsWrapper : MonoBehaviour
     /// Get list of available leaderboards configured in Admin Portal
     /// </summary>
     /// <param name="resultCallback">callback function to get result from other script</param>
-    public void GetLeaderboard(ResultCallback<LeaderboardPagedListV3> resultCallback)
+    public void GetLeaderboardList(ResultCallback<LeaderboardPagedListV3> resultCallback)
     {
         leaderboard.GetLeaderboardListV3(
             result => OnGetLeaderboardListCompleted(result, resultCallback)
@@ -34,7 +34,7 @@ public class LeaderboardEssentialsWrapper : MonoBehaviour
     /// </summary>
     /// <param name="leaderboardCode">leaderboard code of the desired leaderboard</param>
     /// <param name="resultCallback">callback function to get result from other script</param>
-    public void GetRanking(string leaderboardCode, ResultCallback<LeaderboardRankingResult> resultCallback)
+    public void GetRankings(string leaderboardCode, ResultCallback<LeaderboardRankingResult> resultCallback)
     {
         leaderboard.GetRangkingsV3(
             leaderboardCode,
@@ -55,11 +55,11 @@ public class LeaderboardEssentialsWrapper : MonoBehaviour
     {
         if (!result.IsError)
         {
-            Debug.Log("Get Rankings V3 successful.");
+            Debug.Log("Get Leaderboard List V3 successful.");
         }
         else
         {
-            Debug.Log($"Get Rankings V3 failed. Message: {result.Error.Message}");
+            Debug.Log($"Get Leaderboard List V3 failed. Message: {result.Error.Message}");
         }
         
         customCallback?.Invoke(result);

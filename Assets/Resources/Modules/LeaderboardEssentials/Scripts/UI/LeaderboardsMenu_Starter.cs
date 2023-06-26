@@ -7,37 +7,30 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class LeaderboardsMenu : MenuCanvas
+public class LeaderboardsMenu_Starter : MenuCanvas
 {
     [SerializeField] private Transform leaderboardListPanel;
     [SerializeField] private Button backButton;
     [SerializeField] private GameObject leaderboardItemButtonPrefab;
 
-    [HideInInspector] public string chosenLeaderboardCode;
+    [HideInInspector]
+    public string currentLeaderboardCode;
     
     private LeaderboardEssentialsWrapper _leaderboardWrapper;
 
-    void Start()
+    private void Start()
     {
         // get leaderboard's wrapper
         _leaderboardWrapper = TutorialModuleManager.Instance.GetModuleClass<LeaderboardEssentialsWrapper>();
         
         backButton.onClick.AddListener(OnBackButtonClicked);
-    }
-
-    private void OnEnable()
-    {
-        if (_leaderboardWrapper)
-        {
-            DisplayLeaderboardList();
-        }
+        
+        DisplayLeaderboardList();
     }
 
     private void DisplayLeaderboardList()
     {
-        // ensure the Leaderboard List Panel children are empty
-        LoopThroughTransformAndDestroy(leaderboardListPanel);
-        
+        Debug.Log(_leaderboardWrapper == null);
         _leaderboardWrapper.GetLeaderboardList(OnDisplayLeaderboardListCompleted);
     }
 
@@ -45,24 +38,25 @@ public class LeaderboardsMenu : MenuCanvas
     {
         if (!result.IsError)
         {
+            // ensure the Leaderboard List Panel children are empty
+            LoopThroughTransformAndDestroy(leaderboardListPanel);
+            
             foreach (LeaderboardDataV3 leaderboardData in result.Value.Data)
             {
-                if (leaderboardData.Name.Contains("Unity"))
-                {
-                    Button leaderboardButton = Instantiate(leaderboardItemButtonPrefab, leaderboardListPanel).GetComponent<Button>();
-                    TMP_Text leaderboardButtonText = leaderboardButton.GetComponentInChildren<TMP_Text>();
-                    leaderboardButtonText.text = leaderboardData.Name.Replace("Unity Leaderboard ", "");
-                    
-                    leaderboardButton.onClick.AddListener(() => ChangeToLeaderboardsPeriodMenu(leaderboardData.LeaderboardCode));
-                }
+                Button leaderboardButton = Instantiate(leaderboardItemButtonPrefab, leaderboardListPanel).GetComponent<Button>();
+                TMP_Text leaderboardButtonText = leaderboardButton.GetComponentInChildren<TMP_Text>();
+                leaderboardButtonText.text = leaderboardData.Name;
+
+                currentLeaderboardCode = leaderboardData.LeaderboardCode;
+                leaderboardButton.onClick.AddListener(ChangeToLeaderboardsPeriodMenu);
             }
         }
     }
     
-    private void ChangeToLeaderboardsPeriodMenu(string newLeaderboardCode)
+    private void ChangeToLeaderboardsPeriodMenu()
     {
-        chosenLeaderboardCode = newLeaderboardCode;
         MenuManager.Instance.ChangeToMenu(AssetEnum.LeaderboardsPeriodMenuCanvas);
+        Debug.Log($"[LEADERBOARRRRRRRRR] current code: {currentLeaderboardCode}");
     }
     
     private void OnBackButtonClicked()
