@@ -28,5 +28,6 @@ public class GameModeSO : ScriptableObject
     public int beforeGameCountdownSecond;
     public int beforeShutDownCountdownSecond;
     public int gameOverShutdownCountdown;
+    public int lobbyShutdownCountdown;
 
 }

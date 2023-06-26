@@ -5,7 +5,7 @@ using UnityEngine;
 public static class GameData
 {
     public static GameModeSO GameModeSo;
-    public static PlayerState CachedPlayerState;
+    public static PlayerState CachedPlayerState = new PlayerState();
     public static ServerType ServerType = ServerType.Offline;
 }
 
