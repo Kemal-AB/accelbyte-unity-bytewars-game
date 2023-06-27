@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 92d6f9fbc1bcc8443b0e2d1d46dae3e5, type: 3}
-  m_Name: Local4PlayerDeathMatchGameMode
+  m_Name: CreateMatchEliminationDSGameMode
   m_EditorClassIdentifier: 
   objectsToSpawn:
   - {fileID: 4963548002784054317, guid: ed30550f9d38a5846b8c8f3eda443752, type: 3}
@@ -39,12 +39,12 @@ MonoBehaviour:
   - {r: 1, g: 0.43137258, b: 0.50980395, a: 1}
   - {r: 0.48627454, g: 1, b: 0.4431373, a: 1}
   - {r: 1, g: 0.9450981, b: 0.37254903, a: 1}
-  gameMode: 2
-  playerPerTeamCount: 2
-  teamCount: 2
+  gameMode: 3
+  playerPerTeamCount: 1
+  teamCount: 4
   maxInFlightMissilesPerPlayer: 1
-  lobbyCountdownSecond: 30
+  lobbyCountdownSecond: -1
   beforeGameCountdownSecond: 5
   beforeShutDownCountdownSecond: 30
-  gameOverShutdownCountdown: 30
-  lobbyShutdownCountdown: -1
+  gameOverShutdownCountdown: -1
+  lobbyShutdownCountdown: 60

@@ -32,7 +32,7 @@ public class GameOverMenuCanvas : MenuCanvas
 
     private void OnQuitButtonClicked()
     {
-        GameManager.Instance.QuitToMainMenu();
+        StartCoroutine(GameManager.Instance.QuitToMainMenu());
     }
 
     private void SetData(List<PlayerState> playerStates, TeamState[] teamStates)

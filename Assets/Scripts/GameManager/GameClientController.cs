@@ -187,7 +187,7 @@ public class GameClientController : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         playerInput.enabled = IsOwner;
-        if (IsClient)
+        if (IsClient && IsOwner)
         {
             //client send user data to server
             if (TutorialModuleUtil.IsAccelbyteSDKInstalled())

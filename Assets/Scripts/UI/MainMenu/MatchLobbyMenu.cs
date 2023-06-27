@@ -1,10 +1,8 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 
@@ -25,12 +23,17 @@ public class MatchLobbyMenu : MenuCanvas
     private void Start()
     {
         startButton.onClick.AddListener(StartGame);
-        quitButton.onClick.AddListener(LeaveSessionAndQuit);
+        quitButton.onClick.AddListener(ClickQuitBtn);
     }
 
-    private void LeaveSessionAndQuit()
+    private void ClickQuitBtn()
     {
-        GameManager.Instance.QuitToMainMenu();
+        StartCoroutine(LeaveSessionAndQuit());
+    }
+    private IEnumerator LeaveSessionAndQuit()
+    {
+        //TODO intentionally quit from lobby, server should shutdown when there is no player and the lobby is custom match
+        yield return GameManager.Instance.QuitToMainMenu();
     }
 
     private void StartGame()

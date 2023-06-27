@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -82,8 +83,12 @@ public class Reconnect : MonoBehaviour
         var game = GameManager.Instance;
         if (isOwner && isServer)
         {
-            serverHelper.StartCoroutineCountdown(this, GameData.GameModeSo.lobbyCountdownSecond, 
-                game.OnLobbyCountdownServerUpdated);
+            if (GameData.GameModeSo.lobbyCountdownSecond > -1)
+            {
+                serverHelper.StartCoroutineCountdown(this, 
+                    GameData.GameModeSo.lobbyCountdownSecond, 
+                    game.OnLobbyCountdownServerUpdated);
+            }
             //most variable exists only on IsServer bracket
             bool isInGameScene = GameConstant.GameSceneBuildIndex == SceneManager.GetActiveScene().buildIndex;
             game.SendConnectedPlayerStateClientRpc( serverHelper.ConnectedTeamStates.Values.ToArray(), 
@@ -169,7 +174,7 @@ public class Reconnect : MonoBehaviour
     }
 
     private bool isIntentionallyDisconnect;
-    public IEnumerator DisconnectIntentionally()
+    public IEnumerator ClientDisconnectIntentionally()
     {
         isIntentionallyDisconnect = true;
         yield return  DisconnectSafely();
@@ -183,6 +188,31 @@ public class Reconnect : MonoBehaviour
         {
             NetworkManager.Singleton.Shutdown();
             yield return new WaitUntil(() => !NetworkManager.Singleton.ShutdownInProgress);
+        }
+    }
+
+    public bool IsServerShutdownOnLobby(int connectedClientCount)
+    {
+        if (connectedClientCount<1)
+        {
+            if (GameData.GameModeSo!=null && 
+                GameData.GameModeSo.lobbyShutdownCountdown > -1)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public IEnumerator ShutdownServer(Action onServerShutdownFinished)
+    {
+        if (NetworkManager.Singleton.IsListening && 
+            NetworkManager.Singleton.IsServer && 
+            !NetworkManager.Singleton.ShutdownInProgress)
+        {
+            NetworkManager.Singleton.Shutdown();
+            yield return new WaitUntil(() => !NetworkManager.Singleton.ShutdownInProgress);
+            onServerShutdownFinished?.Invoke();
         }
     }
 }
