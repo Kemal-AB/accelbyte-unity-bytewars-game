@@ -23,6 +23,8 @@ public class LeaderboardsMenu : MenuCanvas
         _leaderboardWrapper = TutorialModuleManager.Instance.GetModuleClass<LeaderboardEssentialsWrapper>();
         
         backButton.onClick.AddListener(OnBackButtonClicked);
+        
+        DisplayLeaderboardList();
     }
 
     private void OnEnable()

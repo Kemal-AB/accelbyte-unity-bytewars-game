@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AccelByte.Core;
 using AccelByte.Models;
 using UnityEngine;
 using UnityEngine.UI;
+using Image = UnityEngine.UI.Image;
 
 public class IndividualLeaderboardMenu : MenuCanvas
 {
@@ -13,16 +15,24 @@ public class IndividualLeaderboardMenu : MenuCanvas
     [SerializeField] private GameObject rankingItemPanelPrefab;
     
     private LeaderboardEssentialsWrapper _leaderboardWrapper;
+    private AuthEssentialsWrapper _authWrapper;
+
+    private string currentUserId;
     private string currentLeaderboardCode;
     private LeaderboardsPeriodMenu.LeaderboardPeriodType currentPeriodType;
+
+    private const string DEFUSERNAME = "USER-";
     
     void Start()
     {
-        // get leaderboard's wrapper
+        // get leaderboard and auth's wrapper
         _leaderboardWrapper = TutorialModuleManager.Instance.GetModuleClass<LeaderboardEssentialsWrapper>();
+        _authWrapper = TutorialModuleManager.Instance.GetModuleClass<AuthEssentialsWrapper>();
         
         backButton.onClick.AddListener(OnBackButtonClicked);
 
+        currentUserId = MultiRegistry.GetApiClient().session.UserId;
+        
         MenuCanvas leaderboardsMenuCanvas = MenuManager.Instance.GetMenu(AssetEnum.LeaderboardsMenuCanvas);
         LeaderboardsMenu leaderboardsMenuObject = leaderboardsMenuCanvas.GetComponent<LeaderboardsMenu>();
         currentLeaderboardCode = leaderboardsMenuObject.chosenLeaderboardCode;
@@ -30,6 +40,8 @@ public class IndividualLeaderboardMenu : MenuCanvas
         MenuCanvas leaderboardsPeriodMenuCanvas = MenuManager.Instance.GetMenu(AssetEnum.LeaderboardsPeriodMenuCanvas);
         LeaderboardsPeriodMenu leaderboardsPeriodMenu = leaderboardsPeriodMenuCanvas.GetComponent<LeaderboardsPeriodMenu>();
         currentPeriodType = leaderboardsPeriodMenu.chosenPeriod;
+        
+        DisplayRankingList();
     }
 
     private void OnEnable()
@@ -55,11 +67,53 @@ public class IndividualLeaderboardMenu : MenuCanvas
     {
         if (!result.IsError)
         {
-            foreach (UserPoint userPoint in result.Value.data)
+            // Store the ranking result's userIds and points to a Dictionary
+            Dictionary<string, float> userRankInfos = result.Value.data.ToDictionary(userPoint => userPoint.userId, userPoint => userPoint.point);
+            
+            // Get the players' display name from the provided user ids
+            _authWrapper.BulkGetUserInfo(userRankInfos.Keys.ToArray(), authResult => OnBulkGetUserInfoCompleted(authResult, userRankInfos));
+            
+            if (userRankInfos.ContainsKey(currentUserId))
+            {
+                _leaderboardWrapper.GetUserRanking(currentUserId, currentLeaderboardCode, OnGetUserRankingCompleted);
+            }
+        }
+    }
+
+    private void OnBulkGetUserInfoCompleted(Result<ListBulkUserInfoResponse> result, Dictionary<string, float> userRankInfos)
+    {
+        // Dict key = userId, value = displayName
+        Dictionary<string, string> userDisplayNames = new Dictionary<string, string>();
+        foreach (BaseUserInfo userInfo in result.Value.data)
+        {
+            // If display name not exists, set to default format: "USER-<<5 char of userId>>"
+            string displayName = (userInfo.displayName == "")? DEFUSERNAME + userInfo.userId.Substring(0,5) : userInfo.displayName;
+            userDisplayNames.Add(userInfo.userId, displayName);
+        }
+
+        foreach (string userId in userRankInfos.Keys)
+        {
+            RankingItemPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingItemPanel>();
+            itemPanel.ChangePlayerNameText(userDisplayNames[userId]);
+            itemPanel.ChangeHighestScoreText(userRankInfos[userId].ToString());
+        }
+    }
+    
+    private void OnGetUserRankingCompleted(Result<UserRankingDataV3> result)
+    {
+        if (!result.IsError)
+        {
+            if (currentPeriodType == LeaderboardsPeriodMenu.LeaderboardPeriodType.AllTime)
             {
                 RankingItemPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingItemPanel>();
-                itemPanel.ChangePlayerNameText(userPoint.userId);
-                itemPanel.ChangeHighestScoreText(userPoint.point.ToString());
+                itemPanel.ChangeHighestScoreText(result.Value.AllTime.point.ToString());
+                
+                // If display name not exists, set to default format: "USER-<<5 char of userId>>"
+                string displayName = (_authWrapper.userData.display_name == "")? DEFUSERNAME + currentUserId.Substring(0,5) : _authWrapper.userData.display_name;
+                itemPanel.ChangePlayerNameText(displayName);
+
+                Image itemPanelImage = itemPanel.gameObject.GetComponent<Image>();
+                itemPanelImage.color = Color.grey;
             }
         }
     }

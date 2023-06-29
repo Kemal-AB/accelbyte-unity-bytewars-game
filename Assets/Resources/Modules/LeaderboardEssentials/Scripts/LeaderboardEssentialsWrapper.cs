@@ -38,7 +38,18 @@ public class LeaderboardEssentialsWrapper : MonoBehaviour
     {
         leaderboard.GetRangkingsV3(
             leaderboardCode,
-            result => OnGetRankingsCompleted(result, resultCallback)
+            result => OnGetRankingsCompleted(result, resultCallback),
+            0,
+            10
+        );
+    }
+
+    public void GetUserRanking(string userId, string leaderboardCode, ResultCallback<UserRankingDataV3> resultCallback)
+    {
+        leaderboard.GetUserRankingV3(
+            userId,
+            leaderboardCode,
+            result => OnGetUserRankingCompleted(result, resultCallback)
         );
     }
     
@@ -79,6 +90,25 @@ public class LeaderboardEssentialsWrapper : MonoBehaviour
         else
         {
             Debug.Log($"Get Rankings V3 failed. Message: {result.Error.Message}");
+        }
+        
+        customCallback?.Invoke(result);
+    }
+
+    /// <summary>
+    /// Default Callback for Leaderboard V3's GetUserRankingV3() function
+    /// </summary>
+    /// <param name="result">result of the GetUserStatItems() function call</param>
+    /// <param name="customCallback">additional callback function that can be customized from other script</param>
+    private void OnGetUserRankingCompleted(Result<UserRankingDataV3> result, ResultCallback<UserRankingDataV3> customCallback)
+    {
+        if (!result.IsError)
+        {
+            Debug.Log("Get User Ranking V3 successfull.");
+        }
+        else
+        {
+            Debug.Log($"Get User Ranking V3 failed. Message: {result.Error.Message}");
         }
         
         customCallback?.Invoke(result);
