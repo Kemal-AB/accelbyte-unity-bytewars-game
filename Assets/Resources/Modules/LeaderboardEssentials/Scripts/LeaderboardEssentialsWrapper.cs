@@ -34,13 +34,13 @@ public class LeaderboardEssentialsWrapper : MonoBehaviour
     /// </summary>
     /// <param name="leaderboardCode">leaderboard code of the desired leaderboard</param>
     /// <param name="resultCallback">callback function to get result from other script</param>
-    public void GetRankings(string leaderboardCode, ResultCallback<LeaderboardRankingResult> resultCallback)
+    public void GetRankings(string leaderboardCode, ResultCallback<LeaderboardRankingResult> resultCallback, int offset = default, int limit = default)
     {
         leaderboard.GetRangkingsV3(
             leaderboardCode,
-            result => OnGetRankingsCompleted(result, resultCallback),
-            0,
-            10
+            result => OnGetRankingsCompleted(result, resultCallback), 
+            offset, 
+            limit
         );
     }
 

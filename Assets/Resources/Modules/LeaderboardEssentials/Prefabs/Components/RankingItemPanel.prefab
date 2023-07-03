@@ -66,7 +66,7 @@ MonoBehaviour:
   m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
+  m_Maskable: 0
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -93,7 +93,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
+    m_Left: 10
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
@@ -118,6 +118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b76e1a0f1c4fdcb4b81d9d083de1bb80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  prefabImage: {fileID: 8449343592311133661}
   playerNameText: {fileID: 1867827909745167622}
   highestScoreText: {fileID: 728778624695576622}
 --- !u!1 &5399816088453283272

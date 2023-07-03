@@ -22,6 +22,8 @@ public class IndividualLeaderboardMenu : MenuCanvas
     private LeaderboardsPeriodMenu.LeaderboardPeriodType currentPeriodType;
 
     private const string DEFUSERNAME = "USER-";
+    private const int RESULTOFFSET = 0;
+    private const int RESULTLIMIT = 10;
     
     void Start()
     {
@@ -31,6 +33,21 @@ public class IndividualLeaderboardMenu : MenuCanvas
         
         backButton.onClick.AddListener(OnBackButtonClicked);
 
+        GetLeaderboardCategoryValues();
+        DisplayRankingList();
+    }
+
+    private void OnEnable()
+    {
+        if (_leaderboardWrapper)
+        {
+            GetLeaderboardCategoryValues();
+            DisplayRankingList();
+        }
+    }
+
+    private void GetLeaderboardCategoryValues()
+    {
         currentUserId = MultiRegistry.GetApiClient().session.UserId;
         
         MenuCanvas leaderboardsMenuCanvas = MenuManager.Instance.GetMenu(AssetEnum.LeaderboardsMenuCanvas);
@@ -40,18 +57,8 @@ public class IndividualLeaderboardMenu : MenuCanvas
         MenuCanvas leaderboardsPeriodMenuCanvas = MenuManager.Instance.GetMenu(AssetEnum.LeaderboardsPeriodMenuCanvas);
         LeaderboardsPeriodMenu leaderboardsPeriodMenu = leaderboardsPeriodMenuCanvas.GetComponent<LeaderboardsPeriodMenu>();
         currentPeriodType = leaderboardsPeriodMenu.chosenPeriod;
-        
-        DisplayRankingList();
     }
-
-    private void OnEnable()
-    {
-        if (_leaderboardWrapper)
-        {
-            DisplayRankingList();
-        }
-    }
-
+    
     public void DisplayRankingList()
     {
         // ensure the Ranking List Panel children are empty
@@ -59,7 +66,7 @@ public class IndividualLeaderboardMenu : MenuCanvas
         
         if (currentPeriodType is LeaderboardsPeriodMenu.LeaderboardPeriodType.AllTime)
         {
-            _leaderboardWrapper.GetRankings(currentLeaderboardCode, OnDisplayRankingListCompleted);
+            _leaderboardWrapper.GetRankings(currentLeaderboardCode, OnDisplayRankingListCompleted, RESULTOFFSET, RESULTLIMIT);
         }
     }
 
@@ -73,7 +80,7 @@ public class IndividualLeaderboardMenu : MenuCanvas
             // Get the players' display name from the provided user ids
             _authWrapper.BulkGetUserInfo(userRankInfos.Keys.ToArray(), authResult => OnBulkGetUserInfoCompleted(authResult, userRankInfos));
             
-            if (userRankInfos.ContainsKey(currentUserId))
+            if (!userRankInfos.ContainsKey(currentUserId))
             {
                 _leaderboardWrapper.GetUserRanking(currentUserId, currentLeaderboardCode, OnGetUserRankingCompleted);
             }
@@ -83,19 +90,10 @@ public class IndividualLeaderboardMenu : MenuCanvas
     private void OnBulkGetUserInfoCompleted(Result<ListBulkUserInfoResponse> result, Dictionary<string, float> userRankInfos)
     {
         // Dict key = userId, value = displayName
-        Dictionary<string, string> userDisplayNames = new Dictionary<string, string>();
-        foreach (BaseUserInfo userInfo in result.Value.data)
-        {
-            // If display name not exists, set to default format: "USER-<<5 char of userId>>"
-            string displayName = (userInfo.displayName == "")? DEFUSERNAME + userInfo.userId.Substring(0,5) : userInfo.displayName;
-            userDisplayNames.Add(userInfo.userId, displayName);
-        }
-
+        Dictionary<string, string> userDisplayNames = result.Value.data.ToDictionary(userInfo => userInfo.userId, userInfo => userInfo.displayName);
         foreach (string userId in userRankInfos.Keys)
         {
-            RankingItemPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingItemPanel>();
-            itemPanel.ChangePlayerNameText(userDisplayNames[userId]);
-            itemPanel.ChangeHighestScoreText(userRankInfos[userId].ToString());
+            InstantiateRankingItem(userId, userDisplayNames[userId], userRankInfos[userId]);
         }
     }
     
@@ -105,16 +103,23 @@ public class IndividualLeaderboardMenu : MenuCanvas
         {
             if (currentPeriodType == LeaderboardsPeriodMenu.LeaderboardPeriodType.AllTime)
             {
-                RankingItemPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingItemPanel>();
-                itemPanel.ChangeHighestScoreText(result.Value.AllTime.point.ToString());
-                
-                // If display name not exists, set to default format: "USER-<<5 char of userId>>"
-                string displayName = (_authWrapper.userData.display_name == "")? DEFUSERNAME + currentUserId.Substring(0,5) : _authWrapper.userData.display_name;
-                itemPanel.ChangePlayerNameText(displayName);
-
-                Image itemPanelImage = itemPanel.gameObject.GetComponent<Image>();
-                itemPanelImage.color = Color.grey;
+                InstantiateRankingItem(result.Value.UserId, _authWrapper.userData.display_name, result.Value.AllTime.point);
             }
+        }
+    }
+
+    private void InstantiateRankingItem(string userId, string playerName, float playerScore)
+    {
+        RankingItemPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingItemPanel>();
+        itemPanel.ChangeHighestScoreText(playerScore.ToString());
+
+        // If display name not exists, set to default format: "USER-<<5 char of userId>>"
+        string displayName = (playerName == "") ? DEFUSERNAME + userId.Substring(0, 5) : playerName;
+        itemPanel.ChangePlayerNameText(displayName);
+        
+        if (userId == currentUserId)
+        {
+            itemPanel.ChangePrefabColor(Color.gray);
         }
     }
     
