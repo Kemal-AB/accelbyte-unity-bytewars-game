@@ -1,17 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AccelByte.Core;
 using AccelByte.Models;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Button = UnityEngine.UI.Button;
 
-public class LeaderboardsMenu_Starter : MenuCanvas
+public class IndividualLeaderboardMenu_Starter : MenuCanvas
 {
-    [SerializeField] private Transform leaderboardListPanel;
+    [SerializeField] private ScrollRect rankingListScrollView;
+    [SerializeField] private Transform rankingListPanel;
     [SerializeField] private Button backButton;
-    [SerializeField] private GameObject leaderboardItemButtonPrefab;
+    [SerializeField] private GameObject rankingItemPanelPrefab;
     
     
     
@@ -29,7 +31,7 @@ public class LeaderboardsMenu_Starter : MenuCanvas
 
     public override AssetEnum GetAssetEnum()
     {
-        return AssetEnum.LeaderboardsMenuCanvas;
+        return AssetEnum.IndividualLeaderboardMenuCanvas;
     }
     
     /// <summary>

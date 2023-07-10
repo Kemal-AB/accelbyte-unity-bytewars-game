@@ -49,7 +49,7 @@ public class LeaderboardsMenu : MenuCanvas
         {
             foreach (LeaderboardDataV3 leaderboardData in result.Value.Data)
             {
-                if (leaderboardData.Name.Contains("Unity"))
+                if (leaderboardData.Name.Contains("Unity") && leaderboardData.LeaderboardCode != "board-unity-highestscore-singleplayer")
                 {
                     Button leaderboardButton = Instantiate(leaderboardItemButtonPrefab, leaderboardListPanel).GetComponent<Button>();
                     TMP_Text leaderboardButtonText = leaderboardButton.GetComponentInChildren<TMP_Text>();

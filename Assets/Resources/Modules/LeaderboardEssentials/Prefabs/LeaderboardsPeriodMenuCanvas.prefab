@@ -220,6 +220,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allTimeButton: {fileID: 7614937716666002539}
   backButton: {fileID: 5406751274186335520}
+  chosenPeriod: 0
 --- !u!1 &2169716257961203028
 GameObject:
   m_ObjectHideFlags: 0

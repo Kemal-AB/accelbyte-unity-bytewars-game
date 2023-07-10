@@ -6,24 +6,25 @@ using AccelByte.Core;
 using AccelByte.Models;
 using UnityEngine;
 using UnityEngine.UI;
-using Image = UnityEngine.UI.Image;
+using Button = UnityEngine.UI.Button;
 
 public class IndividualLeaderboardMenu : MenuCanvas
 {
+    [SerializeField] private ScrollRect rankingListScrollView;
     [SerializeField] private Transform rankingListPanel;
     [SerializeField] private Button backButton;
     [SerializeField] private GameObject rankingItemPanelPrefab;
-    
-    private LeaderboardEssentialsWrapper _leaderboardWrapper;
-    private AuthEssentialsWrapper _authWrapper;
 
     private string currentUserId;
     private string currentLeaderboardCode;
     private LeaderboardsPeriodMenu.LeaderboardPeriodType currentPeriodType;
 
-    private const string DEFUSERNAME = "USER-";
+    private const string DEFUSERNAME = "PLAYER-";
     private const int RESULTOFFSET = 0;
     private const int RESULTLIMIT = 10;
+    
+    private LeaderboardEssentialsWrapper _leaderboardWrapper;
+    private AuthEssentialsWrapper _authWrapper;
     
     void Start()
     {
@@ -113,7 +114,7 @@ public class IndividualLeaderboardMenu : MenuCanvas
         RankingItemPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingItemPanel>();
         itemPanel.ChangeHighestScoreText(playerScore.ToString());
 
-        // If display name not exists, set to default format: "USER-<<5 char of userId>>"
+        // If display name not exists, set to default format: "PLAYER-<<5 char of userId>>"
         string displayName = (playerName == "") ? DEFUSERNAME + userId.Substring(0, 5) : playerName;
         itemPanel.ChangePlayerNameText(displayName);
         

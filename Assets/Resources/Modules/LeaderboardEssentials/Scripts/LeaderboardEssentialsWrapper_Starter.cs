@@ -10,11 +10,5 @@ public class LeaderboardEssentialsWrapper_Starter : MonoBehaviour
     // AccelByte's Multi Registry references
     private Leaderboard leaderboard;
     
-    // Start is called before the first frame update
-    void Start()
-    {
-        leaderboard = MultiRegistry.GetApiClient().GetLeaderboard();
-    }
-    
     
 }
