@@ -54,6 +54,7 @@ public class StatsHelper : MonoBehaviour
                 if (currentPlayerState.playerId == currentUserId)
                 {
                     playerState = currentPlayerState;
+                    break;
                 }
             }
             _statsWrapper.GetUserStatsFromClient(new string[]{currentStatCode}, null, result => OnGetUserStatsFromClient(result, playerState));
@@ -68,6 +69,7 @@ public class StatsHelper : MonoBehaviour
     {
         if (!result.IsError)
         {
+            // key: userId, value: stat value
             Dictionary<string, float> bulkUserStats = result.Value.UserStatistic.ToDictionary(stat => stat.UserId, stat => stat.Value);
 
             foreach (string userId in userStats.Keys)
@@ -76,7 +78,7 @@ public class StatsHelper : MonoBehaviour
                 {
                     _statsWrapper.UpdateManyUserStatsFromServer(currentStatCode, userStats, OnUpdateStatsWithServerSdkCompleted);
                 }
-                else
+                else if (!bulkUserStats.ContainsKey(userId))
                 {
                     _statsWrapper.UpdateManyUserStatsFromServer(currentStatCode, userStats, OnUpdateStatsWithServerSdkCompleted);
                 }
@@ -93,12 +95,15 @@ public class StatsHelper : MonoBehaviour
         // if query success
         if (!result.IsError)
         {
-            foreach (StatItem statItem in result.Value.data)
+            // key: statcode, value: stat value
+            Dictionary<string, float> userStatItems = result.Value.data.ToDictionary(stat => stat.statCode, stat => stat.value);
+            if (userStatItems.ContainsKey(currentStatCode) && playerState.score > userStatItems[currentStatCode])
             {
-                if (statItem.statCode == currentStatCode && playerState.score > statItem.value)
-                {
-                    _statsWrapper.UpdateUserStatsFromClient(currentStatCode, playerState.score, "", OnUpdateStatsWithClientSdkCompleted);
-                }
+                _statsWrapper.UpdateUserStatsFromClient(currentStatCode, playerState.score, "", OnUpdateStatsWithClientSdkCompleted);
+            }
+            else if (!userStatItems.ContainsKey(currentStatCode))
+            {
+                _statsWrapper.UpdateUserStatsFromClient(currentStatCode, playerState.score, "", OnUpdateStatsWithClientSdkCompleted);
             }
         }
         else
