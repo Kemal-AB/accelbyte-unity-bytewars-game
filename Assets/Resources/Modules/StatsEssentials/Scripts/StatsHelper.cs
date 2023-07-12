@@ -68,13 +68,23 @@ public class StatsHelper : MonoBehaviour
     {
         if (!result.IsError)
         {
-            foreach (StatItemValue statItemValue in result.Value.UserStatistic)
+            Dictionary<string, float> bulkUserStats = result.Value.UserStatistic.ToDictionary(stat => stat.UserId, stat => stat.Value);
+
+            foreach (string userId in userStats.Keys)
             {
-                if (userStats[statItemValue.UserId] > statItemValue.Value)
+                if (bulkUserStats.ContainsKey(userId) && userStats[userId] > bulkUserStats[userId])
+                {
+                    _statsWrapper.UpdateManyUserStatsFromServer(currentStatCode, userStats, OnUpdateStatsWithServerSdkCompleted);
+                }
+                else
                 {
                     _statsWrapper.UpdateManyUserStatsFromServer(currentStatCode, userStats, OnUpdateStatsWithServerSdkCompleted);
                 }
             }
+        }
+        else
+        {
+            _statsWrapper.UpdateManyUserStatsFromServer(currentStatCode, userStats, OnUpdateStatsWithServerSdkCompleted);
         }
     }
     
@@ -96,8 +106,6 @@ public class StatsHelper : MonoBehaviour
             // Create a new stat item since the stat doesn't exist yet
             _statsWrapper.UpdateUserStatsFromClient(currentStatCode, playerState.score, "", OnUpdateStatsWithClientSdkCompleted);
         }
-        
-        
     }
 
     private void OnUpdateStatsWithClientSdkCompleted(Result<UpdateUserStatItemValueResponse> result)
