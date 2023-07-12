@@ -6,11 +6,11 @@ using UnityEditor;
 using UnityEngine;
 
 
-public static class EditorUtility
+public static class ByteWarEditorUtility
 {
     private const string GameModeFolder = @"Assets\GameMode";
 
-    // static EditorUtility()
+    // static ByteWarEditorUtility()
     // {
     //     EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
     // }

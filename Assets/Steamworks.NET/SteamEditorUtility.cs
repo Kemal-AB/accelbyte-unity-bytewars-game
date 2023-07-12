@@ -6,8 +6,14 @@ using UnityEngine;
 
 public static class SteamEditorUtility
 {
+    private static bool _isEditorFocused;
     [InitializeOnLoadMethod]
-    private static async void CheckSteamConfiguration()
+    private static void InitOnLoad()
+    {
+        EditorApplication.update += OnUpdate;
+    }
+
+    private static async void CheckSteamAppIdConfig()
     {
         var tutorialModuleConfig = (TextAsset)Resources.Load(GConfig.ConfigurationPath);
         if (tutorialModuleConfig == null)
@@ -48,7 +54,7 @@ public static class SteamEditorUtility
                     }
                     catch (Exception e)
                     {
-                        Debug.Log("failed to automatically update steam_appid.txt, " +
+                        Debug.LogError("failed to automatically update steam_appid.txt, " +
                                   "please close the file or update it manually " +
                                   $"error: {e.Message}");
                     }
@@ -56,5 +62,24 @@ public static class SteamEditorUtility
             }
         }
     }
+
+    private static void OnUpdate()
+    {
+        if (_isEditorFocused!=UnityEditorInternal.InternalEditorUtility.isApplicationActive)
+        {
+            _isEditorFocused = UnityEditorInternal.InternalEditorUtility.isApplicationActive;
+            if (_isEditorFocused)
+            {
+                // Debug.Log("editor is focused");
+                //EditorWindow.focusedWindow?.ShowNotification(new GUIContent("Welcome back! ^_^ "));
+                CheckSteamAppIdConfig();
+            }
+            else
+            {
+                // Debug.Log("editor focus lost");
+            }
+        }
+    }
+    
 }
 #endif

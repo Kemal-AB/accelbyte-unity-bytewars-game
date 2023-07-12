@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
 
 public class GConfig
 {
@@ -20,6 +20,15 @@ public class GConfig
         if (steamConfig != null)
         {
             return steamConfig.autoLogin;
+        }
+        return true;
+    }
+    public static bool IsSteamEnabled()
+    {
+        var args = Environment.GetCommandLineArgs();
+        if (args.Contains("-nosteam"))
+        {
+            return false;
         }
         return true;
     }
