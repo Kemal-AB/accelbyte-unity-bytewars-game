@@ -71,18 +71,14 @@ public class StatsHelper : MonoBehaviour
         {
             // key: userId, value: stat value
             Dictionary<string, float> bulkUserStats = result.Value.UserStatistic.ToDictionary(stat => stat.UserId, stat => stat.Value);
-
             foreach (string userId in userStats.Keys)
             {
-                if (bulkUserStats.ContainsKey(userId) && userStats[userId] > bulkUserStats[userId])
+                if (bulkUserStats.ContainsKey(userId) && userStats[userId] < bulkUserStats[userId])
                 {
-                    _statsWrapper.UpdateManyUserStatsFromServer(currentStatCode, userStats, OnUpdateStatsWithServerSdkCompleted);
-                }
-                else if (!bulkUserStats.ContainsKey(userId))
-                {
-                    _statsWrapper.UpdateManyUserStatsFromServer(currentStatCode, userStats, OnUpdateStatsWithServerSdkCompleted);
+                    userStats.Remove(userId);
                 }
             }
+            _statsWrapper.UpdateManyUserStatsFromServer(currentStatCode, userStats, OnUpdateStatsWithServerSdkCompleted);
         }
         else
         {
