@@ -6,6 +6,7 @@ public class MainMenu : MenuCanvas
     [SerializeField] private Button playButton;
     [SerializeField] private Button playOnlineBtn;
     [SerializeField] private Button profileButton;
+    [SerializeField] private Button socialButton;
     [SerializeField] private Button helpAndOptionsButton;
     [SerializeField] private Button quitButton;
 
@@ -17,8 +18,22 @@ public class MainMenu : MenuCanvas
         playButton.onClick.AddListener(OnPlayButtonPressed);
         playOnlineBtn.onClick.AddListener(OnPlayOnlineButtonPressed);
         profileButton.onClick.AddListener(OnProfileButtonPressed);
+        socialButton.onClick.AddListener(OnSocialButtonPressed);
         helpAndOptionsButton.onClick.AddListener(OnHelpAndOptionsButtonPressed);
         quitButton.onClick.AddListener(OnQuitButtonPressed);
+    }
+
+    private void OnSocialButtonPressed()
+    {
+        var friendEssentialModule = TutorialModuleManager.Instance.GetModule(TutorialType.FriendEssentials);
+        if (!friendEssentialModule.isStarterActive)
+        {
+            MenuManager.Instance.ChangeToMenu(AssetEnum.SocialMenuCanvas);
+        }
+        else
+        {
+            MenuManager.Instance.ChangeToMenu(AssetEnum.SocialMenuCanvas_Starter);
+        }
     }
 
     public void OnPlayButtonPressed()
@@ -68,6 +83,9 @@ public class MainMenu : MenuCanvas
             playOnlineBtn.gameObject.SetActive(isOnlineBtnActive);
         #endif
 
+        bool isFriendModuleActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.FriendEssentials);
+        socialButton.gameObject.SetActive(isFriendModuleActive);
+        
         bool isStatsModuleActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.StatsEssentials);
         profileButton.gameObject.SetActive(isStatsModuleActive);
     }

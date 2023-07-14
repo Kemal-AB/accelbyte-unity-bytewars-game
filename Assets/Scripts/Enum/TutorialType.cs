@@ -5,5 +5,6 @@ public enum TutorialType
     MatchmakingEssentials,
     StatsEssentials,
     CloudSaveEssentials,
+    FriendEssentials,
     SinglePlatformAuth
 }
