@@ -9,7 +9,7 @@ public class LeaderboardsPeriodMenu : MenuCanvas
     [SerializeField] private Button allTimeButton;
     [SerializeField] private Button backButton;
 
-    public LeaderboardPeriodType chosenPeriod;
+    [HideInInspector] public LeaderboardPeriodType chosenPeriod;
     public enum LeaderboardPeriodType
     {
         AllTime
