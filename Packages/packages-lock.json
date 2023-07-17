@@ -1,13 +1,13 @@
 {
   "dependencies": {
     "com.accelbyte.unitysdk": {
-      "version": "https://github.com/AccelByte/accelbyte-unity-sdk.git",
+      "version": "https://github.com/AccelByte/accelbyte-unity-sdk.git#16.1.0",
       "depth": 0,
       "source": "git",
       "dependencies": {
         "com.unity.nuget.newtonsoft-json": "3.0.1"
       },
-      "hash": "60a67a1759ca766986ceb8f90c4b6e86301c1633"
+      "hash": "a9a3451d59403093f734fd77f24a64d35adff10e"
     },
     "com.unity.burst": {
       "version": "1.8.2",

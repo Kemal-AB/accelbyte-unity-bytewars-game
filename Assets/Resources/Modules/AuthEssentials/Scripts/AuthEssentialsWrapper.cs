@@ -15,7 +15,9 @@ public class AuthEssentialsWrapper : MonoBehaviour
     // required variables to login with other platform outside AccelByte
     private PlatformType _platformType;
     private string _platformToken;
-    
+
+    public TokenData userData;
+
     void Start()
     {
         apiClient = MultiRegistry.GetApiClient();
@@ -44,6 +46,16 @@ public class AuthEssentialsWrapper : MonoBehaviour
         user.LoginWithUsernameV3(username, password, result => OnLoginCompleted(result, resultCallback), false);
     }
 
+    /// <summary>
+    /// Get user info of some users in bulk
+    /// </summary>
+    /// <param name="userIds">an array of user id from the desired users</param>
+    /// <param name="resultCallback">callback function to get result from other script</param>
+    public void BulkGetUserInfo(string[] userIds, ResultCallback<ListBulkUserInfoResponse> resultCallback)
+    {
+        user.BulkGetUserInfo(userIds, result => OnBulkGetUserInfo(result, resultCallback));
+    }
+    
     #endregion
     
     #region Callback Functions
@@ -58,12 +70,33 @@ public class AuthEssentialsWrapper : MonoBehaviour
         if (!result.IsError)
         {
             Debug.Log("Login user successful.");
+
+            userData = result.Value;
         }
         else
         {
             Debug.Log($"Login user failed. Message: {result.Error.error}");
         }
 
+        customCallback?.Invoke(result);
+    }
+
+    /// <summary>
+    /// Default Callback for BulkGetUserInfo() function
+    /// </summary>
+    /// <param name="result">result of the BulkGetUserInfo() function call</param>
+    /// <param name="customCallback">additional callback function that can be customized from other script</param>
+    private void OnBulkGetUserInfo(Result<ListBulkUserInfoResponse> result, ResultCallback<ListBulkUserInfoResponse> customCallback = null)
+    {
+        if (!result.IsError)
+        {
+            Debug.Log("Bulk get user info success!");
+        }
+        else
+        {
+            Debug.Log($"Bulk get user info failed. Message: {result.Error.Message}");
+        }
+        
         customCallback?.Invoke(result);
     }
 
