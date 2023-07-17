@@ -12,9 +12,7 @@
 using UnityEngine;
 #if !DISABLESTEAMWORKS
 using System;
-using System.Collections;
 using Steamworks;
-using UnityEngine.SceneManagement;
 #endif
 
 //
@@ -27,6 +25,7 @@ public class SteamManager : MonoBehaviour {
 	protected static bool s_EverInitialized = false;
 
 	protected static SteamManager s_instance;
+	private const uint DisabledAppID=1;
 	protected static SteamManager Instance {
 		get {
 			if (s_instance == null) {
@@ -87,7 +86,14 @@ public class SteamManager : MonoBehaviour {
 		if (!DllCheck.Test()) {
 			Debug.LogError("[Steamworks.NET] DllCheck Test returned false, One or more of the Steamworks binaries seems to be the wrong version.", this);
 		}
-
+		uint appId = DisabledAppID;
+		var strAppId = GConfig.GetSteamAppId();
+		if (!String.IsNullOrEmpty(strAppId))
+		{
+			uint.TryParse(strAppId, out appId);
+		}
+		if (appId == DisabledAppID || !GConfig.IsSteamEnabled())
+			return;
 		try {
 			// If Steam is not running or the game wasn't started through Steam, SteamAPI_RestartAppIfNecessary starts the
 			// Steam client and also launches this game again if the User owns it. This can act as a rudimentary form of DRM.
@@ -95,12 +101,6 @@ public class SteamManager : MonoBehaviour {
 			// Once you get a Steam AppID assigned by Valve, you need to replace AppId_t.Invalid with it and
 			// remove steam_appid.txt from the game depot. eg: "(AppId_t)480" or "new AppId_t(480)".
 			// See the Valve documentation for more information: https://partner.steamgames.com/doc/sdk/api#initialization_and_shutdown
-			uint appId = 480;
-			var strAppId = GConfig.GetSteamAppId();
-			if (!String.IsNullOrEmpty(strAppId))
-			{
-				uint.TryParse(strAppId, out appId);
-			}
 			if (SteamAPI.RestartAppIfNecessary(new AppId_t(appId))) {
 				Application.Quit();
 				return;

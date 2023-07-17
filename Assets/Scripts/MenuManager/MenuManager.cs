@@ -77,28 +77,41 @@ public class MenuManager : MonoBehaviour
     {
         if (_currentMainMenu.GetAssetEnum() != assetEnum)
         {
+            
+            if (!_menusDictionary.TryGetValue(assetEnum, out var value))
+            {
+                InstantiateCanvas(assetEnum);
+            }
+            
             LeanTween.alpha(_currentMainMenu.gameObject, 0, 0.4f).setOnComplete(() =>
             {
                 OnChangeMenuComplete(assetEnum);
             });
         }
+        
         return _menusDictionary[assetEnum];
+
     }
-    
+
     /// <summary>
     /// Change Menu Callback
     /// </summary>
     /// <param name="assetEnum"></param>
     private void OnChangeMenuComplete(AssetEnum assetEnum)
     {
+        var targetMenu = _menusDictionary[assetEnum];
+
         if (_currentMainMenu != null)
         {
             _currentMainMenu.gameObject.SetActive(false);
         }
 
-        var targetMenu = _menusDictionary[assetEnum];
+
+        if (!targetMenu.gameObject.activeSelf)
+        {
+            targetMenu.gameObject.SetActive(true);
+        }
         
-        targetMenu.gameObject.SetActive(true);
         _currentMainMenu = targetMenu;
         _eventSystem.SetSelectedGameObject(targetMenu.GetFirstButton());
         _mainMenusStack.Push(_currentMainMenu);
@@ -295,8 +308,10 @@ public class MenuManager : MonoBehaviour
         {
             return;
         }
-        
+
+        mainmenuConfig.starter.gameObject.SetActive(false);
         var starterMenu = Instantiate(mainmenuConfig.starter, transform);
+        mainmenuConfig.starter.gameObject.SetActive(true);
         GameObject o = starterMenu.gameObject;
         o.SetActive(false);
         string mainMenuName = mainmenuConfig.starter.gameObject.name;
@@ -306,7 +321,9 @@ public class MenuManager : MonoBehaviour
 
         foreach (var menuCanvas in mainmenuConfig.otherMenuCanvas)
         {
+            menuCanvas.gameObject.SetActive(false);
             var otherCoreMenu = Instantiate(menuCanvas, transform);
+            menuCanvas.gameObject.SetActive(true);
             otherCoreMenu.gameObject.SetActive(false);
             string gameObjectName = menuCanvas.gameObject.name;
             otherCoreMenu.name = gameObjectName;
@@ -317,11 +334,14 @@ public class MenuManager : MonoBehaviour
     private void InitMenuByModules(ModuleModel moduleData)
     {
         var modulePrefab = moduleData.mainPrefab;
+        modulePrefab.gameObject.SetActive(false);
         var menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
-        menubyModule.name = modulePrefab.name;
+        modulePrefab.gameObject.SetActive(true);
+        menubyModule.name = modulePrefab.name; ;
         _menusDictionary.Add(menubyModule.GetAssetEnum(), menubyModule);
         _menusDictionary[menubyModule.GetAssetEnum()].gameObject.SetActive(false);
         
+                
         if (moduleData.hasAdditionalPrefab)
         {
             if (moduleData.additionalPrefab.Length == 0)
@@ -331,15 +351,30 @@ public class MenuManager : MonoBehaviour
             
             foreach (var additionalPrefab in moduleData.additionalPrefab)
             {
+                additionalPrefab.gameObject.SetActive(false);
                 var additionalMenu = Instantiate(additionalPrefab, Vector3.zero, Quaternion.identity, _instance.transform);
+                additionalPrefab.gameObject.SetActive(true);
                 additionalMenu.name = additionalPrefab.name;
                 _menusDictionary.Add(additionalMenu.GetAssetEnum(), additionalMenu);
                 _menusDictionary[additionalMenu.GetAssetEnum()].gameObject.SetActive(false);
             }
         }
     }
-    
-    
+
+    public void InstantiateCanvas(AssetEnum assetEnum)
+    {
+        if (_menusDictionary.TryGetValue(assetEnum, out var value))
+        {
+            return;
+        }
+        var test = (GameObject)AssetManager.Singleton.GetAsset(assetEnum);
+        var modulePrefab = test.GetComponent<MenuCanvas>();
+        modulePrefab.gameObject.SetActive(false);
+        var menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
+        menubyModule.name = modulePrefab.name;
+        _menusDictionary.Add(menubyModule.GetAssetEnum(), menubyModule);
+        // _menusDictionary[menubyModule.GetAssetEnum()].gameObject.SetActive(false);
+    }
     /// <summary>
     /// Helper Function to disable Button UI
     /// </summary>

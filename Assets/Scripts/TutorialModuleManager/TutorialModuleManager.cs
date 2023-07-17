@@ -239,6 +239,7 @@ public class TutorialModuleManager : MonoBehaviour
             moduleModel.additionalPrefab = moduleData.starterAdditionalMenuUIPrefabs;
             moduleModel.type = moduleData.type;
             moduleModel.isActive = moduleData.isActive;
+            moduleModel.isStarterActive = true;
         }
         else
         {
@@ -247,6 +248,8 @@ public class TutorialModuleManager : MonoBehaviour
             moduleModel.additionalPrefab = moduleData.defaultAdditionalMenuUIPrefabs;
             moduleModel.type = moduleData.type;
             moduleModel.isActive = moduleData.isActive;
+            moduleModel.isStarterActive = false;
+
         }
 
         return moduleModel;
@@ -263,7 +266,7 @@ public class TutorialModuleManager : MonoBehaviour
                 || !moduleData.starterScript 
                 || !moduleData.defaultMenuUIPrefab 
                 || !moduleData.starterMenuUIPrefab
-                )
+               )
             {
                 Debug.Log($"{moduleData.type.ToString()} contain null");
                 continue;

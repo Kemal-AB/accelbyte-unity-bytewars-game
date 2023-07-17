@@ -9,4 +9,5 @@ public class ModuleModel
     public bool hasAdditionalPrefab;
     public TutorialType type;
     public bool isActive;
+    public bool isStarterActive;
 }
