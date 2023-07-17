@@ -10,8 +10,8 @@ using Button = UnityEngine.UI.Button;
 
 public class IndividualLeaderboardMenu_Starter : MenuCanvas
 {
-    [SerializeField] private ScrollRect rankingListScrollView;
     [SerializeField] private Transform rankingListPanel;
+    [SerializeField] private Transform defaultText;
     [SerializeField] private Button backButton;
     [SerializeField] private GameObject rankingItemPanelPrefab;
     

@@ -10,8 +10,8 @@ using Button = UnityEngine.UI.Button;
 
 public class IndividualLeaderboardMenu : MenuCanvas
 {
-    [SerializeField] private ScrollRect rankingListScrollView;
     [SerializeField] private Transform rankingListPanel;
+    [SerializeField] private Transform defaultText;
     [SerializeField] private Button backButton;
     [SerializeField] private GameObject rankingItemPanelPrefab;
 
@@ -63,7 +63,7 @@ public class IndividualLeaderboardMenu : MenuCanvas
     public void DisplayRankingList()
     {
         // ensure the Ranking List Panel children are empty
-        LoopThroughTransformAndDestroy(rankingListPanel);
+        LoopThroughTransformAndDestroy(rankingListPanel, defaultText);
         
         if (currentPeriodType is LeaderboardsPeriodMenu.LeaderboardPeriodType.AllTime)
         {
@@ -75,6 +75,9 @@ public class IndividualLeaderboardMenu : MenuCanvas
     {
         if (!result.IsError)
         {
+            // set default text to active (true) if list empty
+            defaultText.gameObject.SetActive(result.Value.data.Length <= 0);
+            
             // Store the ranking result's userIds and points to a Dictionary
             Dictionary<string, float> userRankInfos = result.Value.data.ToDictionary(userPoint => userPoint.userId, userPoint => userPoint.point);
             
@@ -85,6 +88,10 @@ public class IndividualLeaderboardMenu : MenuCanvas
             {
                 _leaderboardWrapper.GetUserRanking(currentUserId, currentLeaderboardCode, OnGetUserRankingCompleted);
             }
+        }
+        else
+        {
+            defaultText.gameObject.SetActive(true);
         }
     }
 
