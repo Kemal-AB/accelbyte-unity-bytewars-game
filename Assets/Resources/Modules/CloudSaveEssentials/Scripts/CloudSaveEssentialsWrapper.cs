@@ -40,7 +40,8 @@ public class CloudSaveEssentialsWrapper : MonoBehaviour
     {
         cloudSave.DeleteUserRecord(
             recordKey,
-            result => OnDeleteUserRecordCompleted(result, resultCallback));
+            result => OnDeleteUserRecordCompleted(result, resultCallback)
+        );
     }
     
     #endregion
