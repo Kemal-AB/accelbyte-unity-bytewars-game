@@ -47,29 +47,27 @@ public class StatsEssentialsWrapper : MonoBehaviour
     /// <summary>
     /// Update User Statistics value from Server side
     /// </summary>
-    /// <param name="userId">user id of the desired user's stats</param>
+    /// <param name="statCode">stat code of the desired stat item</param>
     /// <param name="newStatItemsValue">dictionary of stat codes along with its new values</param>
-    /// <param name="additionalKey">additional custom key that will be added to the slot</param>
     /// /// <param name="resultCallback">callback function to get result from other script</param>
-    public void UpdateUserStatsFromServer(string userId, Dictionary<string, float> newStatItemsValue, string additionalKey, ResultCallback<StatItemOperationResult[]> resultCallback)
+    public void UpdateManyUserStatsFromServer(string statCode, Dictionary<string, float> newStatItemsValue, ResultCallback<StatItemOperationResult[]> resultCallback)
     {
-        List<StatItemUpdate> bulkUpdateUserStatItems = new List<StatItemUpdate>();
+        List<UserStatItemUpdate> bulkUpdateUserStatItems = new List<UserStatItemUpdate>();
         foreach (var newStatItem in newStatItemsValue)
         {
-            StatItemUpdate userStatItem = new StatItemUpdate
+            UserStatItemUpdate userStatItem = new UserStatItemUpdate()
             {
-                statCode = newStatItem.Key,
                 updateStrategy = StatisticUpdateStrategy.OVERRIDE,
+                statCode = statCode,
+                userId = newStatItem.Key,
                 value = newStatItem.Value
             };
-            
             bulkUpdateUserStatItems.Add(userStatItem);
         }
         
-        serverStatistic.UpdateUserStatItems(
-            userId,
+        serverStatistic.UpdateManyUsersStatItems(
             bulkUpdateUserStatItems.ToArray(),
-            result => OnUpdateUserStatsFromServerCompleted(result, resultCallback)
+            result => OnUpdateManyUserStatsFromServerCompleted(result, resultCallback)
         );
     }
     
@@ -89,18 +87,16 @@ public class StatsEssentialsWrapper : MonoBehaviour
     }
 
     /// <summary>
-    /// Get User Statistics from Server side
+    /// Get Multiple Users Statistics in bulk from Server side
     /// </summary>
-    /// <param name="userId">user id of the desired user's stats</param>
-    /// <param name="statCodes">list of stat codes of the desired stat items</param>
-    /// <param name="tags">list of custom tags of the desired stat items</param>
+    /// <param name="userId">list of user id of the desired user's stats</param>
+    /// <param name="statCodes">stat code name of the desired stat item</param>
     /// <param name="resultCallback">callback function to get result from other script</param>
-    public void GetUserStatsFromServer(string userId, string[] statCodes, string[] tags, ResultCallback<PagedStatItems> resultCallback)
+    public void BulkGetUsersStatFromServer(string[] userIds, string statCode, ResultCallback<FetchUserStatistic> resultCallback)
     {
-        serverStatistic.GetUserStatItems(
-            userId,
-            statCodes,
-            tags,
+        serverStatistic.BulkFetchStatItemsValue(
+            statCode,
+            userIds,
             result => OnGetUserStatItemsFromServerCompleted(result, resultCallback)
         );
     }
@@ -184,7 +180,7 @@ public class StatsEssentialsWrapper : MonoBehaviour
     /// </summary>
     /// <param name="result">result of the GetUserStatItems() function call</param>
     /// <param name="customCallback">additional callback function that can be customized from other script</param>
-    private void OnUpdateUserStatsFromServerCompleted(Result<StatItemOperationResult[]> result, ResultCallback<StatItemOperationResult[]> customCallback = null)
+    private void OnUpdateManyUserStatsFromServerCompleted(Result<StatItemOperationResult[]> result, ResultCallback<StatItemOperationResult[]> customCallback = null)
     {
         if (!result.IsError)
         {
@@ -222,7 +218,7 @@ public class StatsEssentialsWrapper : MonoBehaviour
     /// </summary>
     /// <param name="result">result of the GetUserStatItems() function call</param>
     /// <param name="customCallback">additional callback function that can be customized from other script</param>
-    private void OnGetUserStatItemsFromServerCompleted(Result<PagedStatItems> result, ResultCallback<PagedStatItems> customCallback = null)
+    private void OnGetUserStatItemsFromServerCompleted(Result<FetchUserStatistic> result, ResultCallback<FetchUserStatistic> customCallback = null)
     {
         if (!result.IsError)
         {

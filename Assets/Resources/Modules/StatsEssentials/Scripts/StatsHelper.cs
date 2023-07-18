@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using AccelByte.Core;
 using AccelByte.Models;
 using UnityEngine;
@@ -7,11 +8,13 @@ using UnityEngine;
 public class StatsHelper : MonoBehaviour
 {
     // statcodes' name configured in Admin Portal
-    private const string SINGLEPLAYER_STATCODE = "highestscore-singleplayer";
-    private const string ELIMINATION_STATCODE = "highestscore-elimination";
-    private const string TEAMDEATHMATCH_STATCODE = "highestscore-teamdeathmatch";
+    private const string SINGLEPLAYER_STATCODE = "unity-highestscore-singleplayer";
+    private const string ELIMINATION_STATCODE = "unity-highestscore-elimination";
+    private const string TEAMDEATHMATCH_STATCODE = "unity-highestscore-teamdeathmatch";
 	
     private StatsEssentialsWrapper _statsWrapper;
+    private string currentUserId;
+    private string currentStatCode;
     
     // Start is called before the first frame update
     void Start()
@@ -23,70 +26,89 @@ public class StatsHelper : MonoBehaviour
 
     #region AB Functions Call
     
-    private void CheckHighestScoreStats(GameModeEnum gameMode, List<PlayerState> playerStates)
+    private void CheckHighestScoreStats(GameModeEnum gameMode, InGameMode inGameMode, List<PlayerState> playerStates)
     {
-        string[] statCodes = new[] {SINGLEPLAYER_STATCODE, ELIMINATION_STATCODE, TEAMDEATHMATCH_STATCODE};
+        currentUserId = MultiRegistry.GetApiClient().session.UserId;
         
-        _statsWrapper.GetUserStatsFromClient(statCodes, null, result => OnCheckHighestScoreStatsCompleted(result, gameMode, playerStates));
-    }
-
-    private void UpdateStatsWithClientSdk(string statCode, PlayerState playerState)
-    {
-        _statsWrapper.UpdateUserStatsFromClient(statCode, playerState.score, "", OnUpdateStatsWithClientSdkCompleted);
-    }
-    
-    private void UpdateStatsWithServerSdk(string statCode, List<PlayerState> playerStates)
-    {
-        // update only the current player
-        string currentUserId = MultiRegistry.GetApiClient().session.UserId;
-        foreach (PlayerState playerState in playerStates)
-        {
-            if (playerState.playerId == currentUserId)
+        #if UNITY_SERVER
+            if (inGameMode is InGameMode.OnlineEliminationGameMode)
             {
-                Dictionary<string, float> statItems = new Dictionary<string, float>()
-                {
-                    {statCode, playerState.score}
-                };
-                _statsWrapper.UpdateUserStatsFromServer(currentUserId, statItems, "", OnUpdateStatsWithServerSdkCompleted);
+                currentStatCode = ELIMINATION_STATCODE;
             }
+            else if (inGameMode is InGameMode.OnlineDeathMatchGameMode)
+            {
+                currentStatCode = TEAMDEATHMATCH_STATCODE;
+            }
+
+            Dictionary<string, float> userStats = playerStates.ToDictionary(state => state.playerId, state => state.score);
+
+            _statsWrapper.BulkGetUsersStatFromServer(userStats.Keys.ToArray(), currentStatCode, result => OnBulkGetUserStatFromServer(result, userStats));
+        #endif
+        
+        if (gameMode is GameModeEnum.SinglePlayer)
+        {
+            currentStatCode = SINGLEPLAYER_STATCODE;
+            PlayerState playerState = null;
+            foreach (PlayerState currentPlayerState in playerStates)
+            {
+                if (currentPlayerState.playerId == currentUserId)
+                {
+                    playerState = currentPlayerState;
+                    break;
+                }
+            }
+            _statsWrapper.GetUserStatsFromClient(new string[]{currentStatCode}, null, result => OnGetUserStatsFromClient(result, playerState));
         }
     }
-    
+
     #endregion
 
     #region Callback Functions
 
-    private void OnCheckHighestScoreStatsCompleted(Result<PagedStatItems> result, GameModeEnum gameMode, List<PlayerState> playerStates)
+    private void OnBulkGetUserStatFromServer(Result<FetchUserStatistic> result, Dictionary<string, float> userStats)
     {
         if (!result.IsError)
         {
-            Dictionary<string, float> currentHighestScore = new Dictionary<string, float>();
-            foreach (StatItem statItem in result.Value.data)
+            // key: userId, value: stat value
+            Dictionary<string, float> bulkUserStats = result.Value.UserStatistic.ToDictionary(stat => stat.UserId, stat => stat.Value);
+            foreach (string userId in userStats.Keys)
             {
-                currentHighestScore.Add(statItem.statCode, statItem.value);
-            }
-
-            float singlePlayerHighestScore = 0;
-            currentHighestScore.TryGetValue(SINGLEPLAYER_STATCODE, out singlePlayerHighestScore);
-            if (gameMode is GameModeEnum.SinglePlayer && playerStates[0].score > singlePlayerHighestScore)
-            {
-                UpdateStatsWithClientSdk(SINGLEPLAYER_STATCODE, playerStates[0]);
-            }
-
-            if (gameMode is GameModeEnum.OnlineMultiplayer)
-            {
-                string currentUserId = MultiRegistry.GetApiClient().session.UserId;
-                foreach (PlayerState playerState in playerStates)
+                if (bulkUserStats.ContainsKey(userId) && userStats[userId] < bulkUserStats[userId])
                 {
-                    if (playerState.playerId == currentUserId)
-                    {
-                        UpdateStatsWithServerSdk(ELIMINATION_STATCODE, playerStates);
-                    }
+                    userStats.Remove(userId);
                 }
             }
+            _statsWrapper.UpdateManyUserStatsFromServer(currentStatCode, userStats, OnUpdateStatsWithServerSdkCompleted);
+        }
+        else
+        {
+            _statsWrapper.UpdateManyUserStatsFromServer(currentStatCode, userStats, OnUpdateStatsWithServerSdkCompleted);
         }
     }
     
+    private void OnGetUserStatsFromClient(Result<PagedStatItems> result, PlayerState playerState)
+    {
+        // if query success
+        if (!result.IsError)
+        {
+            // key: statcode, value: stat value
+            Dictionary<string, float> userStatItems = result.Value.data.ToDictionary(stat => stat.statCode, stat => stat.value);
+            if (userStatItems.ContainsKey(currentStatCode) && playerState.score > userStatItems[currentStatCode])
+            {
+                _statsWrapper.UpdateUserStatsFromClient(currentStatCode, playerState.score, "", OnUpdateStatsWithClientSdkCompleted);
+            }
+            else if (!userStatItems.ContainsKey(currentStatCode))
+            {
+                _statsWrapper.UpdateUserStatsFromClient(currentStatCode, playerState.score, "", OnUpdateStatsWithClientSdkCompleted);
+            }
+        }
+        else
+        {
+            // Create a new stat item since the stat doesn't exist yet
+            _statsWrapper.UpdateUserStatsFromClient(currentStatCode, playerState.score, "", OnUpdateStatsWithClientSdkCompleted);
+        }
+    }
+
     private void OnUpdateStatsWithClientSdkCompleted(Result<UpdateUserStatItemValueResponse> result)
     {
         if (!result.IsError)

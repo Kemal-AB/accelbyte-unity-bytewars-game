@@ -26,7 +26,7 @@ public class GameManager : NetworkBehaviour
     private MenuManager _menuManager;
     private Dictionary<string, GameEntityAbs> _gamePrefabDict = new Dictionary<string, GameEntityAbs>();
 
-    public delegate void GameOverDelegate(GameModeEnum gameMode, List<PlayerState> playerStates);
+    public delegate void GameOverDelegate(GameModeEnum gameMode, InGameMode inGameMode, List<PlayerState> playerStates);
     public static event GameOverDelegate onGameOver = delegate {};
     
     [SerializeField]
@@ -698,7 +698,7 @@ public class GameManager : NetworkBehaviour
                 _hud.gameObject.SetActive(false);
                 break;
             case InGameState.GameOver:
-                onGameOver.Invoke(_gameMode, ConnectedPlayerStates.Values.ToList());
+                onGameOver.Invoke(_gameMode, _inGameMode, ConnectedPlayerStates.Values.ToList());
                 
                 _serverHelper.CancelCountdown();
                 if (NetworkManager.Singleton.IsListening)

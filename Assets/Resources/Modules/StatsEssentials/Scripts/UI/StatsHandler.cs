@@ -16,9 +16,9 @@ public class StatsHandler : MenuCanvas
     [SerializeField] private Button backButton;
 
     // statcodes' name configured in Admin Portal
-    private const string SINGLEPLAYER_STATCODE = "highestscore-singleplayer";
-    private const string ELIMINATION_STATCODE = "highestscore-elimination";
-    private const string TEAMDEATHMATCH_STATCODE = "highestscore-teamdeathmatch";
+    private const string SINGLEPLAYER_STATCODE = "unity-highestscore-singleplayer";
+    private const string ELIMINATION_STATCODE = "unity-highestscore-elimination";
+    private const string TEAMDEATHMATCH_STATCODE = "unity-highestscore-teamdeathmatch";
 	
     private StatsEssentialsWrapper _statsWrapper;
     
