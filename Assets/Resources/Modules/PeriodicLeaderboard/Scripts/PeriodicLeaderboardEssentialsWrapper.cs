@@ -28,12 +28,14 @@ public class PeriodicLeaderboardEssentialsWrapper : MonoBehaviour
         );
     }
     
-    public void GetRankingsByCycle(string leaderboardCode, string cycleId, ResultCallback<LeaderboardRankingResult> resultCallback)
+    public void GetRankingsByCycle(string leaderboardCode, string cycleId, ResultCallback<LeaderboardRankingResult> resultCallback, int offset = default, int limit = default)
     {
         leaderboard.GetRankingsByCycle(
             leaderboardCode, 
             cycleId, 
-            result => OnGetRankingsByCycleCompleted(result, resultCallback)
+            result => OnGetRankingsByCycleCompleted(result, resultCallback),
+            offset,
+            limit
         );
     }
 

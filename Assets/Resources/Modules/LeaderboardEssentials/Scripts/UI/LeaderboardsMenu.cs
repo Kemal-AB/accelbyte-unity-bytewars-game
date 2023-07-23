@@ -14,7 +14,8 @@ public class LeaderboardsMenu : MenuCanvas
     [SerializeField] private GameObject leaderboardItemButtonPrefab;
 
     [HideInInspector] public string chosenLeaderboardCode;
-    
+    [HideInInspector] public Dictionary<string, string[]> leaderboardCycleIds = new Dictionary<string, string[]>();
+
     private LeaderboardEssentialsWrapper _leaderboardWrapper;
 
     void Start()
@@ -56,6 +57,8 @@ public class LeaderboardsMenu : MenuCanvas
                     leaderboardButtonText.text = leaderboardData.Name.Replace("Unity Leaderboard ", "");
                     
                     leaderboardButton.onClick.AddListener(() => ChangeToLeaderboardsPeriodMenu(leaderboardData.LeaderboardCode));
+                    
+                    leaderboardCycleIds.Add(leaderboardData.LeaderboardCode, leaderboardData.CycleIds);
                 }
             }
         }

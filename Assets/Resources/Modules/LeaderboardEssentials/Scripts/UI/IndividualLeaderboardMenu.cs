@@ -18,6 +18,7 @@ public class IndividualLeaderboardMenu : MenuCanvas
     private string currentUserId;
     private string currentLeaderboardCode;
     private LeaderboardsPeriodMenu.LeaderboardPeriodType currentPeriodType;
+    private string currentCycleId;
 
     private const string DEFUSERNAME = "PLAYER-";
     private const int RESULTOFFSET = 0;
@@ -25,12 +26,14 @@ public class IndividualLeaderboardMenu : MenuCanvas
     
     private LeaderboardEssentialsWrapper _leaderboardWrapper;
     private AuthEssentialsWrapper _authWrapper;
+    private PeriodicLeaderboardEssentialsWrapper _periodicLeaderboardWrapper;
     
     void Start()
     {
         // get leaderboard and auth's wrapper
         _leaderboardWrapper = TutorialModuleManager.Instance.GetModuleClass<LeaderboardEssentialsWrapper>();
         _authWrapper = TutorialModuleManager.Instance.GetModuleClass<AuthEssentialsWrapper>();
+        _periodicLeaderboardWrapper = TutorialModuleManager.Instance.GetModuleClass<PeriodicLeaderboardEssentialsWrapper>();
         
         backButton.onClick.AddListener(OnBackButtonClicked);
 
@@ -58,6 +61,7 @@ public class IndividualLeaderboardMenu : MenuCanvas
         MenuCanvas leaderboardsPeriodMenuCanvas = MenuManager.Instance.GetMenu(AssetEnum.LeaderboardsPeriodMenuCanvas);
         LeaderboardsPeriodMenu leaderboardsPeriodMenu = leaderboardsPeriodMenuCanvas.GetComponent<LeaderboardsPeriodMenu>();
         currentPeriodType = leaderboardsPeriodMenu.chosenPeriod;
+        currentCycleId = leaderboardsPeriodMenu.chosenCycleId;
     }
     
     public void DisplayRankingList()
@@ -68,6 +72,10 @@ public class IndividualLeaderboardMenu : MenuCanvas
         if (currentPeriodType is LeaderboardsPeriodMenu.LeaderboardPeriodType.AllTime)
         {
             _leaderboardWrapper.GetRankings(currentLeaderboardCode, OnDisplayRankingListCompleted, RESULTOFFSET, RESULTLIMIT);
+        }
+        else
+        {
+            _periodicLeaderboardWrapper.GetRankingsByCycle(currentLeaderboardCode, currentCycleId, OnDisplayRankingListCompleted, RESULTOFFSET, RESULTLIMIT);
         }
     }
 
@@ -112,6 +120,17 @@ public class IndividualLeaderboardMenu : MenuCanvas
             if (currentPeriodType == LeaderboardsPeriodMenu.LeaderboardPeriodType.AllTime)
             {
                 InstantiateRankingItem(result.Value.UserId, _authWrapper.userData.display_name, result.Value.AllTime.point);
+            }
+            else
+            {
+                foreach (UserCycleRanking cycleRanking in result.Value.Cycles)
+                {
+                    if (cycleRanking.CycleId == currentCycleId)
+                    {
+                        InstantiateRankingItem(result.Value.UserId, _authWrapper.userData.display_name, cycleRanking.Point);
+                        break;
+                    }
+                }
             }
         }
     }
