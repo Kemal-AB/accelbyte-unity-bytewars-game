@@ -10,4 +10,5 @@ public enum TutorialType
     LeaderboardEssentials=6,
     SinglePlatformAuth=7,
     FriendEssentials=8
+    PeriodicLeaderboardEssentials=13,
 }
