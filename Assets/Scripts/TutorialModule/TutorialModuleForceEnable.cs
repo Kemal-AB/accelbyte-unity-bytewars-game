@@ -11,6 +11,7 @@ using Object = UnityEngine.Object;
 public static class TutorialModuleForceEnable
 {
     internal const string FIRST_TIME = "FIRST_TIME"; // the key
+    private const string CachedTutorialModuleConfigJson = "CachedConfig";
 
     public static string[] ListAllModules
     {
@@ -41,16 +42,43 @@ public static class TutorialModuleForceEnable
     private static Dictionary<string, TutorialModuleData> _moduleDictionary = new Dictionary<string, TutorialModuleData>();
     private static string[] _moduleDependencies;
     private static bool _isForceDisableOtherModules;
+    private static bool _isUnityEditorFocused;
 
     static TutorialModuleForceEnable()
     {
         EditorApplication.update += RunOnce;
+        EditorApplication.update += OnUpdate;
         EditorApplication.quitting += Quit;
+    }
+
+    private static void OnUpdate()
+    {
+        if (_isUnityEditorFocused!=UnityEditorInternal.InternalEditorUtility.isApplicationActive)
+        {
+            _isUnityEditorFocused = UnityEditorInternal.InternalEditorUtility.isApplicationActive;
+            if (_isUnityEditorFocused)
+            {
+                CheckJson();
+            }
+        }
+    }
+
+    private static void CheckJson()
+    {
+        var textJson = ReadJson();
+        var cachedJsonString = EditorPrefs.GetString(CachedTutorialModuleConfigJson);
+        if (String.IsNullOrEmpty(cachedJsonString) || 
+            !cachedJsonString.Equals(textJson))
+        {
+            EditorPrefs.SetString(CachedTutorialModuleConfigJson, textJson);
+            UpdateConfigFromJson(textJson);
+        }
     }
 
     private static void Quit()
     {
         EditorPrefs.DeleteKey(FIRST_TIME);
+        EditorPrefs.DeleteKey(CachedTutorialModuleConfigJson);
     }
 
     /// <summary>
@@ -59,24 +87,13 @@ public static class TutorialModuleForceEnable
     private static void RunOnce()
     {
         var firstTime = EditorPrefs.GetBool(FIRST_TIME, true);
-
         if (firstTime)
         {
             if (EditorPrefs.GetBool("FIRST_TIME", true))
             {
-                var isReadJsonConfig = ReadJsonConfig() != null ? ReadJsonConfig() : null;
-                if (isReadJsonConfig != null)
+                if (UpdateConfigFromJson(ReadJson()))
                 {
-                    // GetAllDependencies(isReadJsonConfig);
-                    isReadJsonConfig.ToList().ForEach(x => ForceEnableModules($"{x}AssetConfig", true));
-
-
-                    _moduleDependencies = _moduleDictionary.Select(x => x.Key.Replace("AssetConfig", "")).ToArray();
-                    _moduleDependencies.ToList().ForEach(ForceEnable);
-                    if (_isForceDisableOtherModules)
-                    {
-                        DisableRestOfModules(_moduleDependencies);
-                    }                    Debug.Log($"first time opened");
+                    Debug.Log($"first time opened");
                     ShowPopupForceEnable.Init();
                 }
             }
@@ -86,7 +103,27 @@ public static class TutorialModuleForceEnable
 
         EditorApplication.update -= RunOnce;
     }
-    
+
+    private static bool UpdateConfigFromJson(string jsonStr)
+    {
+        var isReadJsonConfig = ReadJsonConfig(jsonStr) != null ? ReadJsonConfig(jsonStr) : null;
+        if (isReadJsonConfig != null)
+        {
+            // GetAllDependencies(isReadJsonConfig);
+            isReadJsonConfig.ToList().ForEach(x => ForceEnableModules($"{x}AssetConfig", true));
+
+
+            _moduleDependencies = _moduleDictionary.Select(x => x.Key.Replace("AssetConfig", "")).ToArray();
+            _moduleDependencies.ToList().ForEach(ForceEnable);
+            if (_isForceDisableOtherModules)
+            {
+                DisableRestOfModules(_moduleDependencies);
+            }
+            return true;
+        }
+        return false;
+    }
+
     private static bool IsTargetModuleCurrentSelectedModule()
     {
         return _overrideModule.name == Selection.activeObject.name ? true : false;
@@ -112,10 +149,9 @@ public static class TutorialModuleForceEnable
     /// <param name="readFromInspector"></param>
     /// <param name="startOrChangeConfig"></param>
     /// <returns></returns>
-    private static string[] ReadJsonConfig(bool readFromInspector = false)
+    private static string[] ReadJsonConfig(string jsonStr, bool readFromInspector = false)
     {
-        var tutorialModuleConfig = (TextAsset)Resources.Load("Modules/TutorialModuleConfig");
-        var json = JsonUtility.FromJson<TutorialModuleConfig>(tutorialModuleConfig.text);
+        var json = JsonUtility.FromJson<TutorialModuleConfig>(jsonStr);
         // Check if open asset config from inspector
         if (!readFromInspector)
         {
@@ -141,6 +177,13 @@ public static class TutorialModuleForceEnable
         return _forcedModules;
     }
 
+    private static string ReadJson()
+    {
+        var tutorialModuleConfig = (TextAsset)Resources.Load("Modules/TutorialModuleConfig");
+        var textJson = tutorialModuleConfig.text;
+        return textJson;
+    }
+
     private static void ForceEnable(string moduleName)
     {
         var module = GetTutorialModuleDataObject(moduleName);
@@ -158,8 +201,9 @@ public static class TutorialModuleForceEnable
         {
             return false;
         }
-        
-        var isReadJsonConfig = ReadJsonConfig(readFromInspector:true) != null ? _forcedModules : null;
+
+        var jsonStr = ReadJson();
+        var isReadJsonConfig = ReadJsonConfig(jsonStr, readFromInspector:true) != null ? _forcedModules : null;
 
         if (isReadJsonConfig == null)
         {
