@@ -17,7 +17,7 @@ MonoBehaviour:
   defaultAdditionalMenuUIPrefabs: []
   defaultModuleScript: {fileID: 11500000, guid: df60724338be5e943a6abf73dba9a54f,
     type: 3}
-  type: 1
+  type: 3
   isActive: 1
   additionalScripts: 0
   additionalPrefab: 0

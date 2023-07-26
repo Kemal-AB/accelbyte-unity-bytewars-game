@@ -14,11 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultMenuUIPrefab: {fileID: 7136904038023264967, guid: baea9310b50ad964da92bcf693d9c3cb,
     type: 3}
+  defaultAdditionalMenuUIPrefabs: []
   defaultModuleScript: {fileID: 11500000, guid: f738d54123e302a41bff62be302096b5,
     type: 3}
-  type: 3
+  type: 5
   isActive: 1
   additionalScripts: 1
+  additionalPrefab: 0
   defaultHelperScripts:
   - {fileID: 11500000, guid: b8e605996d289ac419f2a5ec9d2abdbe, type: 3}
   starterHelperScripts:
@@ -26,6 +28,7 @@ MonoBehaviour:
   starterScript: {fileID: 11500000, guid: f2f894f9ac044794b2d0d80f8f439adf, type: 3}
   starterMenuUIPrefab: {fileID: 7136904038023264967, guid: baea9310b50ad964da92bcf693d9c3cb,
     type: 3}
+  starterAdditionalMenuUIPrefabs: []
   isStarterActive: 0
   moduleDependencies:
   - {fileID: 11400000, guid: b4c868ff7e72cc840963d5a37178f14d, type: 2}

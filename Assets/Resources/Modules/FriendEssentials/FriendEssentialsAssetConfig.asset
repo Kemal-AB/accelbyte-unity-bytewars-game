@@ -22,7 +22,7 @@ MonoBehaviour:
   - {fileID: 3656707978463823751, guid: 62a0ec0af70734a42b50ff21cf944007, type: 3}
   defaultModuleScript: {fileID: 11500000, guid: 17146a94154e29b4d9363c64c84a709e,
     type: 3}
-  type: 4
+  type: 8
   isActive: 1
   additionalScripts: 0
   additionalPrefab: 1

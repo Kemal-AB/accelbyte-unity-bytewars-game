@@ -48,9 +48,13 @@ public class TutorialModuleDataEditor : Editor
         _moduleDependencies = serializedObject.FindProperty("moduleDependencies");
         _starterMenuUIPrefab = serializedObject.FindProperty("starterMenuUIPrefab");
         _isStarterActive = serializedObject.FindProperty("isStarterActive");
-        _forceEnableStatus = TutorialModuleForceEnable.ForceEnableModules(Selection.activeObject.name);
+        var activeObject = Selection.activeObject;
+        if (activeObject != null)
+        {
+            _forceEnableStatus = TutorialModuleForceEnable.ForceEnableModules(Selection.activeObject.name);
+            _isDependencyModule = TutorialModuleForceEnable.IsDependency(Selection.activeObject.name);
+        }
         _forceDisableStatus = TutorialModuleForceEnable.IsForceDisable;
-        _isDependencyModule = TutorialModuleForceEnable.IsDependency(Selection.activeObject.name);
 
         _hasAdditionalScripts = serializedObject.FindProperty("additionalScripts");
         _defaultHelperFiles = serializedObject.FindProperty("defaultHelperScripts");
