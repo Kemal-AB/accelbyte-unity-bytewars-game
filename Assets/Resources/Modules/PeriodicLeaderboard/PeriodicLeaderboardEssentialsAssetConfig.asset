@@ -10,19 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c946b292dbcfa2418ef1a2b2e60b8b7, type: 3}
-  m_Name: New Tutorial Module Data
+  m_Name: PeriodicLeaderboardEssentialsAssetConfig
   m_EditorClassIdentifier: 
   defaultMenuUIPrefab: {fileID: 0}
   defaultAdditionalMenuUIPrefabs: []
-  defaultModuleScript: {fileID: 0}
-  type: 0
-  isActive: 0
+  defaultModuleScript: {fileID: 11500000, guid: fe8f4a3e4c1d70046986c382ed2934b3,
+    type: 3}
+  type: 7
+  isActive: 1
   additionalScripts: 0
   additionalPrefab: 0
   defaultHelperScripts: []
   starterHelperScripts: []
-  starterScript: {fileID: 0}
-  starterMenuUIPrefab: {fileID: 0}
+  starterScript: {fileID: 11500000, guid: 1a4b1f28514d91b4f8c094ed5261638a, type: 3}
+  starterMenuUIPrefab: {fileID: 814906144202775787, guid: ae127d03757add948a9aa57a3b465a91,
+    type: 3}
   starterAdditionalMenuUIPrefabs: []
   isStarterActive: 0
   moduleDependencies: []

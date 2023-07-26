@@ -29,6 +29,8 @@ public class LeaderboardsPeriodMenu : MenuCanvas
         
         allTimeButton.onClick.AddListener(() => ChangeToIndividualLeaderboardMenu(LeaderboardPeriodType.AllTime));
         backButton.onClick.AddListener(OnBackButtonClicked);
+        
+        DisplayPeriodList();
     }
 
     private void DisplayPeriodList(){
@@ -46,7 +48,7 @@ public class LeaderboardsPeriodMenu : MenuCanvas
                     TMP_Text leaderboardButtonText = leaderboardButton.GetComponentInChildren<TMP_Text>();
                     leaderboardButtonText.text = result.Value.Name;
                     
-                    leaderboardButton.onClick.AddListener(() => ChangeToIndividualLeaderboardMenu(LeaderboardPeriodType.Cycle));
+                    leaderboardButton.onClick.AddListener(() => ChangeToIndividualLeaderboardMenu(LeaderboardPeriodType.Cycle, cycleId));
                 }
             });
         }
@@ -57,10 +59,12 @@ public class LeaderboardsPeriodMenu : MenuCanvas
         
     }
     
-    private void ChangeToIndividualLeaderboardMenu(LeaderboardPeriodType periodType)
+    private void ChangeToIndividualLeaderboardMenu(LeaderboardPeriodType periodType, string cycleId = null)
     {
         chosenPeriod = periodType;
         MenuManager.Instance.ChangeToMenu(AssetEnum.IndividualLeaderboardMenuCanvas);
+
+        chosenCycleId = (cycleId != null) ? cycleId : "";
     }
     
     private void OnBackButtonClicked()
