@@ -14,7 +14,7 @@ public class LeaderboardsMenu : MenuCanvas
     [SerializeField] private GameObject leaderboardItemButtonPrefab;
 
     [HideInInspector] public string chosenLeaderboardCode;
-    [HideInInspector] public Dictionary<string, string[]> leaderboardCycleIds = new Dictionary<string, string[]>();
+    [HideInInspector] public Dictionary<string, string[]> leaderboardCycleIds;
 
     private LeaderboardEssentialsWrapper _leaderboardWrapper;
 
@@ -48,6 +48,7 @@ public class LeaderboardsMenu : MenuCanvas
     {
         if (!result.IsError)
         {
+            leaderboardCycleIds = new Dictionary<string, string[]>();
             foreach (LeaderboardDataV3 leaderboardData in result.Value.Data)
             {
                 if (leaderboardData.Name.Contains("Unity"))
