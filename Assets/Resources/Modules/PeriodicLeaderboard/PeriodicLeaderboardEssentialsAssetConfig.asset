@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c946b292dbcfa2418ef1a2b2e60b8b7, type: 3}
   m_Name: PeriodicLeaderboardEssentialsAssetConfig
   m_EditorClassIdentifier: 
-  defaultMenuUIPrefab: {fileID: 0}
+  defaultMenuUIPrefab: {fileID: 814906144202775787, guid: ae127d03757add948a9aa57a3b465a91,
+    type: 3}
   defaultAdditionalMenuUIPrefabs: []
   defaultModuleScript: {fileID: 11500000, guid: fe8f4a3e4c1d70046986c382ed2934b3,
     type: 3}
@@ -27,4 +28,5 @@ MonoBehaviour:
     type: 3}
   starterAdditionalMenuUIPrefabs: []
   isStarterActive: 0
-  moduleDependencies: []
+  moduleDependencies:
+  - {fileID: 11400000, guid: 36fe6534bcd4dfd4bbca52b4e7a7d0ba, type: 2}
