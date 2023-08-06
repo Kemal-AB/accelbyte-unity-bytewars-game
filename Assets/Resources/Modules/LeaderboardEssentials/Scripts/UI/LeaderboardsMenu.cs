@@ -13,8 +13,8 @@ public class LeaderboardsMenu : MenuCanvas
     [SerializeField] private Button backButton;
     [SerializeField] private GameObject leaderboardItemButtonPrefab;
 
-    [HideInInspector] public string chosenLeaderboardCode;
-    [HideInInspector] public Dictionary<string, string[]> leaderboardCycleIds;
+    public static string chosenLeaderboardCode;
+    public static Dictionary<string, string[]> leaderboardCycleIds;
 
     private LeaderboardEssentialsWrapper _leaderboardWrapper;
 

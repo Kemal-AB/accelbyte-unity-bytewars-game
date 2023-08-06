@@ -54,14 +54,9 @@ public class IndividualLeaderboardMenu : MenuCanvas
     {
         currentUserId = MultiRegistry.GetApiClient().session.UserId;
         
-        MenuCanvas leaderboardsMenuCanvas = MenuManager.Instance.GetMenu(AssetEnum.LeaderboardsMenuCanvas);
-        LeaderboardsMenu leaderboardsMenuObject = leaderboardsMenuCanvas.GetComponent<LeaderboardsMenu>();
-        currentLeaderboardCode = leaderboardsMenuObject.chosenLeaderboardCode;
-
-        MenuCanvas leaderboardsPeriodMenuCanvas = MenuManager.Instance.GetMenu(AssetEnum.LeaderboardsPeriodMenuCanvas);
-        LeaderboardsPeriodMenu leaderboardsPeriodMenu = leaderboardsPeriodMenuCanvas.GetComponent<LeaderboardsPeriodMenu>();
-        currentPeriodType = leaderboardsPeriodMenu.chosenPeriod;
-        currentCycleId = leaderboardsPeriodMenu.chosenCycleId;
+        currentLeaderboardCode = LeaderboardsMenu.chosenLeaderboardCode;
+        currentPeriodType = LeaderboardsPeriodMenu.chosenPeriod;
+        currentCycleId = PeriodicLeaderboardHelper.chosenCycleId;
     }
     
     public void DisplayRankingList()
@@ -79,7 +74,7 @@ public class IndividualLeaderboardMenu : MenuCanvas
         }
     }
 
-    private void OnDisplayRankingListCompleted(Result<LeaderboardRankingResult> result)
+    public void OnDisplayRankingListCompleted(Result<LeaderboardRankingResult> result)
     {
         if (!result.IsError)
         {

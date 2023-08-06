@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,60 +9,29 @@ public class LeaderboardsPeriodMenu : MenuCanvas
     [SerializeField] private Button allTimeButton;
     [SerializeField] private Button backButton;
     [SerializeField] private GameObject leaderboardItemButtonPrefab;
-
-    [HideInInspector] public LeaderboardPeriodType chosenPeriod;
+    
+    public static LeaderboardPeriodType chosenPeriod;
     public enum LeaderboardPeriodType
     {
         AllTime,
         Cycle
     }
-
-    [HideInInspector] public string chosenCycleId;
-
-    private PeriodicLeaderboardEssentialsWrapper _periodicLeaderboardWrapper;
+    
+    public delegate void LeaderboardsPeriodMenuDelegate(Transform leaderboardListPanel, GameObject leaderboardItemButtonPrefab);
+    public static event LeaderboardsPeriodMenuDelegate onLeaderboardsPeriodMenuActivated = delegate { };
 
     void Start()
     {
-        _periodicLeaderboardWrapper = TutorialModuleManager.Instance.GetModuleClass<PeriodicLeaderboardEssentialsWrapper>();
-        
         allTimeButton.onClick.AddListener(() => ChangeToIndividualLeaderboardMenu(LeaderboardPeriodType.AllTime));
         backButton.onClick.AddListener(OnBackButtonClicked);
         
-        DisplayPeriodList();
-    }
-
-    private void DisplayPeriodList(){
-        MenuCanvas leaderboardsMenuCanvas = MenuManager.Instance.GetMenu(AssetEnum.LeaderboardsMenuCanvas);
-        LeaderboardsMenu leaderboardsMenuObject = leaderboardsMenuCanvas.GetComponent<LeaderboardsMenu>();
-        string[] cycleIds = leaderboardsMenuObject.leaderboardCycleIds[leaderboardsMenuObject.chosenLeaderboardCode];
-
-        foreach (string cycleId in cycleIds)
-        {
-            _periodicLeaderboardWrapper.GetStatCycleConfig(cycleId, result =>
-            {
-                if (!result.IsError)
-                {
-                    Button leaderboardButton = Instantiate(leaderboardItemButtonPrefab, leaderboardListPanel).GetComponent<Button>();
-                    TMP_Text leaderboardButtonText = leaderboardButton.GetComponentInChildren<TMP_Text>();
-                    leaderboardButtonText.text = result.Value.Name;
-                    
-                    leaderboardButton.onClick.AddListener(() => ChangeToIndividualLeaderboardMenu(LeaderboardPeriodType.Cycle, cycleId));
-                }
-            });
-        }
-    }
-
-    private void OnGetStatCycleConfigCompleted()
-    {
-        
+        onLeaderboardsPeriodMenuActivated.Invoke(leaderboardListPanel, leaderboardItemButtonPrefab);
     }
     
-    private void ChangeToIndividualLeaderboardMenu(LeaderboardPeriodType periodType, string cycleId = null)
+    public static void ChangeToIndividualLeaderboardMenu(LeaderboardPeriodType periodType)
     {
         chosenPeriod = periodType;
         MenuManager.Instance.ChangeToMenu(AssetEnum.IndividualLeaderboardMenuCanvas);
-
-        chosenCycleId = (cycleId != null) ? cycleId : "";
     }
     
     private void OnBackButtonClicked()

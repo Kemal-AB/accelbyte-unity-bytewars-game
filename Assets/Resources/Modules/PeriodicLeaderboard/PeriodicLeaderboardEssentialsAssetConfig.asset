@@ -17,11 +17,12 @@ MonoBehaviour:
   defaultAdditionalMenuUIPrefabs: []
   defaultModuleScript: {fileID: 11500000, guid: fe8f4a3e4c1d70046986c382ed2934b3,
     type: 3}
-  type: 7
+  type: 13
   isActive: 1
-  additionalScripts: 0
+  additionalScripts: 1
   additionalPrefab: 0
-  defaultHelperScripts: []
+  defaultHelperScripts:
+  - {fileID: 11500000, guid: 673f18cda7d1c524a89628941c82e9c1, type: 3}
   starterHelperScripts: []
   starterScript: {fileID: 11500000, guid: 1a4b1f28514d91b4f8c094ed5261638a, type: 3}
   starterMenuUIPrefab: {fileID: 814906144202775787, guid: ae127d03757add948a9aa57a3b465a91,

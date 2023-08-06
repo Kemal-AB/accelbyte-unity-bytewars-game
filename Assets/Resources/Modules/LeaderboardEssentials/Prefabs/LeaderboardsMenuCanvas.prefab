@@ -222,7 +222,6 @@ MonoBehaviour:
   backButton: {fileID: 5406751274186335520}
   leaderboardItemButtonPrefab: {fileID: 3528720147924983473, guid: b68d5919c47cbda4cb59371f96e15abd,
     type: 3}
-  chosenLeaderboardCode: 
 --- !u!1 &2169716257961203028
 GameObject:
   m_ObjectHideFlags: 0
