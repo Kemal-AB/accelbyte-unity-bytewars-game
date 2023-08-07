@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using AccelByte.Models;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,17 +8,25 @@ using UnityEngine.UI;
 public class PeriodicLeaderboardHelper : MonoBehaviour
 {
     private PeriodicLeaderboardEssentialsWrapper _periodicLeaderboardWrapper;
+    private AuthEssentialsWrapper _authWrapper;
     
-    public static string chosenCycleId;
+    private TokenData currentUserData; 
+    private string chosenCycleId;
+    private const int RESULTOFFSET = 0;
+    private const int RESULTLIMIT = 10;
     
     void Start()
     {
         _periodicLeaderboardWrapper = TutorialModuleManager.Instance.GetModuleClass<PeriodicLeaderboardEssentialsWrapper>();
-
-        LeaderboardsPeriodMenu.onLeaderboardsPeriodMenuActivated += DisplayPeriodList;
+        _authWrapper = TutorialModuleManager.Instance.GetModuleClass<AuthEssentialsWrapper>();
+        currentUserData = _authWrapper.userData;
+        
+        LeaderboardsPeriodMenu.onLeaderboardsPeriodMenuActivated += DisplayCyclePeriodButtons;
+        IndividualLeaderboardMenu.onDisplayRankingListEvent += DisplayCycleRankingList;
+        IndividualLeaderboardMenu.onDisplayUserRankingEvent += DisplayUserCycleRanking;
     }
     
-    private void DisplayPeriodList(Transform leaderboardListPanel, GameObject leaderboardItemButtonPrefab){
+    private void DisplayCyclePeriodButtons(Transform leaderboardListPanel, GameObject leaderboardItemButtonPrefab){
         string[] cycleIds = LeaderboardsMenu.leaderboardCycleIds[LeaderboardsMenu.chosenLeaderboardCode];
 
         foreach (string cycleId in cycleIds)
@@ -34,6 +43,29 @@ public class PeriodicLeaderboardHelper : MonoBehaviour
                     chosenCycleId = cycleId;
                 }
             });
+        }
+    }
+
+    private void DisplayCycleRankingList(IndividualLeaderboardMenu individualLeaderboardMenu, UserCycleRanking[] userCycleRankings)
+    {
+        if (LeaderboardsPeriodMenu.chosenPeriod is LeaderboardsPeriodMenu.LeaderboardPeriodType.Cycle)
+        {
+            _periodicLeaderboardWrapper.GetRankingsByCycle(LeaderboardsMenu.chosenLeaderboardCode, chosenCycleId, individualLeaderboardMenu.OnDisplayRankingListCompleted, RESULTOFFSET, RESULTLIMIT);
+        }
+    }
+
+    private void DisplayUserCycleRanking(IndividualLeaderboardMenu individualLeaderboardMenu, UserCycleRanking[] userCycleRankings)
+    {
+        if (LeaderboardsPeriodMenu.chosenPeriod is LeaderboardsPeriodMenu.LeaderboardPeriodType.Cycle)
+        {
+            foreach (UserCycleRanking cycleRanking in userCycleRankings)
+            {
+                if (cycleRanking.CycleId == chosenCycleId)
+                {
+                    individualLeaderboardMenu.InstantiateRankingItem(currentUserData.user_id, currentUserData.display_name, cycleRanking.Point);
+                    break;
+                }
+            }
         }
     }
 }

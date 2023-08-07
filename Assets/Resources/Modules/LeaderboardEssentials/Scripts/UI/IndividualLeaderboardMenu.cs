@@ -15,10 +15,9 @@ public class IndividualLeaderboardMenu : MenuCanvas
     [SerializeField] private Button backButton;
     [SerializeField] private GameObject rankingItemPanelPrefab;
 
-    private string currentUserId;
+    private TokenData currentUserData;
     private string currentLeaderboardCode;
     private LeaderboardsPeriodMenu.LeaderboardPeriodType currentPeriodType;
-    private string currentCycleId;
 
     private const string DEFUSERNAME = "PLAYER-";
     private const int RESULTOFFSET = 0;
@@ -26,14 +25,16 @@ public class IndividualLeaderboardMenu : MenuCanvas
     
     private LeaderboardEssentialsWrapper _leaderboardWrapper;
     private AuthEssentialsWrapper _authWrapper;
-    private PeriodicLeaderboardEssentialsWrapper _periodicLeaderboardWrapper;
+    
+    public delegate void IndividualLeaderboardMenuDelegate(IndividualLeaderboardMenu individualLeaderboardMenu, UserCycleRanking[] userCycleRankings = null);
+    public static event IndividualLeaderboardMenuDelegate onDisplayRankingListEvent = delegate {};
+    public static event IndividualLeaderboardMenuDelegate onDisplayUserRankingEvent = delegate {};
     
     void Start()
     {
         // get leaderboard and auth's wrapper
         _leaderboardWrapper = TutorialModuleManager.Instance.GetModuleClass<LeaderboardEssentialsWrapper>();
         _authWrapper = TutorialModuleManager.Instance.GetModuleClass<AuthEssentialsWrapper>();
-        _periodicLeaderboardWrapper = TutorialModuleManager.Instance.GetModuleClass<PeriodicLeaderboardEssentialsWrapper>();
         
         backButton.onClick.AddListener(OnBackButtonClicked);
 
@@ -52,11 +53,9 @@ public class IndividualLeaderboardMenu : MenuCanvas
 
     private void GetLeaderboardCategoryValues()
     {
-        currentUserId = MultiRegistry.GetApiClient().session.UserId;
-        
+        currentUserData = _authWrapper.userData;
         currentLeaderboardCode = LeaderboardsMenu.chosenLeaderboardCode;
         currentPeriodType = LeaderboardsPeriodMenu.chosenPeriod;
-        currentCycleId = PeriodicLeaderboardHelper.chosenCycleId;
     }
     
     public void DisplayRankingList()
@@ -68,10 +67,8 @@ public class IndividualLeaderboardMenu : MenuCanvas
         {
             _leaderboardWrapper.GetRankings(currentLeaderboardCode, OnDisplayRankingListCompleted, RESULTOFFSET, RESULTLIMIT);
         }
-        else
-        {
-            _periodicLeaderboardWrapper.GetRankingsByCycle(currentLeaderboardCode, currentCycleId, OnDisplayRankingListCompleted, RESULTOFFSET, RESULTLIMIT);
-        }
+        
+        onDisplayRankingListEvent.Invoke(this);
     }
 
     public void OnDisplayRankingListCompleted(Result<LeaderboardRankingResult> result)
@@ -87,9 +84,9 @@ public class IndividualLeaderboardMenu : MenuCanvas
             // Get the players' display name from the provided user ids
             _authWrapper.BulkGetUserInfo(userRankInfos.Keys.ToArray(), authResult => OnBulkGetUserInfoCompleted(authResult, userRankInfos));
             
-            if (!userRankInfos.ContainsKey(currentUserId))
+            if (!userRankInfos.ContainsKey(currentUserData.user_id))
             {
-                _leaderboardWrapper.GetUserRanking(currentUserId, currentLeaderboardCode, OnGetUserRankingCompleted);
+                _leaderboardWrapper.GetUserRanking(currentUserData.user_id, currentLeaderboardCode, OnGetUserRankingCompleted);
             }
         }
         else
@@ -114,23 +111,14 @@ public class IndividualLeaderboardMenu : MenuCanvas
         {
             if (currentPeriodType == LeaderboardsPeriodMenu.LeaderboardPeriodType.AllTime)
             {
-                InstantiateRankingItem(result.Value.UserId, _authWrapper.userData.display_name, result.Value.AllTime.point);
+                InstantiateRankingItem(result.Value.UserId, currentUserData.display_name, result.Value.AllTime.point);
             }
-            else
-            {
-                foreach (UserCycleRanking cycleRanking in result.Value.Cycles)
-                {
-                    if (cycleRanking.CycleId == currentCycleId)
-                    {
-                        InstantiateRankingItem(result.Value.UserId, _authWrapper.userData.display_name, cycleRanking.Point);
-                        break;
-                    }
-                }
-            }
+            
+            onDisplayUserRankingEvent.Invoke(this, result.Value.Cycles);
         }
     }
 
-    private void InstantiateRankingItem(string userId, string playerName, float playerScore)
+    public void InstantiateRankingItem(string userId, string playerName, float playerScore)
     {
         RankingItemPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingItemPanel>();
         itemPanel.ChangeHighestScoreText(playerScore.ToString());
@@ -139,7 +127,7 @@ public class IndividualLeaderboardMenu : MenuCanvas
         string displayName = (playerName == "") ? DEFUSERNAME + userId.Substring(0, 5) : playerName;
         itemPanel.ChangePlayerNameText(displayName);
         
-        if (userId == currentUserId)
+        if (userId == currentUserData.user_id)
         {
             itemPanel.ChangePrefabColor(Color.gray);
         }
@@ -165,7 +153,7 @@ public class IndividualLeaderboardMenu : MenuCanvas
     /// </summary>
     /// <param name="parent">Parent Object to destroy children</param>
     /// <param name="doNotRemove">Optional specified Transform that should NOT be destroyed</param>
-    private void LoopThroughTransformAndDestroy(Transform parent, Transform doNotRemove = null)
+    public void LoopThroughTransformAndDestroy(Transform parent, Transform doNotRemove = null)
     {
         //Loop through all the children and add them to a List to then be deleted
         List<GameObject> toBeDeleted = new List<GameObject>();
