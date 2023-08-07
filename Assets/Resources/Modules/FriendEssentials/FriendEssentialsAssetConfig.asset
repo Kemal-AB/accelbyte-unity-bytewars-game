@@ -24,10 +24,12 @@ MonoBehaviour:
     type: 3}
   type: 8
   isActive: 1
-  additionalScripts: 0
+  additionalScripts: 1
   additionalPrefab: 1
-  defaultHelperScripts: []
-  starterHelperScripts: []
+  defaultHelperScripts:
+  - {fileID: 11500000, guid: deaa19bdb10886640aca6c7f0c956913, type: 3}
+  starterHelperScripts:
+  - {fileID: 11500000, guid: deaa19bdb10886640aca6c7f0c956913, type: 3}
   starterScript: {fileID: 11500000, guid: 3f69171560f63034a9a8074fed3023b6, type: 3}
   starterMenuUIPrefab: {fileID: 6850933737544304267, guid: c28bd1194fade704fb874d8cc6585331,
     type: 3}

@@ -338,7 +338,7 @@ public class MenuManager : MonoBehaviour
         var menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
         modulePrefab.gameObject.SetActive(true);
         menubyModule.name = modulePrefab.name; ;
-        _menusDictionary.Add(menubyModule.GetAssetEnum(), menubyModule);
+        _menusDictionary.TryAdd(menubyModule.GetAssetEnum(), menubyModule);
         _menusDictionary[menubyModule.GetAssetEnum()].gameObject.SetActive(false);
         
                 
@@ -371,6 +371,7 @@ public class MenuManager : MonoBehaviour
         var modulePrefab = test.GetComponent<MenuCanvas>();
         modulePrefab.gameObject.SetActive(false);
         var menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
+        modulePrefab.gameObject.SetActive(true);
         menubyModule.name = modulePrefab.name;
         _menusDictionary.Add(menubyModule.GetAssetEnum(), menubyModule);
         // _menusDictionary[menubyModule.GetAssetEnum()].gameObject.SetActive(false);
