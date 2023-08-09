@@ -9,5 +9,6 @@ public enum TutorialType
     CloudSaveEssentials=5,
     LeaderboardEssentials=6,
     SinglePlatformAuth=7,
-    FriendEssentials=8
+    FriendEssentials=8,
+    ManagingFriends=12
 }

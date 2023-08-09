@@ -18,7 +18,7 @@ MonoBehaviour:
   defaultModuleScript: {fileID: 11500000, guid: 785f179643042d54391a7e014a32c7fe,
     type: 3}
   type: 12
-  isActive: 0
+  isActive: 1
   additionalScripts: 0
   additionalPrefab: 0
   defaultHelperScripts: []
@@ -27,7 +27,7 @@ MonoBehaviour:
   starterMenuUIPrefab: {fileID: 2562678726086715068, guid: c3749cb1368adc04ca7dca08d24f2c0f,
     type: 3}
   starterAdditionalMenuUIPrefabs: []
-  isStarterActive: 1
+  isStarterActive: 0
   moduleDependencies:
   - {fileID: 11400000, guid: b4c868ff7e72cc840963d5a37178f14d, type: 2}
   - {fileID: 11400000, guid: 04ca20375bb050249b26b1082a299a25, type: 2}
