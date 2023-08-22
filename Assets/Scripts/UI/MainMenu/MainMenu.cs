@@ -1,3 +1,6 @@
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -65,7 +68,11 @@ public class MainMenu : MenuCanvas
 
     public void OnQuitButtonPressed()
     {
+        #if UNITY_EDITOR
+        EditorApplication.ExitPlaymode();
+        #else
         Application.Quit();
+        #endif
     }
 
     public override GameObject GetFirstButton()
@@ -86,7 +93,8 @@ public class MainMenu : MenuCanvas
     private void CheckModulesButtons()
     {
         #if !BYTEWARS_DEBUG
-            bool isOnlineBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.MatchmakingEssentials);
+            bool isOnlineBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.MatchmakingEssentials)
+                || TutorialModuleManager.Instance.IsModuleActive(TutorialType.MatchSession);
             playOnlineBtn.gameObject.SetActive(isOnlineBtnActive);
         #endif
 

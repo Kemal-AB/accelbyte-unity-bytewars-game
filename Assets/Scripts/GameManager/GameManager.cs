@@ -170,6 +170,7 @@ public class GameManager : NetworkBehaviour
         Debug.Log($"OnClientDisconnected client id {clientNetworkId} disconnected reason:{reason} active entity count:{ActiveGEs.Count} IsServer:{IsServer}");
         if (isInMainMenu)
         {
+            OnDisconnectedInMainMenu?.Invoke(reason);
             if (_menuManager.IsLoading)
             {
                 _menuManager.HideLoading();
@@ -184,8 +185,7 @@ public class GameManager : NetworkBehaviour
                     {
                         if (IsHost)
                         {
-                            lobby.Refresh(_serverHelper.ConnectedTeamStates, _serverHelper.ConnectedPlayerStates, 
-                                OwnerClientId);
+                            lobby.Refresh();
                         }
                     }
                     if (reconnect.IsServerShutdownOnLobby(connectedClients.Count))
@@ -193,6 +193,7 @@ public class GameManager : NetworkBehaviour
                         _serverHelper.StartCoroutineCountdown(this, 
                             GameData.GameModeSo.lobbyShutdownCountdown, OnLobbyShutdownCountdown);  
                     }
+                    //wait reconnect
                     // if (connectedClients.Count < 1)
                     // {
                     //     _serverHelper.CancelCountdown();
@@ -205,14 +206,11 @@ public class GameManager : NetworkBehaviour
         {
             if (IsServer)
             {
-                if (_inGameState != InGameState.GameOver)
+                //player might reconnect in the middle of game, missile will not reset
+                RemoveConnectedClient(clientNetworkId, isInGameScene, false);
+                if (connectedClients.Count < MinPlayerForOnlineGame)
                 {
-                    //player might reconnect in the middle of game, missile will not reset
-                    RemoveConnectedClient(clientNetworkId, isInGameScene, false);
-                    if (connectedClients.Count < MinPlayerForOnlineGame)
-                    {
-                        SetInGameState(InGameState.ShuttingDown);
-                    }
+                    SetInGameState(InGameState.ShuttingDown);
                 }
             }
         }
@@ -284,10 +282,10 @@ public class GameManager : NetworkBehaviour
     /// </summary>
     /// <param name="request">client information</param>
     /// <param name="response">set whether the client is allowed to connect or not</param>
-    private void ConnectionApprovalCallback(NetworkManager.ConnectionApprovalRequest request, 
+    private async void ConnectionApprovalCallback(NetworkManager.ConnectionApprovalRequest request, 
         NetworkManager.ConnectionApprovalResponse response)
     {
-        var result = connectionHelper.ConnectionApproval(request, response, IsServer, _inGameState, availableInGameMode,
+        var result = await connectionHelper.ConnectionApproval(request, response, IsServer, _inGameState, availableInGameMode,
             _inGameMode, _serverHelper);
         if (result != null)
         {
@@ -752,7 +750,7 @@ public class GameManager : NetworkBehaviour
     private void OnShutdownCountdownUpdate(int countdownSecond)
     {
         bool willShutdown = countdownSecond <= 0;
-        
+        Debug.Log("shutdown in "+countdownSecond);
         _hud.UpdateShutdownCountdown(NotEnoughPlayer, countdownSecond);
         //this will kick player too if countdown is 0
         if (IsServer)
@@ -835,7 +833,7 @@ public class GameManager : NetworkBehaviour
 
     public void StartAsClient(string address, ushort port, InGameMode inGameMode)
     {
-        var initialData = new InitialConnectionData(){ inGameMode = inGameMode };
+        var initialData = new InitialConnectionData(){ inGameMode = inGameMode, sessionId = ""};
         reconnect.ConnectAsClient(_unityTransport, address, port, initialData);
     }
 
@@ -859,7 +857,8 @@ public class GameManager : NetworkBehaviour
         PlayerState[] playerStates, InGameMode inGameMode, bool isInGameScene)
     {
         //client side, because the previous playerState only exists in server, clientrpc is called on client
-        Debug.Log($"update player state lobby playerState count:{playerStates.Length} teamState count:{teamStates.Length}");
+        Debug.Log($"update player state lobby playerStates: {JsonUtility.ToJson(playerStates)} " +
+                  $"teamStates: {JsonUtility.ToJson(teamStates)}");
 
         foreach (PlayerState playerState in playerStates)
         {
@@ -876,8 +875,7 @@ public class GameManager : NetworkBehaviour
         if (!isInGameScene)
         {
             var lobby = (MatchLobbyMenu)_menuManager.ChangeToMenu(AssetEnum.MatchLobbyMenuCanvas);
-            lobby.Refresh(_serverHelper.ConnectedTeamStates, 
-                _serverHelper.ConnectedPlayerStates, _clientHelper.ClientNetworkId);
+            lobby.Refresh();
             _menuManager.HideLoading(false);   
         }
 
@@ -889,8 +887,7 @@ public class GameManager : NetworkBehaviour
         if (SceneManager.GetActiveScene().buildIndex==GameConstant.MenuSceneBuildIndex)
         {
             var lobby = (MatchLobbyMenu)_menuManager.ChangeToMenu(AssetEnum.MatchLobbyMenuCanvas);
-            lobby.Refresh(_serverHelper.ConnectedTeamStates, 
-                _serverHelper.ConnectedPlayerStates, _clientHelper.ClientNetworkId);
+            lobby.Refresh();
         }
     }
 
@@ -976,4 +973,12 @@ public class GameManager : NetworkBehaviour
         Debug.Log("GameManager Application.Quit");
         // Application.Quit();
     }
+    public void StartAsClient(string address, ushort port, InitialConnectionData initialConnectionData)
+    {
+        reconnect.ConnectAsClient(_unityTransport, address, port, initialConnectionData);
+    }
+    /// <summary>
+    /// called when client is disconnected and will send disconnect reason if available
+    /// </summary>
+    public static event Action<string> OnDisconnectedInMainMenu;
 }

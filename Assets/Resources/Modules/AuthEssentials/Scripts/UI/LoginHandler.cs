@@ -94,8 +94,8 @@ public class LoginHandler : MenuCanvas
         if (!result.IsError)
         {
             onLoginCompleted.Invoke(result.Value);
-            
             MenuManager.Instance.ChangeToMenu(AssetEnum.MainMenuCanvas);
+            Debug.Log($"[LoginHandler.OnLoginCompleted] success: {result.Value.ToJsonString()}");
         }
         else
         {

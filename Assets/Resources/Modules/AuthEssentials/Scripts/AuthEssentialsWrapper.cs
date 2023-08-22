@@ -45,6 +45,12 @@ public class AuthEssentialsWrapper : MonoBehaviour
     {
         user.LoginWithUsernameV3(username, password, result => OnLoginCompleted(result, resultCallback), false);
     }
+    
+    private void GetUserPublicData(string receivedUserId)
+    {
+        GameData.CachedPlayerState.playerId = receivedUserId;
+        user.GetUserByUserId(receivedUserId, OnGetUserPublicDataFinished);
+    }
 
     /// <summary>
     /// Get user info of some users in bulk
@@ -70,8 +76,7 @@ public class AuthEssentialsWrapper : MonoBehaviour
         if (!result.IsError)
         {
             Debug.Log("Login user successful.");
-
-            userData = result.Value;
+            GameData.CachedPlayerState.playerId = result.Value.user_id;
         }
         else
         {
@@ -79,6 +84,21 @@ public class AuthEssentialsWrapper : MonoBehaviour
         }
 
         customCallback?.Invoke(result);
+    }
+    
+    private void OnGetUserPublicDataFinished(Result<PublicUserData> result)
+    {
+        if (result.IsError)
+        {
+            Debug.Log($"[AuthEssentialsWrapper] error OnGetUserPublicDataFinished:{result.Error.Message}");
+        }
+        else
+        {
+            var publicUserData = result.Value;
+            GameData.CachedPlayerState.playerId = publicUserData.userId;
+            GameData.CachedPlayerState.avatarUrl = publicUserData.avatarUrl;
+            GameData.CachedPlayerState.playerName = publicUserData.displayName;
+        }
     }
 
     /// <summary>

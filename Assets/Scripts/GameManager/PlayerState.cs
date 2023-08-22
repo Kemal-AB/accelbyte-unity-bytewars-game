@@ -41,4 +41,13 @@ public class PlayerState : INetworkSerializable
         serializer.SerializeValue(ref playerId);
         serializer.SerializeValue(ref avatarUrl);
     }
+
+    public string GetPlayerName()
+    {
+        if (String.IsNullOrEmpty(playerName))
+        {
+            return "ByteWarrior " + clientNetworkId;
+        }
+        return playerName;
+    }
 }

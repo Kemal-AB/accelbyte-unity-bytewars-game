@@ -31,17 +31,16 @@ public class StatsHelper : MonoBehaviour
         currentUserId = MultiRegistry.GetApiClient().session.UserId;
         
         #if UNITY_SERVER
-            if (inGameMode is InGameMode.OnlineEliminationGameMode)
+            if (inGameMode is InGameMode.OnlineEliminationGameMode or InGameMode.CreateMatchEliminationGameMode)
             {
                 currentStatCode = ELIMINATION_STATCODE;
             }
-            else if (inGameMode is InGameMode.OnlineDeathMatchGameMode)
+            else if (inGameMode is InGameMode.OnlineDeathMatchGameMode or InGameMode.CreateMatchDeathMatchGameMode)
             {
                 currentStatCode = TEAMDEATHMATCH_STATCODE;
             }
 
             Dictionary<string, float> userStats = playerStates.ToDictionary(state => state.playerId, state => state.score);
-
             _statsWrapper.BulkGetUsersStatFromServer(userStats.Keys.ToArray(), currentStatCode, result => OnBulkGetUserStatFromServer(result, userStats));
         #endif
         
@@ -71,12 +70,17 @@ public class StatsHelper : MonoBehaviour
         {
             // key: userId, value: stat value
             Dictionary<string, float> bulkUserStats = result.Value.UserStatistic.ToDictionary(stat => stat.UserId, stat => stat.Value);
+            List<string> userIdToRemove = new List<string>();
             foreach (string userId in userStats.Keys)
             {
                 if (bulkUserStats.ContainsKey(userId) && userStats[userId] < bulkUserStats[userId])
                 {
-                    userStats.Remove(userId);
+                    userIdToRemove.Add(userId);
                 }
+            }
+            foreach (var uId in userIdToRemove)
+            {
+                userStats.Remove(uId);
             }
             _statsWrapper.UpdateManyUserStatsFromServer(currentStatCode, userStats, OnUpdateStatsWithServerSdkCompleted);
         }

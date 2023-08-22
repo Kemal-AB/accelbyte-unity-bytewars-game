@@ -106,6 +106,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 504c5d8b31362ae478aafba404b960b4, type: 2}
   - {fileID: 11400000, guid: 1d27941e2edb4994e8c9d70a07137d32, type: 2}
   - {fileID: 11400000, guid: b959cde7f0528574b88859c3d0cedce5, type: 2}
+  - {fileID: 11400000, guid: a7c0be5ab20fd364b91a8406bae506f1, type: 2}
+  - {fileID: 11400000, guid: b35a81bae774ec24d9f4e87c0a98ea73, type: 2}
   reconnect: {fileID: 4848630041100640211}
   _container: {fileID: 5190013740694902730}
   _inGameCamera: {fileID: 6275057503058463285}
@@ -126,6 +128,7 @@ MonoBehaviour:
   SynchronizeTransform: 0
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
 --- !u!114 &4848630041100640211

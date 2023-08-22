@@ -15,10 +15,22 @@ public class PlayOnlineMenu : MenuCanvas
     // Start is called before the first frame update
     void Start()
     {
+        SetModuleButtonVisibility();
         browseMatchButton.onClick.AddListener(OnBrowserMatchButtonPressed);
         createMatchButton.onClick.AddListener(OnCreateMatchButtonPressed);
         quickPlayButton.onClick.AddListener(OnQuickPlayButtonPressed);
         backButton.onClick.AddListener(MenuManager.Instance.OnBackPressed);
+    }
+
+    private void SetModuleButtonVisibility()
+    {
+        #if !BYTEWARS_DEBUG
+        var isQuickPlayBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.MatchmakingEssentials);
+        quickPlayButton.gameObject.SetActive(isQuickPlayBtnActive);
+        var isCreateBrowseMatchBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.MatchSession);
+        createMatchButton.gameObject.SetActive(isCreateBrowseMatchBtnActive);
+        browseMatchButton.gameObject.SetActive(isCreateBrowseMatchBtnActive);
+#endif
     }
 
 
@@ -32,13 +44,13 @@ public class PlayOnlineMenu : MenuCanvas
 
     public void OnCreateMatchButtonPressed()
     {
-       // MenuManager.Instance.ChangeToMenu(MenuManager.MenuEnum.CreateMatchMenuCanvas);
+       MenuManager.Instance.ChangeToMenu(AssetEnum.CreateMatchMenuCanvas);
 
     }
 
     public void OnBrowserMatchButtonPressed()
     {
-        // MenuManager.Instance.ChangeToMenu(MenuManager.MenuEnum.BrowseMatchesMenuCanvas);
+        MenuManager.Instance.ChangeToMenu(AssetEnum.BrowseMatchMenuCanvas);
     }
 
     public override GameObject GetFirstButton()
