@@ -209,14 +209,11 @@ public class GameManager : NetworkBehaviour
         {
             if (IsServer)
             {
-                if (_inGameState != InGameState.GameOver)
+                //player might reconnect in the middle of game, missile will not reset
+                RemoveConnectedClient(clientNetworkId, isInGameScene, false);
+                if (connectedClients.Count < MinPlayerForOnlineGame)
                 {
-                    //player might reconnect in the middle of game, missile will not reset
-                    RemoveConnectedClient(clientNetworkId, isInGameScene, false);
-                    if (connectedClients.Count < MinPlayerForOnlineGame)
-                    {
-                        SetInGameState(InGameState.ShuttingDown);
-                    }
+                    SetInGameState(InGameState.ShuttingDown);
                 }
             }
         }
