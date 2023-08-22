@@ -983,6 +983,4 @@ public class GameManager : NetworkBehaviour
     /// called when client is disconnected and will send disconnect reason if available
     /// </summary>
     public static event Action<string> OnDisconnectedInMainMenu;
-        Application.Quit();
-    }
 }
