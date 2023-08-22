@@ -30,7 +30,7 @@ public class PlayOnlineMenu : MenuCanvas
         var isCreateBrowseMatchBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.MatchSession);
         createMatchButton.gameObject.SetActive(isCreateBrowseMatchBtnActive);
         browseMatchButton.gameObject.SetActive(isCreateBrowseMatchBtnActive);
-#endif
+        #endif
     }
 
 

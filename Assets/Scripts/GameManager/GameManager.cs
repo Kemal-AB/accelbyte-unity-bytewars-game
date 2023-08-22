@@ -94,14 +94,23 @@ public class GameManager : NetworkBehaviour
         NetworkManager.Singleton.OnServerStopped += OnServerStopped;
         if (_unityTransport == null)
             _unityTransport = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
-        #if UNITY_SERVER
+#if UNITY_SERVER
+        NetworkManager.Singleton.OnServerStarted += OnServerStarted;
         StartServer();
-        #endif
+#endif
         if (debug == null)
             debug = new DebugImplementation();
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
         _hud.Reset();
         StartWait();
+    }
+
+    private void OnServerStarted()
+    {
+#if UNITY_SERVER
+        OnRegisterServer?.Invoke();
+#endif
+        _menuManager.CloseMenuPanel();
     }
 
     private void OnServerStopped(bool isHost)
@@ -368,13 +377,6 @@ public class GameManager : NetworkBehaviour
         }
         _menuManager = MenuManager.Instance;
         _menuManager.SetEventSystem(_eventSystem);
-        if (IsServer)
-        {
-            #if UNITY_SERVER
-                    OnRegisterServer?.Invoke();
-            #endif
-            _menuManager.CloseMenuPanel();
-        }
     }
 
     private void OnActiveSceneChanged(Scene current, Scene next)
@@ -981,4 +983,6 @@ public class GameManager : NetworkBehaviour
     /// called when client is disconnected and will send disconnect reason if available
     /// </summary>
     public static event Action<string> OnDisconnectedInMainMenu;
+        Application.Quit();
+    }
 }
