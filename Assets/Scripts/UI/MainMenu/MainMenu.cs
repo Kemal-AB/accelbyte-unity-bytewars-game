@@ -11,11 +11,9 @@ public class MainMenu : MenuCanvas
     // Start is called before the first frame update
     void Start()
     {
+        CheckModulesButtons();
+        
         playButton.onClick.AddListener(OnPlayButtonPressed);
-        #if !BYTEWARS_DEBUG
-        bool isOnlineBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.OnlineMultiplayer);
-        playOnlineBtn.gameObject.SetActive(isOnlineBtnActive);
-        #endif
         playOnlineBtn.onClick.AddListener(OnPlayOnlineButtonPressed);
         helpAndOptionsButton.onClick.AddListener(OnHelpAndOptionsButtonPressed);
         quitButton.onClick.AddListener(OnQuitButtonPressed);
@@ -51,8 +49,12 @@ public class MainMenu : MenuCanvas
         return AssetEnum.MainMenuCanvas;
     }
 
-    public void ShowOnlineBtn()
+
+    private void CheckModulesButtons()
     {
-        playOnlineBtn.gameObject.SetActive(true);
+        #if !BYTEWARS_DEBUG
+        bool isOnlineBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.MatchmakingEssentials);
+        playOnlineBtn.gameObject.SetActive(isOnlineBtnActive);
+        #endif
     }
 }

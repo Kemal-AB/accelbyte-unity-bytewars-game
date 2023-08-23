@@ -24,6 +24,10 @@ public class GameManager : NetworkBehaviour
     private GameModeEnum _gameMode = GameModeEnum.MainMenu;
     private MenuManager _menuManager;
     private Dictionary<string, GameEntityAbs> _gamePrefabDict = new Dictionary<string, GameEntityAbs>();
+
+    public delegate void GameOverDelegate(GameModeEnum gameMode, InGameMode inGameMode, List<PlayerState> playerStates);
+    public static event GameOverDelegate onGameOver = delegate {};
+    
     [SerializeField]
     private Transform _container;
     [SerializeField] private InGameCamera _inGameCamera;
@@ -45,7 +49,6 @@ public class GameManager : NetworkBehaviour
     private Dictionary<ulong, GameClientController> connectedClients = new Dictionary<ulong, GameClientController>();
     private const int MinPlayerForOnlineGame = 2;
     private const int MinTeamForOnlineGame = 2;
-    private DebugImplementation debug;
     private readonly ConnectionHelper connectionHelper = new ConnectionHelper();
     private List<Vector3> availablePositions;
     private const string ClassName = "[GameManager]";
@@ -89,24 +92,12 @@ public class GameManager : NetworkBehaviour
         NetworkManager.Singleton.OnServerStopped += OnServerStopped;
         if (_unityTransport == null)
             _unityTransport = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;
-#if UNITY_SERVER
-        NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+        #if UNITY_SERVER
         StartServer();
-#else
-        if (debug == null)
-            debug = new DebugImplementation();
         #endif
         SceneManager.activeSceneChanged += OnActiveSceneChanged;
         _hud.Reset();
         StartWait();
-    }
-
-    private void OnServerStarted()
-    {
-#if UNITY_SERVER
-        OnRegisterServer?.Invoke();
-#endif
-        _menuManager.CloseMenuPanel();
     }
 
     private void OnServerStopped(bool isHost)
@@ -144,6 +135,7 @@ public class GameManager : NetworkBehaviour
         if (isServer && sceneEvent.SceneEventType==SceneEventType.LoadComplete && 
             isGameScene)
         {
+            OnRejectBackfill?.Invoke();
             MenuManager.Instance.CloseMenuPanel();
             if (Pool == null)
                 Pool = new ObjectPooling(_container, _gamePrefabs, _FxPrefabs);
@@ -371,6 +363,13 @@ public class GameManager : NetworkBehaviour
         }
         _menuManager = MenuManager.Instance;
         _menuManager.SetEventSystem(_eventSystem);
+        if (IsServer)
+        {
+            #if UNITY_SERVER
+                    OnRegisterServer?.Invoke();
+            #endif
+            _menuManager.CloseMenuPanel();
+        }
     }
 
     private void OnActiveSceneChanged(Scene current, Scene next)
@@ -554,6 +553,7 @@ public class GameManager : NetworkBehaviour
         yield return reconnect.ClientDisconnectIntentionally();
         SetInGameState(InGameState.None);
         _menuManager.HideAnimate(null);
+        OnClientLeaveSession?.Invoke();
         _menuManager.ChangeToMainMenu(GameConstant.MenuSceneBuildIndex);
     }
     
@@ -691,6 +691,8 @@ public class GameManager : NetworkBehaviour
                 _hud.gameObject.SetActive(false);
                 break;
             case InGameState.GameOver:
+                onGameOver.Invoke(_gameMode, _inGameMode, ConnectedPlayerStates.Values.ToList());
+                
                 _serverHelper.CancelCountdown();
                 if (NetworkManager.Singleton.IsListening)
                 {
@@ -851,9 +853,11 @@ public class GameManager : NetworkBehaviour
     {
         //client side, because the previous playerState only exists in server, clientrpc is called on client
         Debug.Log($"update player state lobby playerState count:{playerStates.Length} teamState count:{teamStates.Length}");
+
         _serverHelper.UpdatePlayerStates(teamStates, playerStates);
         _inGameMode = inGameMode;
         GameData.GameModeSo = availableInGameMode[(int)inGameMode];
+        
         if (!isInGameScene)
         {
             var lobby = (MatchLobbyMenu)_menuManager.ChangeToMenu(AssetEnum.MatchLobbyMenuCanvas);
@@ -947,6 +951,7 @@ public class GameManager : NetworkBehaviour
     public event Action OnClientLeaveSession;
     public event Action OnDeregisterServer;
     public event Action OnRegisterServer;
+    public event Action OnRejectBackfill; 
     private async void DeregisterServer()
     {
 #if UNITY_SERVER
@@ -954,6 +959,6 @@ public class GameManager : NetworkBehaviour
 #endif
         await Task.Delay(150);
         Debug.Log("GameManager Application.Quit");
-        Application.Quit();
+        // Application.Quit();
     }
 }

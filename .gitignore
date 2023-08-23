@@ -77,3 +77,6 @@ crashlytics-build.properties
 
 *.log
 /.idea/
+
+/[Aa]ssets/[Rr]esources/Accelbyte*.json
+/[Aa]ssets/[Rr]esources/Accelbyte*.json.meta

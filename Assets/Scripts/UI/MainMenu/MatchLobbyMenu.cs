@@ -34,11 +34,6 @@ public class MatchLobbyMenu : MenuCanvas
     {
         //TODO intentionally quit from lobby, server should shutdown when there is no player and the lobby is custom match
         yield return GameManager.Instance.QuitToMainMenu();
-        if (GameData.GameModeSo!=null &&
-            GameData.GameModeSo.lobbyShutdownCountdown > -1)
-        {
-            
-        }
     }
 
     private void StartGame()

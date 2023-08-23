@@ -191,18 +191,19 @@ public class GameClientController : NetworkBehaviour
             //client send user data to server
             if (GameData.CachedPlayerState != null)
             {
-                UpdatePlayerStateServerRpc(OwnerClientId, GameData.CachedPlayerState);
+                UpdatePlayerStateServerRpc(NetworkManager.Singleton.LocalClientId, GameData.CachedPlayerState);
             }
         }
-        // Debug.Log($"GameClientController.OnNetworkSpawn IsServer:{IsServer} IsOwner:{IsOwner} OwnerClientId:{OwnerClientId}");
     }
 
-    [ServerRpc]
-    private void UpdatePlayerStateServerRpc(ulong clientNetworkId, PlayerState clientPlayerState)
+    [ServerRpc(RequireOwnership = false)]
+    private void UpdatePlayerStateServerRpc(ulong clientNetworkId, PlayerState clientPlayerState, string clientUserId = "")
     {
         if (GameManager.Instance.ConnectedPlayerStates.TryGetValue(clientNetworkId, out var playerState))
         {
-            playerState.playerId = clientPlayerState.playerId;
+            playerState.avatarUrl = clientPlayerState.avatarUrl;
+            playerState.playerName = clientPlayerState.playerName;
+            playerState.playerId = clientUserId; //playerState.playerId = clientPlayerState.playerId;
             var g = GameManager.Instance;
             g.UpdatePlayerStatesClientRpc(g.ConnectedTeamStates.Values.ToArray(),
                 g.ConnectedPlayerStates.Values.ToArray());

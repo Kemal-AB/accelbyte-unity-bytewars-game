@@ -1,0 +1,10 @@
+﻿{
+  "enableModulesOverride": true,
+  "forceEnabledModules": [],
+  "forceDisabledOtherModules" : false,
+  "steamConfiguration":
+  {
+    "steamAppId": "replace with your steam app id",
+    "autoLogin": false
+  }
+}

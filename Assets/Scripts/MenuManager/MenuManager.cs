@@ -88,9 +88,11 @@ public class MenuManager : MonoBehaviour
                 OnChangeMenuComplete(assetEnum);
             });
         }
+        
         return _menusDictionary[assetEnum];
+
     }
-    
+
     /// <summary>
     /// Change Menu Callback
     /// </summary>
@@ -265,19 +267,16 @@ public class MenuManager : MonoBehaviour
         InitCoreMenu();
         
         _currentMainMenu = _menusDictionary[AssetEnum.MainMenuCanvas];
-        if (!_currentMainMenu.gameObject.activeInHierarchy)
-        {            
-            _currentMainMenu.gameObject.SetActive(true);
-            _mainMenusStack.Push(_currentMainMenu);
-        }
+        _currentMainMenu.gameObject.SetActive(true);
+        _mainMenusStack.Push(_currentMainMenu);
+        
+        Debug.Log($"is Accelbyte game service ready: {CheckAGSDKReady()}");
     }
 
-    private IEnumerator CheckAGSDKReady()
+    private bool CheckAGSDKReady()
     {
-        while (!_isAGSDKReady)
-        {
-            yield return null;
-        }
+        _isAGSDKReady = TutorialModuleUtil.IsAccelbyteSDKInstalled();
+        return _isAGSDKReady;
     }
 
     private void InitCoreMenu()
@@ -301,7 +300,7 @@ public class MenuManager : MonoBehaviour
         o.name = mainMenuName;
         _menusDictionary[starterMenu.GetAssetEnum()] = starterMenu;
         
-
+        
         foreach (var menuCanvas in mainmenuConfig.otherMenuCanvas)
         {
             menuCanvas.gameObject.SetActive(false);
@@ -314,15 +313,35 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-    private void InitMenuByModules(TutorialModuleData moduleData)
+    private void InitMenuByModules(ModuleModel moduleData)
     {
-        var modulePrefab = moduleData.prefab;
+        var modulePrefab = moduleData.mainPrefab;
+        modulePrefab.gameObject.SetActive(false);
         modulePrefab.gameObject.SetActive(false);
         var menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
         modulePrefab.gameObject.SetActive(true);
         menubyModule.name = modulePrefab.name; ;
-        _menusDictionary.Add(menubyModule.GetAssetEnum(), menubyModule);
+        _menusDictionary.TryAdd(menubyModule.GetAssetEnum(), menubyModule);
         _menusDictionary[menubyModule.GetAssetEnum()].gameObject.SetActive(false);
+        
+                
+        if (moduleData.hasAdditionalPrefab)
+        {
+            if (moduleData.additionalPrefab.Length == 0)
+            {
+                return;
+            }
+            
+            foreach (var additionalPrefab in moduleData.additionalPrefab)
+            {
+                additionalPrefab.gameObject.SetActive(false);
+                var additionalMenu = Instantiate(additionalPrefab, Vector3.zero, Quaternion.identity, _instance.transform);
+                additionalPrefab.gameObject.SetActive(true);
+                additionalMenu.name = additionalPrefab.name;
+                _menusDictionary.Add(additionalMenu.GetAssetEnum(), additionalMenu);
+                _menusDictionary[additionalMenu.GetAssetEnum()].gameObject.SetActive(false);
+            }
+        }
     }
 
     public void InstantiateCanvas(AssetEnum assetEnum)
