@@ -11,7 +11,6 @@ public class DebugImplementation
 {
     public DebugImplementation()
     {
-        DebugConsole.AddButton("enable play online btn", OnEnablePlayOnlineBtn);
         DebugConsole.AddButton("shutdown netcode", OnShutdownNetcode);
         DebugConsole.AddButton("disconnect", OnTestDisconnect);
         DebugConsole.AddButton("check match session", MatchSessionWrapper.GetDetail);
@@ -53,11 +52,5 @@ public class DebugImplementation
         {
             NetworkManager.Singleton.Shutdown();
         }
-    }
-
-    private void OnEnablePlayOnlineBtn()
-    {
-        var menu = MenuManager.Instance.AllMenu[AssetEnum.MainMenuCanvas] as MainMenu;
-        menu.ShowOnlineBtn();
     }
 }
