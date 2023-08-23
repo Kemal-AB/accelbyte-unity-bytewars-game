@@ -85,9 +85,13 @@ public class MainMenu : MenuCanvas
         return AssetEnum.MainMenuCanvas;
     }
 
-    public void ShowOnlineBtn()
+
+    private void CheckModulesButtons()
     {
-        playOnlineBtn.gameObject.SetActive(true);
+        #if !BYTEWARS_DEBUG
+        bool isOnlineBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.MatchmakingEssentials);
+        playOnlineBtn.gameObject.SetActive(isOnlineBtnActive);
+        #endif
     }
 
     private void CheckModulesButtons()

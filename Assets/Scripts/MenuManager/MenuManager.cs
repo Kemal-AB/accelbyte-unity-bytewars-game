@@ -105,8 +105,7 @@ public class MenuManager : MonoBehaviour
         {
             _currentMainMenu.gameObject.SetActive(false);
         }
-
-
+        
         if (!targetMenu.gameObject.activeSelf)
         {
             targetMenu.gameObject.SetActive(true);
@@ -290,11 +289,7 @@ public class MenuManager : MonoBehaviour
     private bool CheckAGSDKReady()
     {
         _isAGSDKReady = TutorialModuleUtil.IsAccelbyteSDKInstalled();
-        while (!_isAGSDKReady)
-        {
-            CheckAGSDKReady();
-        }
-        return true;
+        return _isAGSDKReady;
     }
 
     private void InitCoreMenu()
@@ -318,7 +313,7 @@ public class MenuManager : MonoBehaviour
         o.name = mainMenuName;
         _menusDictionary[starterMenu.GetAssetEnum()] = starterMenu;
         
-
+        
         foreach (var menuCanvas in mainmenuConfig.otherMenuCanvas)
         {
             menuCanvas.gameObject.SetActive(false);
