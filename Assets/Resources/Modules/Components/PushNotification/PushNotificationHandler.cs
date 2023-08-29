@@ -1,7 +1,4 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -47,7 +44,6 @@ public class PushNotificationHandler : MonoBehaviour
         // instantiate and set it to destroy based on the expiration time
         GameObject notifItem = Instantiate(notificationItemPrefab, notificationListPanel);
         notifItem.transform.SetAsFirstSibling();
-        if (notificationListPanel.childCount == 1) notifItem.GetComponent<Image>().color = Color.green;
         
         if (notificationListPanel.childCount <= STACK_LIMIT)
         {
@@ -59,17 +55,12 @@ public class PushNotificationHandler : MonoBehaviour
             _pendingNotification.Enqueue(notifItem);
         }
     }
-
-    private void RemoveNotificationItem(GameObject notifGameObject)
-    {
-        Destroy(notifGameObject, NOTIFICATION_EXPIRATION);
-    }
     
     private void RemoveAllNotifications()
     {
         foreach (Transform childTransform in notificationListPanel)
         {
-            Destroy(childTransform);
+            Destroy(childTransform.gameObject);
         }
         gameObject.SetActive(false);
     }
