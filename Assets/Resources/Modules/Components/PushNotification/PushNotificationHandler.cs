@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -20,6 +21,22 @@ public class PushNotificationHandler : MonoBehaviour
         dismissNotificationsButton.onClick.AddListener(RemoveAllNotifications);
     }
 
+    // Update is called once per frame
+    private void Update()
+    {
+        if (notificationListPanel.childCount < 5 && _pendingNotification.Count > 0)
+        {
+            GameObject pendingNotifItem = _pendingNotification.Dequeue();
+            pendingNotifItem.SetActive(true);
+            Destroy(pendingNotifItem, NOTIFICATION_EXPIRATION);
+        }
+        
+        if (notificationListPanel.childCount <= 0 && _pendingNotification.Count <= 0)
+        {
+            gameObject.SetActive(false);
+        }
+    }
+
     public void AddNotificationItem(GameObject notificationItemPrefab)
     {
         if (!gameObject.activeInHierarchy)
@@ -27,12 +44,19 @@ public class PushNotificationHandler : MonoBehaviour
             gameObject.SetActive(true);
         }
         
-        if (notificationListPanel.childCount < STACK_LIMIT)
+        // instantiate and set it to destroy based on the expiration time
+        GameObject notifItem = Instantiate(notificationItemPrefab, notificationListPanel);
+        notifItem.transform.SetAsFirstSibling();
+        if (notificationListPanel.childCount == 1) notifItem.GetComponent<Image>().color = Color.green;
+        
+        if (notificationListPanel.childCount <= STACK_LIMIT)
         {
-            // instantiate and set it to destroy based on the expiration time
-            GameObject notifItem = Instantiate(notificationItemPrefab, notificationListPanel);
-            notifItem.transform.SetAsFirstSibling();
-            RemoveNotificationItem(notifItem);
+            Destroy(notifItem, NOTIFICATION_EXPIRATION);
+        }
+        else
+        {
+            notifItem.SetActive(false);
+            _pendingNotification.Enqueue(notifItem);
         }
     }
 
