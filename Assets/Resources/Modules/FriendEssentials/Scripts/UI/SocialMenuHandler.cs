@@ -7,19 +7,31 @@ public class SocialMenuHandler : MenuCanvas
     [SerializeField] private Button friendsButton;
     [SerializeField] private Button friendRequestsButton;
     [SerializeField] private Button sendFriendRequestsButton;
+    [SerializeField] private Button blockedPlayersButton;
     [SerializeField] private Button backButton;
 
     
     // Start is called before the first frame update
     void Start()
     {
+        EnableButton(blockedPlayersButton, TutorialType.ManagingFriends);
+
         findFriendsButton.onClick.AddListener(OnFindFriendButtonClicked);
         friendsButton.onClick.AddListener(OnFriendsButtonClicked);
         friendRequestsButton.onClick.AddListener(OnFriendRequestClicked);
         sendFriendRequestsButton.onClick.AddListener(OnSentFriendRequestClicked);
+        blockedPlayersButton.onClick.AddListener(OnBlockedPlayersClicked);
         backButton.onClick.AddListener(OnBackButtonClicked);
     }
 
+    private void EnableButton(Button button, TutorialType tutorialType)
+    {
+        var module = TutorialModuleManager.Instance.GetModule(tutorialType);
+        if (module.isActive)
+        {
+            button.gameObject.SetActive(true);
+        }
+    }
     
     private void OnSentFriendRequestClicked()
     {        
@@ -48,9 +60,26 @@ public class SocialMenuHandler : MenuCanvas
         MenuManager.Instance.ChangeToMenu(AssetEnum.FriendMenuCanvas);
     }
     
+    private void OnBlockedPlayersClicked()
+    {
+        if (IsStarterActive())
+        {
+            MenuManager.Instance.ChangeToMenu(AssetEnum.BlockedPlayersMenuCanvas_Starter);
+        }
+        else
+        {
+            MenuManager.Instance.ChangeToMenu(AssetEnum.BlockedPlayersMenuCanvas);
+        }
+        
+    }
+    
     #endregion
 
-    
+    private bool IsStarterActive()
+    {
+        var module = TutorialModuleManager.Instance.GetModule(TutorialType.ManagingFriends);
+        return module.isStarterActive;
+    }
 
     #region MenuCanvasOverride
 

@@ -19,4 +19,19 @@ public class TutorialModuleData : ScriptableObject
     public MenuCanvas[] starterAdditionalMenuUIPrefabs;
     public bool isStarterActive;
     public TutorialModuleData[] moduleDependencies;
+
+    #region Tutorial Module Generated Prefabs
+    
+    public PrefabObjectType instantiatedPrefabType;
+    public string instantiatedGameObjectName;
+    public PrefabClassType prefabClassType;
+    public int associateDefaultPrefabClass;
+    public int associateStarterPrefabClass;
+    public TutorialType otherTutorialModule;
+    public AssetEnum genericPrefabClass;
+    public string buttonText;
+    public string targetParentGameObjectPath;
+    public int spawnOrder;
+    
+    #endregion
 }

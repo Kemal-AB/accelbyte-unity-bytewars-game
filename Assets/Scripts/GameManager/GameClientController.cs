@@ -190,24 +190,18 @@ public class GameClientController : NetworkBehaviour
         if (IsClient && IsOwner)
         {
             //client send user data to server
-            if (TutorialModuleUtil.IsAccelbyteSDKInstalled())
-            {
-                UpdatePlayerStateServerRpc(NetworkManager.Singleton.LocalClientId, 
-                GameData.CachedPlayerState, 
-                MultiRegistry.GetApiClient().session.UserId);
-            }
+            UpdatePlayerStateServerRpc(NetworkManager.Singleton.LocalClientId, GameData.CachedPlayerState);
         }
-        // Debug.Log($"GameClientController.OnNetworkSpawn IsServer:{IsServer} IsOwner:{IsOwner} OwnerClientId:{OwnerClientId}");
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void UpdatePlayerStateServerRpc(ulong clientNetworkId, PlayerState clientPlayerState, string clientUserId)
+    private void UpdatePlayerStateServerRpc(ulong clientNetworkId, PlayerState clientPlayerState)
     {
         if (GameManager.Instance.ConnectedPlayerStates.TryGetValue(clientNetworkId, out var playerState))
         {
             playerState.avatarUrl = clientPlayerState.avatarUrl;
             playerState.playerName = clientPlayerState.playerName;
-            playerState.playerId = clientUserId;//playerState.playerId = clientPlayerState.playerId;
+            playerState.playerId = clientPlayerState.playerId;
             var g = GameManager.Instance;
             g.UpdatePlayerStatesClientRpc(g.ConnectedTeamStates.Values.ToArray(),
                 g.ConnectedPlayerStates.Values.ToArray());

@@ -83,10 +83,7 @@ namespace Debugger
 
         private void OnReceivedMsg(string logString, string stackTrace, LogType type)
         {
-            if(type==LogType.Error || type==LogType.Exception)
-            {
-                Log(logString);
-            }
+            Log(logString);
         }
 
         private void ClearLog()
@@ -105,13 +102,13 @@ namespace Debugger
 #endif
         }
 
-        public static void Log(string text)
+        private static void Log(string text)
         {
 #if BYTEWARS_DEBUG
             Instance.logText.text += text + '\n';
             Instance.contentSizeFitter.enabled = false;
             Instance.StartCoroutine(waitOneFrame(() => { Instance.contentSizeFitter.enabled = true; }));
-            Debug.Log(text);
+            //Debug.Log(text);
 #endif
         }
 

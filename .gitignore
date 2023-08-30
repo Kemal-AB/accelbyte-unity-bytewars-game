@@ -80,3 +80,7 @@ crashlytics-build.properties
 
 /[Aa]ssets/[Rr]esources/Accelbyte*.json
 /[Aa]ssets/[Rr]esources/Accelbyte*.json.meta
+
+Accelbyte*.asset
+Accelbyte*.*.meta
+steam_appid.txt

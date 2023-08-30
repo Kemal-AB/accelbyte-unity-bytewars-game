@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using AccelByte.Core;
@@ -17,6 +18,7 @@ public class FriendMenuHandler : MenuCanvas
     
     private Dictionary<string, RectTransform> _friendEntries = new Dictionary<string, RectTransform>();
     private List<RectTransform> _panels = new List<RectTransform>();
+    private AssetEnum _friendDetailMenuCanvas;
 
     private FriendEssentialsWrapper _friendEssentialsWrapper;
 
@@ -74,6 +76,7 @@ public class FriendMenuHandler : MenuCanvas
         };
 
         backButton.onClick.AddListener(MenuManager.Instance.OnBackPressed);
+        _friendDetailMenuCanvas = FriendHelper.GetMenuByDependencyModule();
     }
     
     private void Awake()
@@ -130,26 +133,48 @@ public class FriendMenuHandler : MenuCanvas
             var friendEntry = friendEntryComponent.GetComponent<FriendEntryComponentHandler>();
             friendEntry.friendImage.sprite = avatar;
             var friendButton = friendEntryComponent.GetComponent<Button>();
-            friendButton.onClick.AddListener(() => OnFriendClicked(friendEntry.displayName.text, avatar));
+            friendButton.onClick.AddListener(() => OnFriendClicked(userId, friendEntry.displayName.text, avatar));
         }
         loadingPanel.gameObject.SetActive(false);
     }
 
-    private void OnFriendClicked(string displayName, Sprite avatar)
+    private void OnFriendClicked(string userId, string displayName, Sprite avatar)
     {
-        MenuManager.Instance.AllMenu.TryGetValue(AssetEnum.FriendDetailsMenuCanvas, out var value);
-        
-        if (value != null)
+        var friendDetailCanvas = _friendDetailMenuCanvas;
+        if (friendDetailCanvas != AssetEnum.FriendDetailsMenuCanvas)
         {
-            var friendDetailsPanel = value.gameObject.GetComponent<FriendDetailsMenuHandler>().friendDetailsPanel;
-            var image = friendDetailsPanel.GetComponentInChildren<Image>();
-            var friendDisplayName = friendDetailsPanel.GetComponentInChildren<TMP_Text>();
-
-            image.sprite = avatar;
-            friendDisplayName.text = displayName;
+            MenuManager.Instance.InstantiateCanvas(friendDetailCanvas);
         }
         
-        MenuManager.Instance.ChangeToMenu(AssetEnum.FriendDetailsMenuCanvas);
+        MenuManager.Instance.AllMenu.TryGetValue(friendDetailCanvas, out var value);
+
+        if (value != null)
+        {
+            if (value.gameObject.GetComponent<FriendDetailsMenuHandler>() != null)
+            {
+                var friendDetailMenu = value.gameObject.GetComponent<FriendDetailsMenuHandler>();
+                var friendDetailsPanel = friendDetailMenu.friendDetailsPanel;
+                var image = friendDetailsPanel.GetComponentInChildren<Image>();
+                var friendDisplayName = friendDetailsPanel.GetComponentInChildren<TMP_Text>();
+
+                friendDetailMenu.UserID = userId;
+                image.sprite = avatar;
+                friendDisplayName.text = displayName;
+            }
+            else
+            {
+                var friendDetailMenu = value.gameObject.GetComponent<FriendDetailsMenuHandler_Starter>();
+                var friendDetailsPanel = friendDetailMenu.friendDetailsPanel;
+                var image = friendDetailsPanel.GetComponentInChildren<Image>();
+                var friendDisplayName = friendDetailsPanel.GetComponentInChildren<TMP_Text>();
+
+                friendDetailMenu.UserID = userId;
+                image.sprite = avatar;
+                friendDisplayName.text = displayName;
+            }
+        }
+        
+        MenuManager.Instance.ChangeToMenu(friendDetailCanvas);
     }
     
     /// <summary>
@@ -174,7 +199,7 @@ public class FriendMenuHandler : MenuCanvas
         CurrentView = FriendsView.Default;
         _friendEssentialsWrapper.GetFriendList(OnFriendListCompleted);
     }
-
+    
     private void OnFriendListCompleted(Result<Friends> result)
     {
         CurrentView = FriendsView.Loading;

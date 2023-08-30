@@ -2,6 +2,7 @@
 // This is licensed software from AccelByte Inc, for limitations
 // and restrictions contact your company contract manager.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -18,10 +19,20 @@ public static class ConnectionHandler
         if (args.TryGetValue("-localserver", out string servername))
         {
             LocalServerName = servername;
-            LocalServerIP = GetLocalIPAddress();
-            
+            if (args.TryGetValue("-local_ip", out string localIp) && !String.IsNullOrEmpty(localIp))
+            {
+                LocalServerIP = localIp;
+            }
+            else
+            {
+                LocalServerIP = GetLocalIPAddress();
+            }
+
             return true;
         }
+
+        if (args.ContainsKey("-cloud_ds"))
+            return false;
         #if UNITY_EDITOR
                 LocalServerName = SystemInfo.deviceName;
                 LocalServerIP = GetLocalIPAddress();

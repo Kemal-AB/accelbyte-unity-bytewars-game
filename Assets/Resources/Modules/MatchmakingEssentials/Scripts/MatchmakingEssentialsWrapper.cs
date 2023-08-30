@@ -32,15 +32,16 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
     {
         _matchmakingV2 = MultiRegistry.GetApiClient().GetMatchmakingV2();
         _matchmakingV2Session = MultiRegistry.GetApiClient().GetSession();
+
+        GameManager.Instance.OnClientLeaveSession += LeaveSession;
+        #if UNITY_SERVER
         _dedicatedServerManager = MultiRegistry.GetServerApiClient().GetDedicatedServerManager();
         _matchmakingV2Server = MultiRegistry.GetServerApiClient().GetMatchmakingV2();
         _serverDSHub = MultiRegistry.GetServerApiClient().GetDsHub();
-
-        GameManager.Instance.OnClientLeaveSession += LeaveSession;
         GameManager.Instance.OnDeregisterServer += UnRegisterServer;
         GameManager.Instance.OnRegisterServer += LoginAndRegisterServer;
         GameManager.Instance.OnRejectBackfill += OnBackfillRejected;
-        
+        #endif
     }
 
     #region ClientSide

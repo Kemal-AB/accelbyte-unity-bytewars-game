@@ -16,6 +16,7 @@ public class Reconnect : MonoBehaviour
         {
             SetNetworkManagerData(unityTransport, address, port, initialConnectionData);
             NetworkManager.Singleton.StartClient();
+            Debug.Log($"start as client connect to {address}:{port}");
             //after called StartClient() NetworkManager will call OnClientConnected if the client connected to server successfully
             //TODO set error connect to server callback
         }

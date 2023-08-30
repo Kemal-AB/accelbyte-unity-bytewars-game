@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+<<<<<<<< HEAD:Assets/Scripts/GameManager/CacheHelper.cs.meta
+guid: 2b2ea65248b9ad542a772cc3ffd9e9c3
+========
+guid: eb0bf655f6f46b34c92129855bb3da5c
+>>>>>>>> master:Assets/Editor/TutorialModuleDataEditor.cs.meta
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
