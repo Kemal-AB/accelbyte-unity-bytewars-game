@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4196365987127987689}
   - component: {fileID: 2592882641898194579}
   m_Layer: 5
-  m_Name: RankingItemPanel
+  m_Name: RankingEntryPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

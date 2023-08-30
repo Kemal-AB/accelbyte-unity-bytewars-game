@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RankingItemPanel : MonoBehaviour
+public class RankingEntryPanel : MonoBehaviour
 {
     [SerializeField] private Image prefabImage;
     [SerializeField] private TMP_Text playerRankText;

@@ -124,7 +124,7 @@ public class IndividualLeaderboardMenu : MenuCanvas
     public void InstantiateRankingItem(string userId, int playerRank, string playerName, float playerScore)
     {
         // Instantiate and change the Text UI values. Display name set to default if doesn't exists with format: "PLAYER-<<5 char of userId>>"
-        RankingItemPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingItemPanel>();
+        RankingEntryPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingEntryPanel>();
         string displayName = (playerName == "") ? DEFUSERNAME + userId.Substring(0, 5) : playerName;
         itemPanel.ChangeAllTextUIs(playerRank, displayName, playerScore);
         
