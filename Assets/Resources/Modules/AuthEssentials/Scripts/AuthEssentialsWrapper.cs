@@ -77,6 +77,7 @@ public class AuthEssentialsWrapper : MonoBehaviour
         {
             Debug.Log("Login user successful.");
             GameData.CachedPlayerState.playerId = result.Value.user_id;
+            userData = result.Value;
         }
         else
         {

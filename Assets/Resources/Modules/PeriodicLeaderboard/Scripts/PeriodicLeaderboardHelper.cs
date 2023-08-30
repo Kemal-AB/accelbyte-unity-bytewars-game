@@ -62,7 +62,7 @@ public class PeriodicLeaderboardHelper : MonoBehaviour
             {
                 if (cycleRanking.CycleId == chosenCycleId)
                 {
-                    individualLeaderboardMenu.InstantiateRankingItem(currentUserData.user_id, currentUserData.display_name, cycleRanking.Point);
+                    individualLeaderboardMenu.InstantiateRankingItem(currentUserData.user_id, cycleRanking.Rank, currentUserData.display_name, cycleRanking.Point);
                     break;
                 }
             }

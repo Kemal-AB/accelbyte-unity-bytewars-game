@@ -7,17 +7,15 @@ using UnityEngine.UI;
 public class RankingItemPanel : MonoBehaviour
 {
     [SerializeField] private Image prefabImage;
+    [SerializeField] private TMP_Text playerRankText;
     [SerializeField] private TMP_Text playerNameText;
     [SerializeField] private TMP_Text highestScoreText;
 
-    public void ChangePlayerNameText(string playerName)
+    public void ChangeAllTextUIs(int playerRank, string playerName, float playerScore)
     {
+        playerRankText.text = "#" + playerRank;
         playerNameText.text = playerName;
-    }
-
-    public void ChangeHighestScoreText(string rankScore)
-    {
-        highestScoreText.text = rankScore;
+        highestScoreText.text = playerScore.ToString();
     }
 
     public void ChangePrefabColor(Color color)

@@ -16,7 +16,7 @@ MonoBehaviour:
     type: 3}
   defaultAdditionalMenuUIPrefabs:
   - {fileID: 6111619598935957728, guid: a6e1415e551165648a9dfb978188ab59, type: 3}
-  - {fileID: 5887274705052940846, guid: bbde42682e6ebc04a87c59460c3166e9, type: 3}
+  - {fileID: 5887274705052940846, guid: bd699ad6a93195a45b3fa680b3981b73, type: 3}
   defaultModuleScript: {fileID: 11500000, guid: 86875dce433f19a4691bd028edf278d7,
     type: 3}
   type: 6
@@ -30,7 +30,17 @@ MonoBehaviour:
     type: 3}
   starterAdditionalMenuUIPrefabs:
   - {fileID: 6119200121587024906, guid: 4cb54e13bbcb78149805d373c2af5174, type: 3}
-  - {fileID: 6578995519638640052, guid: 303fb526aaf5d4d4baee8f6667606869, type: 3}
+  - {fileID: 6578995519638640052, guid: 45071d89006f8c04491a19bffcba22ca, type: 3}
   isStarterActive: 0
   moduleDependencies:
   - {fileID: 11400000, guid: afddc5af388227e4f9769266d5369f44, type: 2}
+  instantiatedPrefabType: 0
+  instantiatedGameObjectName: 
+  prefabClassType: 0
+  associateDefaultPrefabClass: 0
+  associateStarterPrefabClass: 0
+  otherTutorialModule: 0
+  genericPrefabClass: 0
+  buttonText: 
+  targetParentGameObjectPath: 
+  spawnOrder: 0
