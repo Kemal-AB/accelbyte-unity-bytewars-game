@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UIElements;
+using Button = UnityEngine.UI.Button;
 
 public class PushNotificationHandler : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class PushNotificationHandler : MonoBehaviour
     [SerializeField] private Button dismissNotificationsButton;
 
     private Queue<GameObject> _pendingNotification = new Queue<GameObject>();
+    private int _activeCountChild = 0;
     
     // Start is called before the first frame update
     void Start()
@@ -21,32 +23,40 @@ public class PushNotificationHandler : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        if (notificationListPanel.childCount < 5 && _pendingNotification.Count > 0)
+        int activeChildCount = notificationListPanel.childCount - _pendingNotification.Count;
+        if (activeChildCount < 5 && _pendingNotification.Count > 0)
         {
+            // Set active a pending invitation and set it to destroy based on the expiration time
             GameObject pendingNotifItem = _pendingNotification.Dequeue();
             pendingNotifItem.SetActive(true);
             Destroy(pendingNotifItem, NOTIFICATION_EXPIRATION);
         }
         
-        if (notificationListPanel.childCount <= 0 && _pendingNotification.Count <= 0)
+        if (notificationListPanel.childCount <= 0)
         {
             gameObject.SetActive(false);
         }
     }
 
-    public void AddNotificationItem(GameObject notificationItemPrefab)
+    /// <summary>
+    /// Add custom notif prefab to Notification List Panel
+    /// </summary>
+    /// <param name="notificationItemPrefab">the desired notif prefab</param>
+    /// <returns>the instantiated GameObject of the prefab</returns>
+    public GameObject AddNotificationItem(GameObject notificationItemPrefab)
     {
         if (!gameObject.activeInHierarchy)
         {
             gameObject.SetActive(true);
         }
         
-        // instantiate and set it to destroy based on the expiration time
+        // instantiate prefab and set it as first sibling for reversed display
         GameObject notifItem = Instantiate(notificationItemPrefab, notificationListPanel);
         notifItem.transform.SetAsFirstSibling();
         
         if (notificationListPanel.childCount <= STACK_LIMIT)
         {
+            // set it to destroy based on the expiration time
             Destroy(notifItem, NOTIFICATION_EXPIRATION);
         }
         else
@@ -54,8 +64,13 @@ public class PushNotificationHandler : MonoBehaviour
             notifItem.SetActive(false);
             _pendingNotification.Enqueue(notifItem);
         }
+
+        return notifItem;
     }
-    
+
+    /// <summary>
+    /// Destroy all notification items from the Notification List Panel
+    /// </summary>
     private void RemoveAllNotifications()
     {
         foreach (Transform childTransform in notificationListPanel)
