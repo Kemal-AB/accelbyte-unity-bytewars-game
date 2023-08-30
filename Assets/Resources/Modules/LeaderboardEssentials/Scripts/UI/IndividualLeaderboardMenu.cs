@@ -99,9 +99,11 @@ public class IndividualLeaderboardMenu : MenuCanvas
     {
         // Dict key = userId, value = displayName
         Dictionary<string, string> userDisplayNames = result.Value.data.ToDictionary(userInfo => userInfo.userId, userInfo => userInfo.displayName);
+        int rankOrder = 0;
         foreach (string userId in userRankInfos.Keys)
         {
-            InstantiateRankingItem(userId, userDisplayNames[userId], userRankInfos[userId]);
+            rankOrder += 1;
+            InstantiateRankingItem(userId, rankOrder, userDisplayNames[userId], userRankInfos[userId]);
         }
     }
     
@@ -111,21 +113,20 @@ public class IndividualLeaderboardMenu : MenuCanvas
         {
             if (currentPeriodType == LeaderboardsPeriodMenu.LeaderboardPeriodType.AllTime)
             {
-                InstantiateRankingItem(result.Value.UserId, currentUserData.display_name, result.Value.AllTime.point);
+                UserRanking allTimeUserRank = result.Value.AllTime;
+                InstantiateRankingItem(result.Value.UserId, allTimeUserRank.rank, currentUserData.display_name, allTimeUserRank.point);
             }
             
             onDisplayUserRankingEvent.Invoke(this, result.Value.Cycles);
         }
     }
 
-    public void InstantiateRankingItem(string userId, string playerName, float playerScore)
+    public void InstantiateRankingItem(string userId, int playerRank, string playerName, float playerScore)
     {
+        // Instantiate and change the Text UI values. Display name set to default if doesn't exists with format: "PLAYER-<<5 char of userId>>"
         RankingItemPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingItemPanel>();
-        itemPanel.ChangeHighestScoreText(playerScore.ToString());
-
-        // If display name not exists, set to default format: "PLAYER-<<5 char of userId>>"
         string displayName = (playerName == "") ? DEFUSERNAME + userId.Substring(0, 5) : playerName;
-        itemPanel.ChangePlayerNameText(displayName);
+        itemPanel.ChangeAllTextUIs(playerRank, displayName, playerScore);
         
         if (userId == currentUserData.user_id)
         {
