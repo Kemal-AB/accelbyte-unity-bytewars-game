@@ -18,7 +18,7 @@ public class RankingEntryPanel : MonoBehaviour
         highestScoreText.text = playerScore.ToString();
     }
 
-    public void ChangePrefabColor(Color color)
+    public void ChangePanelColor(Color color)
     {
         prefabImage.color = color;
     }

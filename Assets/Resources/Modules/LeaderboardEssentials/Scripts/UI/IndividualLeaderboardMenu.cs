@@ -13,7 +13,8 @@ public class IndividualLeaderboardMenu : MenuCanvas
     [SerializeField] private Transform rankingListPanel;
     [SerializeField] private Transform defaultText;
     [SerializeField] private Button backButton;
-    [SerializeField] private GameObject rankingItemPanelPrefab;
+    [SerializeField] private GameObject rankingEntryPanelPrefab;
+    [SerializeField] private RankingEntryPanel userRankingPanel;
 
     private TokenData currentUserData;
     private string currentLeaderboardCode;
@@ -123,14 +124,17 @@ public class IndividualLeaderboardMenu : MenuCanvas
 
     public void InstantiateRankingItem(string userId, int playerRank, string playerName, float playerScore)
     {
-        // Instantiate and change the Text UI values. Display name set to default if doesn't exists with format: "PLAYER-<<5 char of userId>>"
-        RankingEntryPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingEntryPanel>();
+        // If display name not exists, set to default format: "PLAYER-<<5 char of userId>>"
         string displayName = (playerName == "") ? DEFUSERNAME + userId.Substring(0, 5) : playerName;
+
+        RankingEntryPanel itemPanel = Instantiate(rankingEntryPanelPrefab, rankingListPanel).GetComponent<RankingEntryPanel>();
         itemPanel.ChangeAllTextUIs(playerRank, displayName, playerScore);
-        
         if (userId == currentUserData.user_id)
         {
-            itemPanel.ChangePrefabColor(Color.gray);
+            itemPanel.ChangePanelColor(new Color(1.0f, 1.0f, 1.0f, 0.098f)); //rgba 255,255,255,25
+            
+            // update user rank entry panel
+            userRankingPanel.ChangeAllTextUIs(playerRank, displayName, playerScore);
         }
     }
     
