@@ -89,7 +89,7 @@ GameObject:
   - component: {fileID: 4832052297973320300}
   - component: {fileID: 8530388768685499626}
   m_Layer: 5
-  m_Name: NotificationItemPanel
+  m_Name: NotificationEntryPanel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
