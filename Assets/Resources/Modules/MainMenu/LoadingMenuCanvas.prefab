@@ -1160,6 +1160,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d1f4cbc4d1b47547948e771ca981f3f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainButtonsContainer: {fileID: 0}
   loadingImages:
   - {fileID: 7210423086546165228}
   - {fileID: 7210423087171432907}

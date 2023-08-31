@@ -219,6 +219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18bbfc8f9ef752940b98d1b835c3ac35, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainButtonsContainer: {fileID: 0}
   dsButton: {fileID: 7614937716666002539}
   p2pButton: {fileID: 8382228949925598942}
   backButton: {fileID: 5406751274186335520}

@@ -323,6 +323,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bff32b5091fcc8e4fad2cd64065d32f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainButtonsContainer: {fileID: 0}
   twoPlayersBtn: {fileID: 947853508142601091}
   threePlayersBtn: {fileID: 947853506684584079}
   fourPlayersBtn: {fileID: 899816852806847596}

@@ -219,6 +219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5543c964d5b3c0e408a7fe35f7dad572, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainButtonsContainer: {fileID: 0}
   backButton: {fileID: 5406751274186335520}
   singlePlayerButton: {fileID: 7614937716666002539}
   multiplayerButton: {fileID: 3511245969533288251}

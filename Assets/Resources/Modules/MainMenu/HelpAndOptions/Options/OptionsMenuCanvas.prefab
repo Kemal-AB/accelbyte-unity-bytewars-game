@@ -219,6 +219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efe5b45a0b2633443a70cd98025149e6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainButtonsContainer: {fileID: 0}
   musicVolumeSlider: {fileID: 1760436823725895312}
   sfxVolumeSlider: {fileID: 3358046983024837961}
   musicVolumeText: {fileID: 4583354833745133801}

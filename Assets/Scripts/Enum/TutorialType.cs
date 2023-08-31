@@ -3,5 +3,13 @@
 /// </summary>
 public enum TutorialType
 {
-    MatchmakingEssentials
+    AuthEssentials=2,
+    MatchmakingEssentials=3,
+    StatsEssentials=4,
+    CloudSaveEssentials=5,
+    LeaderboardEssentials=6,
+    SinglePlatformAuth=7,
+    FriendEssentials=8,
+    MatchSession=11,
+    ManagingFriends=12
 }

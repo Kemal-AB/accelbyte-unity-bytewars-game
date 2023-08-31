@@ -1,3 +1,7 @@
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,6 +11,7 @@ public class MainMenu : MenuCanvas
     [SerializeField] private Button playOnlineBtn;
     [SerializeField] private Button helpAndOptionsButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private LayoutGroup layoutGroup;
 
     // Start is called before the first frame update
     void Start()
@@ -17,14 +22,15 @@ public class MainMenu : MenuCanvas
         playOnlineBtn.onClick.AddListener(OnPlayOnlineButtonPressed);
         helpAndOptionsButton.onClick.AddListener(OnHelpAndOptionsButtonPressed);
         quitButton.onClick.AddListener(OnQuitButtonPressed);
+        FixLayout();
     }
 
-    public void OnPlayButtonPressed()
+    private void OnPlayButtonPressed()
     {
         MenuManager.Instance.ChangeToMenu(AssetEnum.PlayMenuCanvas);
     }
 
-    public void OnPlayOnlineButtonPressed()
+    private void OnPlayOnlineButtonPressed()
     {
         MenuManager.Instance.ChangeToMenu(AssetEnum.PlayOnlineMenuCanvas);
     }
@@ -36,7 +42,11 @@ public class MainMenu : MenuCanvas
 
     public void OnQuitButtonPressed()
     {
+        #if UNITY_EDITOR
+        EditorApplication.ExitPlaymode();
+        #else
         Application.Quit();
+        #endif
     }
 
     public override GameObject GetFirstButton()
@@ -49,12 +59,20 @@ public class MainMenu : MenuCanvas
         return AssetEnum.MainMenuCanvas;
     }
 
-
     private void CheckModulesButtons()
     {
         #if !BYTEWARS_DEBUG
-        bool isOnlineBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.MatchmakingEssentials);
-        playOnlineBtn.gameObject.SetActive(isOnlineBtnActive);
+            bool isOnlineBtnActive = TutorialModuleManager.Instance.IsModuleActive(TutorialType.MatchmakingEssentials)
+                || TutorialModuleManager.Instance.IsModuleActive(TutorialType.MatchSession);
+            playOnlineBtn.gameObject.SetActive(isOnlineBtnActive);
         #endif
+    }
+
+    private async void FixLayout()
+    {
+        await Task.Delay(30);
+        layoutGroup.enabled = false;
+        await Task.Delay(30);
+        layoutGroup.enabled = true;
     }
 }

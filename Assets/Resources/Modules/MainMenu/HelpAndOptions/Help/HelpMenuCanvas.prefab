@@ -325,6 +325,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 990043dee2d4e834aaeadd53c9570568, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainButtonsContainer: {fileID: 0}
   backButton: {fileID: 5406751274186335520}
 --- !u!1 &2169716257961203028
 GameObject:

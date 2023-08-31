@@ -376,6 +376,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f1bdede89e8f1a45a2cc2beac83bb97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainButtonsContainer: {fileID: 0}
   backButton: {fileID: 5406751274186335520}
   eliminationButton: {fileID: 7614937716666002539}
   teamDeadMatchButton: {fileID: 8876284876657504983}
