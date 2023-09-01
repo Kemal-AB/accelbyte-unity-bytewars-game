@@ -13,9 +13,10 @@ public class IndividualLeaderboardMenu : MenuCanvas
     [SerializeField] private Transform rankingListPanel;
     [SerializeField] private Transform defaultText;
     [SerializeField] private Button backButton;
-    [SerializeField] private GameObject rankingItemPanelPrefab;
+    [SerializeField] private GameObject rankingEntryPanelPrefab;
+    [SerializeField] private RankingEntryPanel userRankingPanel;
 
-    private string currentUserId;
+    private TokenData currentUserData;
     private string currentLeaderboardCode;
     private LeaderboardsPeriodMenu.LeaderboardPeriodType currentPeriodType;
 
@@ -25,6 +26,10 @@ public class IndividualLeaderboardMenu : MenuCanvas
     
     private LeaderboardEssentialsWrapper _leaderboardWrapper;
     private AuthEssentialsWrapper _authWrapper;
+    
+    public delegate void IndividualLeaderboardMenuDelegate(IndividualLeaderboardMenu individualLeaderboardMenu, UserCycleRanking[] userCycleRankings = null);
+    public static event IndividualLeaderboardMenuDelegate onDisplayRankingListEvent = delegate {};
+    public static event IndividualLeaderboardMenuDelegate onDisplayUserRankingEvent = delegate {};
     
     void Start()
     {
@@ -49,15 +54,9 @@ public class IndividualLeaderboardMenu : MenuCanvas
 
     private void GetLeaderboardCategoryValues()
     {
-        currentUserId = MultiRegistry.GetApiClient().session.UserId;
-        
-        MenuCanvas leaderboardsMenuCanvas = MenuManager.Instance.GetMenu(AssetEnum.LeaderboardsMenuCanvas);
-        LeaderboardsMenu leaderboardsMenuObject = leaderboardsMenuCanvas.GetComponent<LeaderboardsMenu>();
-        currentLeaderboardCode = leaderboardsMenuObject.chosenLeaderboardCode;
-
-        MenuCanvas leaderboardsPeriodMenuCanvas = MenuManager.Instance.GetMenu(AssetEnum.LeaderboardsPeriodMenuCanvas);
-        LeaderboardsPeriodMenu leaderboardsPeriodMenu = leaderboardsPeriodMenuCanvas.GetComponent<LeaderboardsPeriodMenu>();
-        currentPeriodType = leaderboardsPeriodMenu.chosenPeriod;
+        currentUserData = _authWrapper.userData;
+        currentLeaderboardCode = LeaderboardsMenu.chosenLeaderboardCode;
+        currentPeriodType = LeaderboardsPeriodMenu.chosenPeriod;
     }
     
     public void DisplayRankingList()
@@ -69,9 +68,11 @@ public class IndividualLeaderboardMenu : MenuCanvas
         {
             _leaderboardWrapper.GetRankings(currentLeaderboardCode, OnDisplayRankingListCompleted, RESULTOFFSET, RESULTLIMIT);
         }
+        
+        onDisplayRankingListEvent.Invoke(this);
     }
 
-    private void OnDisplayRankingListCompleted(Result<LeaderboardRankingResult> result)
+    public void OnDisplayRankingListCompleted(Result<LeaderboardRankingResult> result)
     {
         if (!result.IsError)
         {
@@ -84,9 +85,9 @@ public class IndividualLeaderboardMenu : MenuCanvas
             // Get the players' display name from the provided user ids
             _authWrapper.BulkGetUserInfo(userRankInfos.Keys.ToArray(), authResult => OnBulkGetUserInfoCompleted(authResult, userRankInfos));
             
-            if (!userRankInfos.ContainsKey(currentUserId))
+            if (!userRankInfos.ContainsKey(currentUserData.user_id))
             {
-                _leaderboardWrapper.GetUserRanking(currentUserId, currentLeaderboardCode, OnGetUserRankingCompleted);
+                _leaderboardWrapper.GetUserRanking(currentUserData.user_id, currentLeaderboardCode, OnGetUserRankingCompleted);
             }
         }
         else
@@ -99,9 +100,11 @@ public class IndividualLeaderboardMenu : MenuCanvas
     {
         // Dict key = userId, value = displayName
         Dictionary<string, string> userDisplayNames = result.Value.data.ToDictionary(userInfo => userInfo.userId, userInfo => userInfo.displayName);
+        int rankOrder = 0;
         foreach (string userId in userRankInfos.Keys)
         {
-            InstantiateRankingItem(userId, userDisplayNames[userId], userRankInfos[userId]);
+            rankOrder += 1;
+            InstantiateRankingItem(userId, rankOrder, userDisplayNames[userId], userRankInfos[userId]);
         }
     }
     
@@ -111,23 +114,32 @@ public class IndividualLeaderboardMenu : MenuCanvas
         {
             if (currentPeriodType == LeaderboardsPeriodMenu.LeaderboardPeriodType.AllTime)
             {
-                InstantiateRankingItem(result.Value.UserId, _authWrapper.userData.display_name, result.Value.AllTime.point);
+                UserRanking allTimeUserRank = result.Value.AllTime;
+                InstantiateRankingItem(result.Value.UserId, allTimeUserRank.rank, currentUserData.display_name, allTimeUserRank.point);
             }
+            
+            onDisplayUserRankingEvent.Invoke(this, result.Value.Cycles);
         }
     }
 
-    private void InstantiateRankingItem(string userId, string playerName, float playerScore)
+    public void InstantiateRankingItem(string userId, int playerRank, string playerName, float playerScore)
     {
-        RankingItemPanel itemPanel = Instantiate(rankingItemPanelPrefab, rankingListPanel).GetComponent<RankingItemPanel>();
-        itemPanel.ChangeHighestScoreText(playerScore.ToString());
-
         // If display name not exists, set to default format: "PLAYER-<<5 char of userId>>"
         string displayName = (playerName == "") ? DEFUSERNAME + userId.Substring(0, 5) : playerName;
-        itemPanel.ChangePlayerNameText(displayName);
-        
-        if (userId == currentUserId)
+
+        // update user rank entry panel if player is not in the leaderboard list
+        if (playerRank > 10 && userId == currentUserData.user_id)
         {
-            itemPanel.ChangePrefabColor(Color.gray);
+            userRankingPanel.ChangeAllTextUIs(playerRank, displayName, playerScore);
+            return;
+        }
+        
+        RankingEntryPanel itemPanel = Instantiate(rankingEntryPanelPrefab, rankingListPanel).GetComponent<RankingEntryPanel>();
+        itemPanel.ChangeAllTextUIs(playerRank, displayName, playerScore);
+        if (userId == currentUserData.user_id)
+        {
+            itemPanel.ChangePanelColor(new Color(1.0f, 1.0f, 1.0f, 0.098f)); //rgba 255,255,255,25
+            userRankingPanel.ChangeAllTextUIs(playerRank, displayName, playerScore);
         }
     }
     
@@ -151,7 +163,7 @@ public class IndividualLeaderboardMenu : MenuCanvas
     /// </summary>
     /// <param name="parent">Parent Object to destroy children</param>
     /// <param name="doNotRemove">Optional specified Transform that should NOT be destroyed</param>
-    private void LoopThroughTransformAndDestroy(Transform parent, Transform doNotRemove = null)
+    public void LoopThroughTransformAndDestroy(Transform parent, Transform doNotRemove = null)
     {
         //Loop through all the children and add them to a List to then be deleted
         List<GameObject> toBeDeleted = new List<GameObject>();

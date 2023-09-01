@@ -11,5 +11,6 @@ public enum TutorialType
     SinglePlatformAuth=7,
     FriendEssentials=8,
     MatchSession=11,
-    ManagingFriends=12
+    ManagingFriends=12,
+	PeriodicLeaderboardEssentials=13
 }

@@ -4,23 +4,21 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RankingItemPanel : MonoBehaviour
+public class RankingEntryPanel : MonoBehaviour
 {
     [SerializeField] private Image prefabImage;
+    [SerializeField] private TMP_Text playerRankText;
     [SerializeField] private TMP_Text playerNameText;
     [SerializeField] private TMP_Text highestScoreText;
 
-    public void ChangePlayerNameText(string playerName)
+    public void ChangeAllTextUIs(int playerRank, string playerName, float playerScore)
     {
+        playerRankText.text = "#" + playerRank;
         playerNameText.text = playerName;
+        highestScoreText.text = playerScore.ToString();
     }
 
-    public void ChangeHighestScoreText(string rankScore)
-    {
-        highestScoreText.text = rankScore;
-    }
-
-    public void ChangePrefabColor(Color color)
+    public void ChangePanelColor(Color color)
     {
         prefabImage.color = color;
     }

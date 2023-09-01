@@ -13,10 +13,10 @@ public class IndividualLeaderboardMenu_Starter : MenuCanvas
     [SerializeField] private Transform rankingListPanel;
     [SerializeField] private Transform defaultText;
     [SerializeField] private Button backButton;
-    [SerializeField] private GameObject rankingItemPanelPrefab;
+    [SerializeField] private GameObject rankingEntryPanelPrefab;
+    [SerializeField] private RankingEntryPanel userRankingPanel;
     
-    
-    
+    // Copy your code here
     
     
     private void OnBackButtonClicked()
@@ -31,7 +31,7 @@ public class IndividualLeaderboardMenu_Starter : MenuCanvas
 
     public override AssetEnum GetAssetEnum()
     {
-        return AssetEnum.IndividualLeaderboardMenuCanvas;
+        return AssetEnum.IndividualLeaderboardMenuCanvas_Starter;
     }
     
     /// <summary>

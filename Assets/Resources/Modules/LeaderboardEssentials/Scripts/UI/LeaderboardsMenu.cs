@@ -13,8 +13,9 @@ public class LeaderboardsMenu : MenuCanvas
     [SerializeField] private Button backButton;
     [SerializeField] private GameObject leaderboardItemButtonPrefab;
 
-    [HideInInspector] public string chosenLeaderboardCode;
-    
+    public static string chosenLeaderboardCode;
+    public static Dictionary<string, string[]> leaderboardCycleIds;
+
     private LeaderboardEssentialsWrapper _leaderboardWrapper;
 
     void Start()
@@ -47,6 +48,7 @@ public class LeaderboardsMenu : MenuCanvas
     {
         if (!result.IsError)
         {
+            leaderboardCycleIds = new Dictionary<string, string[]>();
             foreach (LeaderboardDataV3 leaderboardData in result.Value.Data)
             {
                 if (leaderboardData.Name.Contains("Unity"))
@@ -56,6 +58,8 @@ public class LeaderboardsMenu : MenuCanvas
                     leaderboardButtonText.text = leaderboardData.Name.Replace("Unity Leaderboard ", "");
                     
                     leaderboardButton.onClick.AddListener(() => ChangeToLeaderboardsPeriodMenu(leaderboardData.LeaderboardCode));
+                    
+                    leaderboardCycleIds.Add(leaderboardData.LeaderboardCode, leaderboardData.CycleIds);
                 }
             }
         }

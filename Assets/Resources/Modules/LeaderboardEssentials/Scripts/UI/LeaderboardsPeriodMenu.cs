@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,24 +5,32 @@ using UnityEngine.UI;
 
 public class LeaderboardsPeriodMenu : MenuCanvas
 {
+    [SerializeField] private Transform leaderboardListPanel;
     [SerializeField] private Button allTimeButton;
     [SerializeField] private Button backButton;
-
-    [HideInInspector] public LeaderboardPeriodType chosenPeriod;
+    [SerializeField] private GameObject leaderboardItemButtonPrefab;
+    
+    public static LeaderboardPeriodType chosenPeriod;
     public enum LeaderboardPeriodType
     {
-        AllTime
+        AllTime,
+        Cycle
     }
+    
+    public delegate void LeaderboardsPeriodMenuDelegate(Transform leaderboardListPanel, GameObject leaderboardItemButtonPrefab);
+    public static event LeaderboardsPeriodMenuDelegate onLeaderboardsPeriodMenuActivated = delegate { };
 
     void Start()
     {
-        allTimeButton.onClick.AddListener(ChangeToIndividualLeaderboardMenu);
+        allTimeButton.onClick.AddListener(() => ChangeToIndividualLeaderboardMenu(LeaderboardPeriodType.AllTime));
         backButton.onClick.AddListener(OnBackButtonClicked);
+        
+        onLeaderboardsPeriodMenuActivated.Invoke(leaderboardListPanel, leaderboardItemButtonPrefab);
     }
-
-    private void ChangeToIndividualLeaderboardMenu()
+    
+    public static void ChangeToIndividualLeaderboardMenu(LeaderboardPeriodType periodType)
     {
-        chosenPeriod = LeaderboardPeriodType.AllTime;
+        chosenPeriod = periodType;
         MenuManager.Instance.ChangeToMenu(AssetEnum.IndividualLeaderboardMenuCanvas);
     }
     

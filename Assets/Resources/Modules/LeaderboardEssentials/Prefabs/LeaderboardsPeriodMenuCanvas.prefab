@@ -218,9 +218,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 669a6bb7eb0e5ef4189defcf631a0652, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leaderboardListPanel: {fileID: 4008714051633049764}
   allTimeButton: {fileID: 7614937716666002539}
   backButton: {fileID: 5406751274186335520}
-  chosenPeriod: 0
+  leaderboardItemButtonPrefab: {fileID: 3528720147924983473, guid: b68d5919c47cbda4cb59371f96e15abd,
+    type: 3}
 --- !u!1 &2169716257961203028
 GameObject:
   m_ObjectHideFlags: 0

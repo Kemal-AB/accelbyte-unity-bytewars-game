@@ -328,11 +328,15 @@ public class MenuManager : MonoBehaviour
 
     private void InitMenuByModules(ModuleModel moduleData)
     {
+        if (_menusDictionary.ContainsKey(AssetEnum.LeaderboardsMenuCanvas))
+        {
+            return;
+        }
         var modulePrefab = moduleData.mainPrefab;
         modulePrefab.gameObject.SetActive(false);
         var menubyModule = Instantiate(modulePrefab, Vector3.zero, Quaternion.identity, _instance.transform);
         modulePrefab.gameObject.SetActive(true);
-        menubyModule.name = modulePrefab.name; ;
+        menubyModule.name = modulePrefab.name;
         _menusDictionary.TryAdd(menubyModule.GetAssetEnum(), menubyModule);
         _menusDictionary[menubyModule.GetAssetEnum()].gameObject.SetActive(false);
         
