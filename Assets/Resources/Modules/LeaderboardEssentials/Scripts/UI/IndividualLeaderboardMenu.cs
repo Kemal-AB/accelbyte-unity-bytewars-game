@@ -127,13 +127,18 @@ public class IndividualLeaderboardMenu : MenuCanvas
         // If display name not exists, set to default format: "PLAYER-<<5 char of userId>>"
         string displayName = (playerName == "") ? DEFUSERNAME + userId.Substring(0, 5) : playerName;
 
+        // update user rank entry panel if player is not in the leaderboard list
+        if (playerRank > 10 && userId == currentUserData.user_id)
+        {
+            userRankingPanel.ChangeAllTextUIs(playerRank, displayName, playerScore);
+            return;
+        }
+        
         RankingEntryPanel itemPanel = Instantiate(rankingEntryPanelPrefab, rankingListPanel).GetComponent<RankingEntryPanel>();
         itemPanel.ChangeAllTextUIs(playerRank, displayName, playerScore);
         if (userId == currentUserData.user_id)
         {
             itemPanel.ChangePanelColor(new Color(1.0f, 1.0f, 1.0f, 0.098f)); //rgba 255,255,255,25
-            
-            // update user rank entry panel
             userRankingPanel.ChangeAllTextUIs(playerRank, displayName, playerScore);
         }
     }
