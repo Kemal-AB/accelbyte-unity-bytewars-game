@@ -67,6 +67,31 @@ public class PushNotificationHandler : MonoBehaviour
 
         return notifItem;
     }
+    
+    public T AddNotificationItem<T>(GameObject notificationItemPrefab)
+    {
+        if (!gameObject.activeInHierarchy)
+        {
+            gameObject.SetActive(true);
+        }
+        
+        // instantiate prefab and set it as first sibling for reversed display
+        GameObject notifItem = Instantiate(notificationItemPrefab, notificationListPanel);
+        notifItem.transform.SetAsFirstSibling();
+        
+        if (notificationListPanel.childCount <= STACK_LIMIT)
+        {
+            // set it to destroy based on the expiration time
+            Destroy(notifItem, NOTIFICATION_EXPIRATION);
+        }
+        else
+        {
+            notifItem.SetActive(false);
+            _pendingNotification.Enqueue(notifItem);
+        }
+
+        return notifItem.GetComponent<T>();
+    }
 
     /// <summary>
     /// Destroy all notification items from the Notification List Panel
