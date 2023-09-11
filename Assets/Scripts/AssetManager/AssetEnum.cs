@@ -1,11 +1,11 @@
 //auto generated from AssetNameEnumGenerator
 public enum AssetEnum 
 {
+      TutorialModuleConfig,
       InfoMenuCanvas,
       LoadingMenuCanvas,
       MainMenuCanvas,
       MainMenuUiConfig,
-      NotificationCanvas,
       BrowseMatchesMenuCanvas,
       CreateCustomMatchMenuCanvas,
       CreateMatchMenuCanvas,
@@ -20,6 +20,9 @@ public enum AssetEnum
       PlayOnlineMenuCanvas,
       QuickPlayMenuCanvas,
       ServerTypeSelection,
+      NotificationEntryPanel,
+      PushNotificationCanvas,
+      PushNotificationPanel,
       MatchPanel,
       CreditsMenuCanvas,
       HelpMenuCanvas,
