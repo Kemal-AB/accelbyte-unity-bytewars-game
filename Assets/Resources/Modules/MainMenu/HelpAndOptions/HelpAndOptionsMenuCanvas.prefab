@@ -220,6 +220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f039ea42b68557040a430cc8d141351c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainButtonsContainer: {fileID: 0}
   helpButton: {fileID: 7614937716666002539}
   optionsButton: {fileID: 6657051337607472915}
   creditsButton: {fileID: 8809244053576824749}

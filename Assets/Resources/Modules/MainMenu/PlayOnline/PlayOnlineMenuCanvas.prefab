@@ -220,6 +220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f40d488b745457b4b88e994e9343470e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainButtonsContainer: {fileID: 0}
   backButton: {fileID: 5406751274186335520}
   browseMatchButton: {fileID: 586842371343591551}
   createMatchButton: {fileID: 1894090569972174124}

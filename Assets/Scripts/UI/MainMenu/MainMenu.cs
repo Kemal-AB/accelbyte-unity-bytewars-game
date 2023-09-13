@@ -13,6 +13,7 @@ public class MainMenu : MenuCanvas
     [SerializeField] private Button socialButton;
     [SerializeField] private Button helpAndOptionsButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private LayoutGroup layoutGroup;
 
     // Start is called before the first frame update
     void Start()
@@ -46,7 +47,7 @@ public class MainMenu : MenuCanvas
         MenuManager.Instance.ChangeToMenu(AssetEnum.PlayMenuCanvas);
     }
 
-    public void OnPlayOnlineButtonPressed()
+    private void OnPlayOnlineButtonPressed()
     {
         MenuManager.Instance.ChangeToMenu(AssetEnum.PlayOnlineMenuCanvas);
     }

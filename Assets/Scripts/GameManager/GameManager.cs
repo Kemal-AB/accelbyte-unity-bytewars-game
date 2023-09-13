@@ -218,7 +218,6 @@ public class GameManager : NetworkBehaviour
         if (IsClient && !IsHost)
         {
             StartCoroutine(QuitToMainMenu());
-            OnClientLeaveSession?.Invoke();
         }
     }
 

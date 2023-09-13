@@ -1,6 +1,6 @@
 ﻿{
   "enableModulesOverride": true,
-  "forceEnabledModules": ["AuthEssentials"],
+  "forceEnabledModules": [],
   "forceDisabledOtherModules" : false,
   "steamConfiguration":
   {

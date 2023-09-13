@@ -220,6 +220,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1d56fce11b971e4998d4ba6ca7e290a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainButtonsContainer: {fileID: 0}
   resumeBtn: {fileID: 2383667763440510213}
   restartBtn: {fileID: 253879083490934326}
   quitBtn: {fileID: 5933665454840426363}

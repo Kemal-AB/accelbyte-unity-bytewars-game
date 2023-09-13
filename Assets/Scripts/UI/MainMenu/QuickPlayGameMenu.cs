@@ -1,5 +1,3 @@
-using System;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -93,6 +91,6 @@ public class QuickPlayGameMenu : MenuCanvas
 
     public override AssetEnum GetAssetEnum()
     {
-        return AssetEnum.QuickPlayMenuCanvas;
+        return AssetEnum.QuickPlayGameMenu;
     }
 }

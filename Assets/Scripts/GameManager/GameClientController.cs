@@ -1,5 +1,4 @@
 using System.Linq;
-using AccelByte.Core;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -190,7 +189,10 @@ public class GameClientController : NetworkBehaviour
         if (IsClient && IsOwner)
         {
             //client send user data to server
-            UpdatePlayerStateServerRpc(NetworkManager.Singleton.LocalClientId, GameData.CachedPlayerState);
+            if (GameData.CachedPlayerState != null)
+            {
+                UpdatePlayerStateServerRpc(NetworkManager.Singleton.LocalClientId, GameData.CachedPlayerState);
+            }
         }
     }
 

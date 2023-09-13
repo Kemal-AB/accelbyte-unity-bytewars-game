@@ -219,6 +219,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cec7e19adc52e054e9617f00f47ffa9b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainButtonsContainer: {fileID: 0}
   okBtn: {fileID: 7614937716666002539}
   infoLabel: {fileID: 711357345914211538}
   titleLabel: {fileID: 2169716257961203030}

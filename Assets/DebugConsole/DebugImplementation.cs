@@ -1,4 +1,6 @@
+#if BYTEWARS_TUTORIAL
 using AccelByte.Core;
+#endif
 using Debugger;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -13,12 +15,14 @@ public class DebugImplementation
     {
         DebugConsole.AddButton("shutdown netcode", OnShutdownNetcode);
         DebugConsole.AddButton("disconnect", OnTestDisconnect);
+        #if BYTEWARS_TUTORIAL
         DebugConsole.AddButton("check match session", MatchSessionWrapper.GetDetail);
 #if UNITY_SERVER
         DebugConsole.AddButton("Deregister Local Server", OnDisconnectLocalDs);
 #endif
+#endif
     }
-
+#if BYTEWARS_TUTORIAL
     private void OnDisconnectLocalDs()
     {
         MultiRegistry.GetServerApiClient()
@@ -40,6 +44,7 @@ public class DebugImplementation
                 }
             });
     }
+    #endif
     private void OnTestDisconnect()
     {
         var transport = (UnityTransport)NetworkManager.Singleton.NetworkConfig.NetworkTransport;

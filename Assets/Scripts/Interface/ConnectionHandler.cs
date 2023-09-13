@@ -3,7 +3,6 @@
 // and restrictions contact your company contract manager.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
