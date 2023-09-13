@@ -3,8 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using System.Web;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -97,6 +97,6 @@ public class CacheHelper
     private static string GetUriLastElementFilename(Uri uri)
     {
         var lastElement = uri.Segments.LastOrDefault();
-        return HttpUtility.UrlEncode(lastElement);
+        return WebUtility.UrlEncode(lastElement);
     }
 }

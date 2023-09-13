@@ -93,6 +93,6 @@ public class QuickPlayGameMenu : MenuCanvas
 
     public override AssetEnum GetAssetEnum()
     {
-        return AssetEnum.QuickPlayMenuCanvas;
+        return AssetEnum.QuickPlayGameMenu;
     }
 }

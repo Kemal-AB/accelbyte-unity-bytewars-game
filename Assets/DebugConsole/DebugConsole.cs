@@ -70,17 +70,6 @@ namespace Debugger
                 Instance.StartCoroutine(waitOneFrame(() => { Instance.contentSizeFitter.enabled = true; }));
             }
         }
-
-        internal void OnEnable()
-        {
-            Application.logMessageReceived += OnReceivedMsg;
-        }
-
-        internal void OnDisable()
-        {
-            Application.logMessageReceived -= OnReceivedMsg;
-        }
-
         private void OnReceivedMsg(string logString, string stackTrace, LogType type)
         {
             if(type==LogType.Error || type==LogType.Exception)

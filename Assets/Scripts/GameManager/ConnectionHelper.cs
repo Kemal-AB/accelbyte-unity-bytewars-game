@@ -1,15 +1,12 @@
 using System;
+using System.Threading.Tasks;
 using Unity.Netcode;
 using UnityEngine;
 
 public class ConnectionHelper 
 {
-    public ConnectionHelper()
-    {
-        
-    }
-
-    public ConnectionApprovalResult ConnectionApproval(NetworkManager.ConnectionApprovalRequest request,
+    private static int ServerClaimedMaxWaitSec = 7;
+    public async Task<ConnectionApprovalResult> ConnectionApproval(NetworkManager.ConnectionApprovalRequest request,
         NetworkManager.ConnectionApprovalResponse response, bool isServer, 
         InGameState inGameState, GameModeSO[] availableInGameMode, InGameMode inGameMode,
         ServerHelper serverHelper)
@@ -21,7 +18,28 @@ public class ConnectionHelper
         bool isNewPlayer = String.IsNullOrEmpty(initialData.sessionId);
         if (isNewPlayer && inGameState != InGameState.None)
         {
-            string reason = $"game already on {inGameState} player can not join clientNetworkId:{request.ClientNetworkId}";
+            string reason = "server claimed event is not received in time, reject connection";
+            RejectConnection(response, reason);
+            return null;
+        }
+        int serverWaitSec = 0;
+        while(String.IsNullOrEmpty(GameData.ServerSessionID))
+        {
+            Debug.Log("waiting DS to be claimed but player already try to connect");
+            await Task.Delay(1000);
+            serverWaitSec++;
+            if(serverWaitSec>=ServerClaimedMaxWaitSec)
+            {
+                var reason = $"invalid session id, client:{initialData.serverSessionId} server:{GameData.ServerSessionID}";
+                RejectConnection(response, reason);
+                return null;
+            }
+        }
+        if (isNewPlayer &&
+            !String.IsNullOrEmpty(initialData.serverSessionId) &&
+            !initialData.serverSessionId.Equals(GameData.ServerSessionID))
+        {
+            var reason = $"invalid session id, client:{initialData.serverSessionId} server:{GameData.ServerSessionID}";
             RejectConnection(response, reason);
             return null;
         }
@@ -99,10 +117,10 @@ public class ConnectionHelper
     
     private void RejectConnection(NetworkManager.ConnectionApprovalResponse response, string reason)
     {
+        response.Reason = reason;
         response.Approved = false;
         response.Pending = false;
         Debug.Log(reason);
-        response.Reason = reason;
     }
     
 }

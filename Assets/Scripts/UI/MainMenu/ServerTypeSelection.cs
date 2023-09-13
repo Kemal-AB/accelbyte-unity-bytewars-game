@@ -18,13 +18,13 @@ public class ServerTypeSelection : MenuCanvas
     private void ClickDsButton()
     {
         GameData.ServerType = ServerType.OnlineDedicatedServer;
-        MenuManager.Instance.ChangeToMenu(AssetEnum.QuickPlayMenuCanvas);
+        MenuManager.Instance.ChangeToMenu(AssetEnum.QuickPlayGameMenu);
     }
 
     private void ClickP2PButton()
     {
         GameData.ServerType = ServerType.OnlinePeer2Peer;
-        MenuManager.Instance.ChangeToMenu(AssetEnum.QuickPlayMenuCanvas);
+        MenuManager.Instance.ChangeToMenu(AssetEnum.QuickPlayGameMenu);
     }
     public override GameObject GetFirstButton()
     {
