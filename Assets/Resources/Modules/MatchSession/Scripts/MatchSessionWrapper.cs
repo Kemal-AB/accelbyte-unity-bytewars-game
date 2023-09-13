@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using AccelByte.Api;
 using AccelByte.Core;
 using AccelByte.Models;
@@ -15,6 +16,10 @@ public class MatchSessionWrapper : MonoBehaviour
     private static Action<string> _onCreatedMatchSession;
     private static SessionV2GameSession _v2GameSession;
     private static bool _isCreateMatchSessionCancelled;
+    private static MatchSessionWrapper _instance;
+    private static readonly WaitForSeconds _waitOneSec = new WaitForSeconds(1);
+    private const int MaxCheckDSStatusCount = 10;
+    private static int _checkDSStatusCount = 0;
     public void Start()
     {
 #if UNITY_SERVER
@@ -24,11 +29,14 @@ public class MatchSessionWrapper : MonoBehaviour
 #else
         _lobby = MultiRegistry.GetApiClient().GetLobby();
         _session = MultiRegistry.GetApiClient().GetSession();
-        _lobby.SessionV2DsStatusChanged += OnV2DSStatusChanged;
         _lobby.SessionV2GameSessionMemberChanged += OnV2GameSessionMemberChanged;
         GameManager.Instance.OnClientLeaveSession += LeaveGameSession;
         LoginHandler.onLoginCompleted += OnLoginSuccess;
 #endif
+    }
+    private void Awake()
+    {
+        _instance = this;
     }
 
     #region CreateMatchSession
@@ -70,11 +78,52 @@ public class MatchSessionWrapper : MonoBehaviour
                 // PeerToPeerHelper.StartAsP2PHost(_requestedGameMode);
             }
             //for MatchSessionServerType.DedicatedServer will wait OnV2DSStatusChanged to be called;
-            _onCreatedMatchSession?.Invoke("");
-            _onCreatedMatchSession = null;
+            _checkDSStatusCount = 0;
+            _instance.StartCoroutine(CheckSessionDetails());
         }
     }
-    
+    private static IEnumerator CheckSessionDetails()
+    {
+        if(_v2GameSession==null)
+        {
+            _onCreatedMatchSession?.Invoke("Error Unable to create session");
+            yield break;
+        }
+        yield return _waitOneSec;
+        _checkDSStatusCount++;
+        _session.GetGameSessionDetailsBySessionId(_v2GameSession.id, OnSessionDetailsCheckFinished);
+    }
+    private static void OnSessionDetailsCheckFinished(Result<SessionV2GameSession> result)
+    {
+        Debug.Log($"{ClassName} OnSessionDetailsCheckFinished {result.ToJsonString()}");
+        if(_isCreateMatchSessionCancelled)return;
+        if(result.IsError)
+        {
+            string errorMessage = result.Error.Message;
+            _onCreatedMatchSession?.Invoke(errorMessage);
+        }
+        else
+        {
+            if(result.Value.dsInformation.status==SessionV2DsStatus.AVAILABLE)
+            {
+                _onCreatedMatchSession?.Invoke("");
+                _onCreatedMatchSession = null;
+                MatchSessionHelper.ConnectToDs(result.Value, _requestedGameMode);
+            }
+            else
+            {
+                if(_checkDSStatusCount>=MaxCheckDSStatusCount)
+                {
+                    _onCreatedMatchSession?.Invoke("Failed to Connect to Dedicated Server in time");
+                }
+                else
+                {
+                    _instance.StartCoroutine(CheckSessionDetails());
+                }
+            }
+        }
+    }
+
     public static void CancelCreateMatchSession()
     {
         _isCreateMatchSessionCancelled = true;
@@ -92,16 +141,17 @@ public class MatchSessionWrapper : MonoBehaviour
         }
         else
         {
+            Debug.Log($"{ClassName} ds status changed:{result.Value.ToJsonString()}");
             if (_v2GameSession == null ||
                 !_v2GameSession.id.Equals(result.Value.sessionId))
             {
                 Debug.LogWarning($"{ClassName} unmatched DS session id is received");
                 return;
             }
-            if (_isCreateMatchSessionCancelled) return;
             _v2GameSession = result.Value.session;
-            OnGameSessionUpdated?.Invoke(_v2GameSession);
+            if (_isCreateMatchSessionCancelled) return;
             if (_v2GameSession.dsInformation.status != SessionV2DsStatus.AVAILABLE) return;
+            OnGameSessionUpdated?.Invoke(_v2GameSession);
             MatchSessionHelper.ConnectToDs(_v2GameSession, _requestedGameMode);
         }
     }

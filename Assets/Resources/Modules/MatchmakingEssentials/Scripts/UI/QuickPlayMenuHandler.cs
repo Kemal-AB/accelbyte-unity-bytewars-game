@@ -137,10 +137,16 @@ public class QuickPlayMenuHandler : MenuCanvas
             if (result.Value.dsInformation.status == SessionV2DsStatus.AVAILABLE)
             {
                 int port = ConnectionHandler.LocalPort;
-                if (result.Value.dsInformation.server.ports.Count > 0)
+                var ports = result.Value.dsInformation.server.ports;
+                if (ports!=null && ports.Count > 0)
                 {
-                     result.Value.dsInformation.server.ports.TryGetValue("unityds", out port);
+                    ports.TryGetValue("unityds", out port);
                 }
+                else
+                {
+                    port = result.Value.dsInformation.server.port;
+                }
+                
                 GameManager.Instance
                     .StartAsClient(result.Value.dsInformation.server.ip, (ushort)port, 
                         InGameMode.OnlineEliminationGameMode);

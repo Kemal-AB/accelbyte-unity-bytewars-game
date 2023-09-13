@@ -360,7 +360,17 @@ public class MatchmakingEssentialsWrapper : MonoBehaviour
             if (!result.IsError)
             {
                 var serverSession = result.Value.sessionId;
+                GameData.ServerSessionID = serverSession;
                 Debug.Log($"Server Claimed and Assigned to sessionId = {serverSession}");
+            }
+        };
+        _serverDSHub.OnDisconnected += (WsCloseCode code)=>
+        {
+            Debug.Log("disconnected from server ds hub, try to reconnect");
+            if(!String.IsNullOrEmpty(_dedicatedServerManager.ServerName)
+            && _serverDSHub!=null)
+            {
+                _serverDSHub.Connect(_dedicatedServerManager.ServerName);
             }
         };
 

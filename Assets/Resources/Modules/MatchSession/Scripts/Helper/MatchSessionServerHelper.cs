@@ -44,6 +44,8 @@ public static class MatchSessionServerHelper
             }
         };
 
+        _serverDSHub.OnDisconnected += OnServerDSHubDisconnected;
+
         _serverDSHub.MatchmakingV2BackfillProposalReceived += (Result<MatchmakingV2BackfillProposalNotification> result) =>
         {
             if (!result.IsError)
@@ -62,6 +64,14 @@ public static class MatchSessionServerHelper
             }
         };
     }
+
+    private static void OnServerDSHubDisconnected(WsCloseCode code)
+    {
+        Debug.Log($"{ClassName} on server ds hub disconnected code:{code}");
+        if(_serverDSHub!=null)
+            ConnectDSHub();
+    }
+
     public static void LoginAndRegisterServer()
     {
         Init();
@@ -172,7 +182,12 @@ public static class MatchSessionServerHelper
             serverName = _dedicatedServerManager.ServerName;
             Debug.Log($"{ClassName} server name:{serverName}");
         }
-        _serverDSHub.Connect(serverName);
+        await Task.Delay(1000);
+        if(!_serverDSHub.IsConnected)
+        {
+             Debug.Log($"{ClassName} connecting to server ds hub");
+            _serverDSHub.Connect(serverName);
+        }
     }
     
 

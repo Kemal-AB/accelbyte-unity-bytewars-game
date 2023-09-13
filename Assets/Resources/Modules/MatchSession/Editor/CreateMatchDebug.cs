@@ -11,7 +11,7 @@ public static class CreateMatchDebug
 {
     private static string[] _loadedEmails;
     private static bool _isCreatingDataCanceled = false;
-    private const string EmailsFilePath = "/Resources/Modules/MatchSession/Editor/emails.ini";
+    private const string EmailsFilePath = "/TestData/emails.ini";
     private static readonly CreateMatchDebugTemplate[] k_Templates = new CreateMatchDebugTemplate[]
     {
         new CreateMatchDebugTemplate(InGameMode.CreateMatchEliminationGameMode, MatchSessionServerType.DedicatedServer),

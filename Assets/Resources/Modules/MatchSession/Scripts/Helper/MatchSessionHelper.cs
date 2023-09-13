@@ -22,9 +22,10 @@ public static class MatchSessionHelper
     {
         if (NetworkManager.Singleton.IsListening) return;
         int port = ConnectionHandler.LocalPort;
-        if (sessionV2Game.dsInformation.server.ports.Count > 0)
+        var ports = sessionV2Game.dsInformation.server.ports;
+        if (ports!=null && ports.Count > 0)
         {
-            sessionV2Game.dsInformation.server.ports.TryGetValue("unityds", out port);
+            ports.TryGetValue("unityds", out port);
         }
         else
         {
